@@ -1,0 +1,6 @@
+﻿      <form method="post" enctype="multipart/form-data"
+         action="{% url 'stream_update_thumbnail' stream.id %}">
+                {% csrf_token %}
+        <input type="file" name="thumbnail" accept="image/jpeg,image/png,image/gif">
+        <button type="submit">Update thumbnail</button>
+      </form>
