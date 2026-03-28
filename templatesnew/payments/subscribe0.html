@@ -1,0 +1,335 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Subscribe - YouTube Streamer{% endblock %}
+
+{% block extra_css %}
+<style>
+    .subscription-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 3rem 0;
+    }
+
+    .plans-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .plan-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .plan-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .plan-card.active {
+        border: 3px solid #667eea;
+        background: #f0f4ff;
+    }
+
+    .plan-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        border-bottom: 2px solid #edf2f7;
+        padding-bottom: 1.5rem;
+    }
+
+    .plan-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+    }
+
+    .plan-price {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 0.5rem;
+    }
+
+    .plan-price small {
+        font-size: 1rem;
+        color: #718096;
+        font-weight: 400;
+    }
+
+    .plan-features {
+        list-style: none;
+        padding: 0;
+        margin: 1.5rem 0;
+    }
+
+    .plan-features li {
+        padding: 0.75rem 0;
+        color: #4a5568;
+        border-bottom: 1px solid #edf2f7;
+        display: flex;
+        align-items: center;
+    }
+
+    .plan-features li:last-child {
+        border-bottom: none;
+    }
+
+    .plan-features li:before {
+        content: "✓";
+        color: #48bb78;
+        font-weight: bold;
+        margin-right: 0.75rem;
+        font-size: 1.2rem;
+    }
+
+    .plan-features .storage {
+        color: #667eea;
+        font-weight: 600;
+    }
+
+    .plan-action {
+        margin-top: 1.5rem;
+        text-align: center;
+    }
+
+    .btn {
+        padding: 0.875rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+        background: #edf2f7;
+        color: #2d3748;
+    }
+
+    .btn-secondary:hover {
+        background: #e2e8f0;
+    }
+
+    .current-plan {
+        background: #c6f6d5;
+        color: #22543d;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        border-left: 4px solid #48bb78;
+    }
+
+    .current-plan-title {
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .current-plan-details {
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    .page-header {
+        text-align: center;
+        color: white;
+        margin-bottom: 3rem;
+    }
+
+    .page-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    .storage-info {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid #667eea;
+    }
+
+    .storage-bar {
+        background: #edf2f7;
+        height: 10px;
+        border-radius: 5px;
+        overflow: hidden;
+        margin-top: 0.5rem;
+    }
+
+    .storage-used {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        transition: width 0.3s ease;
+    }
+
+    @media (max-width: 768px) {
+        .plans-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="subscription-container">
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Choose Your Plan</h1>
+            <p>Select the perfect plan for your streaming needs</p>
+        </div>
+
+        <!-- Current Plan Info -->
+        {% if active_subscription %}
+            <div class="storage-info">
+                <div class="current-plan">
+                    <div class="current-plan-title">📊 Current Plan: <strong>{{ active_subscription.get_plan_type_display }}</strong></div>
+                    <div class="current-plan-details">
+                        ✓ Storage: <strong>{{ active_subscription.get_storage_limit_display }} GB</strong><br>
+                        ✓ Expires: <strong>{{ active_subscription.end_date|date:"M d, Y" }}</strong><br>
+                        ✓ Status: <span style="color: #22543d; font-weight: 600;">Active</span>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        
+        <!-- Plans Grid -->
+        <div class="plans-grid">
+            <!-- One Day Plan -->
+            <div class="plan-card {% if active_subscription.plan_type == 'oneday' %}active{% endif %}">
+                <div class="plan-header">
+                    <div class="plan-name">📅 One Day Plan</div>
+                    <div class="plan-price">₹49<small>/One day</small></div>
+                </div>
+
+                <ul class="plan-features">
+                    <li>1 Streams at time </li>
+                    <li><span class="storage">💾 0.5 GB Storage</span></li>
+                    <li>YouTube Integration</li>
+                    <li>Priority Support</li>
+                    <li>Daily Renewal</li>
+                </ul>
+
+                <div class="plan-action">
+                    {% if active_subscription.plan_type == 'oneday' and active_subscription.is_active %}
+                        <button class="btn btn-secondary" disabled>Current Plan</button>
+                    {% else %}
+                        <a href="{% url 'create_order' 'monthly' %}" class="btn btn-primary">Subscribe Now</a>
+                    {% endif %}
+                </div>
+            </div>
+            <!-- Monthly Plan -->
+            <div class="plan-card {% if active_subscription.plan_type == 'monthly' %}active{% endif %}">
+                <div class="plan-header">
+                    <div class="plan-name">📅 Monthly Plan</div>
+                    <div class="plan-price">₹499<small>/month</small></div>
+                </div>
+
+                <ul class="plan-features">
+                    <li>1 Streams at time </li>
+                    <li><span class="storage">💾 1 GB Storage</span></li>
+                    <li>YouTube Integration</li>
+                    <li>Priority Support</li>
+                    <li>Monthly Renewal</li>
+                </ul>
+
+                <div class="plan-action">
+                    {% if active_subscription.plan_type == 'monthly' and active_subscription.is_active %}
+                        <button class="btn btn-secondary" disabled>Current Plan</button>
+                    {% else %}
+                        <a href="{% url 'create_order' 'monthly' %}" class="btn btn-primary">Subscribe Now</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Annual Plan -->
+            <div class="plan-card {% if active_subscription.plan_type == 'annual' %}active{% endif %}">
+                <div class="plan-header">
+                    <div class="plan-name">⭐ Annual Plan</div>
+                    <div class="plan-price">₹3,999<small>/year</small></div>
+                </div>
+
+                <ul class="plan-features">
+                    <li>up to 3 Streams at time </li>
+                    <li><span class="storage">💾 2 GB Storage</span></li>
+                    <li>YouTube Integration</li>
+                    <li>Priority Support</li>
+                    <li>Save 17% vs Monthly</li>
+                </ul>
+
+                <div class="plan-action">
+                    {% if active_subscription.plan_type == 'annual' and active_subscription.is_active %}
+                        <button class="btn btn-secondary" disabled>Current Plan</button>
+                    {% else %}
+                        <a href="{% url 'create_order' 'annual' %}" class="btn btn-primary">Subscribe Now</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="storage-info" style="margin-top: 3rem;">
+            <h3 style="color: #2d3748; margin-bottom: 1rem;">❓ Frequently Asked Questions</h3>
+
+            <div style="margin-bottom: 1rem;">
+                <strong style="color: #2d3748;">Can I upgrade from Monthly to Annual?</strong>
+                <p style="color: #4a5568; margin-top: 0.5rem;">Yes, you can upgrade from monthly to annual at any time. You'll need to pay the difference for the remaining period.</p>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <strong style="color: #2d3748;">What happens if I exceed my storage limit?</strong>
+                <p style="color: #4a5568; margin-top: 0.5rem;">You won't be able to upload new media files until you free up storage by deleting existing files or upgrading your plan.</p>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <strong style="color: #2d3748;">Can I cancel my subscription?</strong>
+                <p style="color: #4a5568; margin-top: 0.5rem;">Yes, you can cancel anytime. Your access will continue until the end of your billing period.</p>
+            </div>
+
+            <div>
+                <strong style="color: #2d3748;">What payment methods do you accept?</strong>
+                <p style="color: #4a5568; margin-top: 0.5rem;">✓ Credit/Debit Cards • ✓ UPI • ✓ Net Banking • ✓ Digital Wallets (via Razorpay)</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

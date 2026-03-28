@@ -1,0 +1,848 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Stream - YouTube Streamer{% endblock %}
+
+{% block extra_css %}
+<style>
+    .create-stream-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+
+    .create-stream-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+    }
+
+    .stream-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2.5rem;
+        text-align: center;
+    }
+
+    .stream-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        letter-spacing: -0.5px;
+    }
+
+    .stream-header p {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    .stream-body {
+        padding: 2.5rem;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .form-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.75rem;
+        letter-spacing: -0.3px;
+    }
+
+    .form-label .required {
+        color: #e53e3e;
+        margin-left: 0.25rem;
+    }
+
+    .form-label .help-text {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 400;
+        color: #718096;
+        margin-top: 0.25rem;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        font-family: inherit;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        background-color: #f7fafc;
+    }
+
+    .form-textarea {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-family: inherit;
+        resize: vertical;
+        transition: all 0.3s ease;
+    }
+
+    .form-textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        background-color: #f7fafc;
+    }
+
+    .form-select {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        background-color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: inherit;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667eea' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        padding-right: 2.5rem;
+    }
+
+    .form-select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        background-color: #f7fafc;
+    }
+
+    .drop-zone {
+        border: 2px dashed #cbd5e0;
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        background-color: #f7fafc;
+    }
+
+    .drop-zone:hover {
+        border-color: #667eea;
+        background-color: #edf2f7;
+    }
+
+    .drop-zone.active {
+        border-color: #667eea;
+        background-color: #e6efff;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .drop-zone-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        margin: 0 auto 1rem;
+        color: #cbd5e0;
+        transition: all 0.3s ease;
+    }
+
+    .drop-zone:hover .drop-zone-icon {
+        color: #667eea;
+        transform: scale(1.1);
+    }
+
+    .drop-zone-text {
+        font-size: 0.95rem;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+    }
+
+    .drop-zone-link {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .drop-zone-link:hover {
+        color: #764ba2;
+        text-decoration: underline;
+    }
+
+    .drop-zone-hint {
+        font-size: 0.85rem;
+        color: #718096;
+    }
+
+    .thumbnail-preview {
+        margin-top: 1.5rem;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 2px solid #e2e8f0;
+    }
+
+    .thumbnail-preview-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 0.75rem;
+        display: block;
+    }
+
+    .thumbnail-preview-img {
+        max-width: 300px;
+        height: auto;
+        display: block;
+        border-radius: 8px;
+    }
+
+    .thumbnail-remove-btn {
+        display: inline-block;
+        margin-top: 0.75rem;
+        padding: 0.5rem 1rem;
+        background-color: #fed7d7;
+        color: #c53030;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .thumbnail-remove-btn:hover {
+        background-color: #fc8181;
+        color: white;
+    }
+
+    .file-input-hidden {
+        display: none;
+    }
+
+    .media-list {
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        overflow: hidden;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .media-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .media-item:last-child {
+        border-bottom: none;
+    }
+
+    .media-item:hover {
+        background-color: #f7fafc;
+    }
+
+    .media-checkbox {
+        width: 1.25rem;
+        height: 1.25rem;
+        cursor: pointer;
+        accent-color: #667eea;
+    }
+
+    .media-thumbnail {
+        width: 60px;
+        height: 40px;
+        object-fit: cover;
+        border-radius: 6px;
+        margin-left: 1rem;
+        background-color: #edf2f7;
+    }
+
+    .media-placeholder {
+        width: 60px;
+        height: 40px;
+        background-color: #edf2f7;
+        border-radius: 6px;
+        margin-left: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #cbd5e0;
+    }
+
+    .media-info {
+        flex: 1;
+        margin-left: 1rem;
+    }
+
+    .media-title {
+        font-weight: 600;
+        color: #2d3748;
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    .media-meta {
+        font-size: 0.85rem;
+        color: #718096;
+        margin: 0.25rem 0 0 0;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        background-color: #f7fafc;
+        border-radius: 8px;
+        border: 2px dashed #e2e8f0;
+    }
+
+    .empty-state-icon {
+        width: 3rem;
+        height: 3rem;
+        margin: 0 auto 1rem;
+        color: #cbd5e0;
+    }
+
+    .empty-state-text {
+        font-size: 0.95rem;
+        color: #718096;
+        margin-bottom: 1rem;
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .toggle-switch {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .toggle-switch input[type="checkbox"] {
+        width: 1.5rem;
+        height: 1.5rem;
+        cursor: pointer;
+        accent-color: #667eea;
+    }
+
+    .toggle-switch label {
+        font-weight: 600;
+        color: #2d3748;
+        cursor: pointer;
+        margin: 0;
+    }
+
+    .toggle-switch .help-text {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 400;
+        color: #718096;
+        margin: 0.25rem 0 0 0;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .btn {
+        padding: 0.875rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-family: inherit;
+        letter-spacing: -0.3px;
+    }
+
+    .btn-cancel {
+        background-color: #edf2f7;
+        color: #2d3748;
+        flex: 1;
+    }
+
+    .btn-cancel:hover {
+        background-color: #e2e8f0;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        flex: 1;
+    }
+
+    .btn-primary:hover {
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        transform: translateY(-2px);
+    }
+
+    .btn-primary:active {
+        transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .alert {
+        padding: 1rem 1.25rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+        border-left: 4px solid;
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-1rem);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .alert-success {
+        background-color: #c6f6d5;
+        color: #22543d;
+        border-left-color: #48bb78;
+    }
+
+    .alert-error {
+        background-color: #fed7d7;
+        color: #742a2a;
+        border-left-color: #f56565;
+    }
+
+    .alert-warning {
+        background-color: #feebc8;
+        color: #7c2d12;
+        border-left-color: #ed8936;
+    }
+
+    .alert-info {
+        background-color: #bee3f8;
+        color: #2c5282;
+        border-left-color: #4299e1;
+    }
+
+    .info-box {
+        background-color: #f0f4ff;
+        border: 1px solid #cbd5e0;
+        border-left: 4px solid #667eea;
+        border-radius: 8px;
+        padding: 1.25rem;
+        margin-top: 2rem;
+    }
+
+    .info-box-title {
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.75rem;
+        font-size: 0.95rem;
+    }
+
+    .info-box-content {
+        font-size: 0.9rem;
+        color: #4a5568;
+    }
+
+    .info-box-content ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .info-box-content li {
+        padding-left: 1.5rem;
+        position: relative;
+        margin-bottom: 0.5rem;
+        line-height: 1.5;
+    }
+
+    .info-box-content li:before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: #667eea;
+        font-weight: bold;
+    }
+
+    .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .create-stream-container {
+            padding: 1rem;
+        }
+
+        .stream-header {
+            padding: 1.5rem;
+        }
+
+        .stream-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .stream-body {
+            padding: 1.5rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+
+        .grid-2 {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .media-list {
+            max-height: 300px;
+        }
+    }
+
+    .loading-spinner {
+        display: inline-block;
+        width: 1rem;
+        height: 1rem;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="create-stream-container">
+    <div class="max-w-4xl mx-auto w-full">
+        <div class="create-stream-card">
+            <!-- Header -->
+            <div class="stream-header">
+                <h1>🎬 Create Stream</h1>
+                <p>Configure your YouTube live stream with custom thumbnail</p>
+            </div>
+
+            <!-- Body -->
+            <div class="stream-body">
+                <!-- Alerts -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- Stream Title -->
+                    <div class="form-section">
+                        <label for="title" class="form-label">
+                            Stream Title
+                            <span class="required">*</span>
+                            <span class="help-text">Max 100 characters - This will be visible on YouTube</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            name="title" 
+                            id="title" 
+                            class="form-input"
+                            placeholder="Enter an engaging stream title"
+                            maxlength="100"
+                            required
+                        >
+                    </div>
+
+                    <!-- Stream Description -->
+                    <div class="form-section">
+                        <label for="description" class="form-label">
+                            Description
+                            <span style="color: #a0aec0;">(Optional)</span>
+                            <span class="help-text">Max 5000 characters - Include relevant information about your stream</span>
+                        </label>
+                        <textarea 
+                            name="description" 
+                            id="description" 
+                            class="form-textarea"
+                            placeholder="Describe your stream, include hashtags, links, etc."
+                            maxlength="5000"
+                            rows="4"
+                        ></textarea>
+                    </div>
+
+                    <!-- Stream Thumbnail -->
+                    <div class="form-section">
+                        <label for="thumbnail" class="form-label">
+                            Stream Thumbnail
+                            <span style="color: #a0aec0;">(Optional)</span>
+                            <span class="help-text">JPG or PNG • Max 2MB • Recommended 1280x720px (16:9 ratio)</span>
+                        </label>
+                        <div class="drop-zone" id="dropZoneThumbnail">
+                            <svg class="drop-zone-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6 6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <p class="drop-zone-text">
+                                <span class="drop-zone-link" onclick="document.getElementById('thumbnail').click();">Click to upload</span>
+                                or drag and drop
+                            </p>
+                            <p class="drop-zone-hint">JPG, PNG, or GIF • Max 2MB</p>
+                        </div>
+                        <input 
+                            type="file" 
+                            name="thumbnail" 
+                            id="thumbnail" 
+                            class="file-input-hidden"
+                            accept="image/jpeg,image/png,image/gif"
+                        >
+
+                        <!-- Thumbnail Preview -->
+                        <div id="thumbnailPreview" class="thumbnail-preview" style="display: none;">
+                            <span class="thumbnail-preview-label">Preview:</span>
+                            <img id="thumbnailImg" src="" alt="Stream thumbnail" class="thumbnail-preview-img">
+                            <button type="button" class="thumbnail-remove-btn" onclick="removeThumbnail()">
+                                ✕ Remove Thumbnail
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- YouTube Account -->
+                    <div class="form-section">
+                        <label for="youtube_account" class="form-label">
+                            YouTube Account
+                            <span class="required">*</span>
+                        </label>
+                        <select name="youtube_account" id="youtube_account" class="form-select" required>
+                            <option value="">Select YouTube account</option>
+                            {% for account in youtube_accounts %}
+                                <option value="{{ account.id }}">📺 {{ account.channel_title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Media Files Selection -->
+                    <div class="form-section">
+                        <label class="form-label">
+                            Select Media Files
+                            <span class="required">*</span>
+                            <span class="help-text">Select one or more files to stream</span>
+                        </label>
+
+                        {% if media_files %}
+                            <div class="media-list">
+                                {% for media in media_files %}
+                                    <div class="media-item">
+                                        <input 
+                                            type="checkbox" 
+                                            name="media_files" 
+                                            value="{{ media.id }}" 
+                                            id="media_{{ media.id }}"
+                                            class="media-checkbox"
+                                        >
+
+                                        {% if media.thumbnail %}
+                                            <img src="{{ media.thumbnail.url }}" alt="{{ media.title }}" class="media-thumbnail">
+                                        {% else %}
+                                            <div class="media-placeholder">
+                                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M2 6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM4 9a1 1 0 011-1h10a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V9z" />
+                                                </svg>
+                                            </div>
+                                        {% endif %}
+
+                                        <div class="media-info">
+                                            <p class="media-title">{{ media.title }}</p>
+                                            <p class="media-meta">
+                                                {{ media.media_type|title }}
+                                                {% if media.duration %} • {{ media.duration|floatformat:0 }}s{% endif %}
+                                                • {{ media.file_size|filesizeformat }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <svg class="empty-state-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <p class="empty-state-text">No media files available</p>
+                                <a href="{% url 'media_upload' %}" class="btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none;">
+                                    + Upload Media Files
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Loop Settings -->
+                    <div class="form-section">
+                        <div class="toggle-switch">
+                            <input 
+                                type="checkbox" 
+                                name="loop_enabled" 
+                                id="loop_enabled"
+                                checked
+                            >
+                            <div>
+                                <label for="loop_enabled">Enable Loop</label>
+                                <span class="help-text">Media files will play in a continuous loop</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="form-actions">
+                        <a href="{% url 'stream_list' %}" class="btn btn-cancel">
+                            ← Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="submitBtn" {% if not media_files %}disabled{% endif %}>
+                            <span>Create Stream</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Info Box -->
+        <div class="info-box">
+            <div class="info-box-title">📋 Stream Setup Guide</div>
+            <div class="info-box-content">
+                <ul>
+                    <li>Upload a custom thumbnail to make your stream more attractive (optional)</li>
+                    <li>Stream title is required and will appear on YouTube (1-100 characters)</li>
+                    <li>Select media files in the order you want them to play</li>
+                    <li>Enable Loop to restart playback after all files finish</li>
+                    <li>After creation, use the "Start Stream" button from stream details to go live</li>
+                    <li>Recommended thumbnail size: 1280x720 pixels (16:9 aspect ratio)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const thumbnailInput = document.getElementById('thumbnail');
+    const dropZoneThumbnail = document.getElementById('dropZoneThumbnail');
+    const form = document.querySelector('form');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Prevent default drag behaviors
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZoneThumbnail.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    // Highlight drop zone
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZoneThumbnail.addEventListener(eventName, () => {
+            dropZoneThumbnail.classList.add('active');
+        }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZoneThumbnail.addEventListener(eventName, () => {
+            dropZoneThumbnail.classList.remove('active');
+        }, false);
+    });
+
+    // Handle drop
+    dropZoneThumbnail.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+        if (imageFiles.length > 0) {
+            thumbnailInput.files = new DataTransfer().items.add(imageFiles[0]).files;
+            previewThumbnail();
+        }
+    }, false);
+
+    thumbnailInput.addEventListener('change', previewThumbnail);
+
+    function previewThumbnail() {
+        const file = thumbnailInput.files[0];
+        if (file) {
+            if (file.size > 2 * 1024 * 1024) {
+                alert('Thumbnail file must be less than 2MB');
+                thumbnailInput.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('thumbnailImg').src = e.target.result;
+                document.getElementById('thumbnailPreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function removeThumbnail() {
+        thumbnailInput.value = '';
+        document.getElementById('thumbnailPreview').style.display = 'none';
+    }
+
+    // Form submission
+    form.addEventListener('submit', (e) => {
+        const checkboxes = document.querySelectorAll('input[name="media_files"]');
+        const isAnyChecked = Array.from(checkboxes).some(cb => cb.checked);
+
+        if (!isAnyChecked) {
+            e.preventDefault();
+            alert('Please select at least one media file');
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="loading-spinner"></span> Creating...';
+    });
+</script>
+{% endblock %}

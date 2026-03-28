@@ -1,0 +1,567 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Media - YouTube Streamer{% endblock %}
+
+{% block content %}
+<style>
+  /* ==================== Upload Media Page Styles ==================== */
+  .upload-container {
+    animation: fadeInUp 0.6s ease-out;
+    padding: 2rem 0;
+  }
+ 
+  /* ==================== Page Header ==================== */
+  .upload-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .upload-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.5px;
+  }
+
+  .upload-subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  /* ==================== Upload Card ==================== */
+  .upload-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition: var(--transition-smooth);
+  }
+
+  .upload-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 12px 30px rgba(99, 102, 241, 0.15);
+  }
+
+  .upload-card-body {
+    padding: 2.5rem;
+  }
+
+  /* ==================== Form Sections ==================== */
+  .form-section {
+    margin-bottom: 2rem;
+  }
+
+  .form-section:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.3px;
+  }
+
+  .form-label .required {
+    color: var(--danger-color);
+    margin-left: 0.3rem;
+  }
+
+  .form-label .optional {
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .form-label i {
+    color: var(--primary-light);
+    margin-right: 0.5rem;
+  }
+
+  /* ==================== Form Inputs ==================== */
+  .form-input,
+  .form-select,
+  .form-textarea {
+    width: 100%;
+    padding: 0.9rem 1.2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1.5px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    transition: var(--transition-smooth);
+    font-family: 'Inter', sans-serif;
+  }
+
+  .form-input::placeholder,
+  .form-textarea::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.6;
+  }
+
+  .form-input:focus,
+  .form-select:focus,
+  .form-textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  }
+
+  .form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='%236366f1'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.75rem;
+  }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  .form-input.is-invalid,
+  .form-select.is-invalid,
+  .form-textarea.is-invalid {
+    border-color: var(--danger-color);
+    background: rgba(239, 68, 68, 0.05);
+  }
+
+  .form-input.is-invalid:focus,
+  .form-select.is-invalid:focus,
+  .form-textarea.is-invalid:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  }
+
+  /* ==================== Form Help Text ==================== */
+  .form-help-text {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-top: 0.5rem;
+  }
+
+  /* ==================== Error Messages ==================== */
+  .invalid-feedback {
+    display: block;
+    background: rgba(239, 68, 68, 0.1);
+    border-left: 3px solid var(--danger-color);
+    border-radius: 6px;
+    padding: 0.6rem 0.9rem;
+    color: #fca5a5;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-top: 0.5rem;
+  }
+
+  /* ==================== Upload Progress ==================== */
+  .upload-progress-container {
+    background: rgba(99, 102, 241, 0.05);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .upload-progress-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 1rem;
+  }
+
+  .progress-bar-container {
+    width: 100%;
+    height: 8px;
+    background: rgba(99, 102, 241, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+    border-radius: 10px;
+    width: 0%;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+  }
+
+  .progress-percentage {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-top: 0.75rem;
+    text-align: center;
+  }
+
+  /* ==================== Form Actions ==================== */
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .btn-action {
+    padding: 0.85rem 2rem;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    flex: 1;
+  }
+
+  .btn-cancel {
+    background: transparent;
+    border: 1.5px solid var(--border-color);
+    color: var(--text-primary);
+  }
+
+  .btn-cancel:hover {
+    background: rgba(99, 102, 241, 0.1);
+    border-color: var(--primary-color);
+    color: var(--text-primary);
+  }
+
+  .btn-upload {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+  }
+
+  .btn-upload:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(99, 102, 241, 0.4);
+    color: white;
+  }
+
+  .btn-upload:active {
+    transform: translateY(0);
+  }
+
+  .btn-upload:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* ==================== Info Box ==================== */
+  .info-box {
+    background: rgba(99, 102, 241, 0.05);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--primary-color);
+    border-radius: 12px;
+    padding: 1.75rem;
+    margin-top: 2rem;
+  }
+
+  .info-box-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .info-box-content {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+
+  .info-box-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .info-box-content li {
+    padding-left: 1.75rem;
+    position: relative;
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+  }
+
+  .info-box-content li:before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--primary-light);
+    font-weight: 900;
+  }
+
+  /* ==================== Animations ==================== */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ==================== Responsive Design ==================== */
+  @media (max-width: 768px) {
+    .upload-container {
+      padding: 1rem 0;
+    }
+
+    .upload-title {
+      font-size: 1.75rem;
+    }
+
+    .upload-card-body {
+      padding: 1.75rem;
+    }
+
+    .form-actions {
+      flex-direction: column;
+    }
+
+    .btn-action {
+      width: 100%;
+    }
+
+    .info-box {
+      padding: 1.25rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .upload-title {
+      font-size: 1.5rem;
+    }
+
+    .upload-card-body {
+      padding: 1.25rem;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      padding: 0.8rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .btn-action {
+      padding: 0.75rem 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    .upload-progress-container {
+      padding: 1.25rem;
+    }
+
+    .info-box-content li {
+      padding-left: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+  }
+</style>
+
+<div class="upload-container fade-in">
+  <div class="container">
+    <!-- Header -->
+    <div class="upload-header">
+      <h1 class="upload-title">📤 Upload Media</h1>
+      <p class="upload-subtitle">Add videos or audio files to your library</p>
+    </div>
+
+    <!-- Upload Card -->
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="upload-card">
+          <div class="upload-card-body">
+            <form method="post" enctype="multipart/form-data" id="uploadForm" novalidate>
+              {% csrf_token %}
+
+              <!-- Title Field -->
+              <div class="form-section">
+                <label for="{{ form.title.id_for_label }}" class="form-label">
+                  <i class="bi bi-tag"></i> Media Title
+                  <span class="required">*</span>
+                  <span class="form-help-text">Enter a descriptive title for your media file</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-input {% if form.title.errors %}is-invalid{% endif %}"
+                  id="{{ form.title.id_for_label }}"
+                  name="title"
+                  placeholder="Enter media title"
+                  value="{{ form.title.value|default:'' }}"
+                  required
+                >
+                {% if form.title.errors %}
+                  <div class="invalid-feedback">
+                    <i class="bi bi-exclamation-triangle"></i> {{ form.title.errors.0 }}
+                  </div>
+                {% endif %}
+              </div>
+
+              <!-- Media Type Field -->
+              <div class="form-section">
+                <label for="{{ form.media_type.id_for_label }}" class="form-label">
+                  <i class="bi bi-collection"></i> Media Type
+                  <span class="required">*</span>
+                  <span class="form-help-text">Select whether this is a video or audio file</span>
+                </label>
+                <select class="form-select {% if form.media_type.errors %}is-invalid{% endif %}" 
+                                    id="{{ form.media_type.id_for_label }}" 
+                                    name="media_type"
+                                    required>
+                                <option value="">Select media type</option>
+                                <option value="video" {% if form.media_type.value == 'video' %}selected{% endif %}>Video</option>
+                                <option value="audio" {% if form.media_type.value == 'audio' %}selected{% endif %}>Audio</option>
+                </select>
+                {% if form.media_type.errors %}
+                  <div class="invalid-feedback">
+                    <i class="bi bi-exclamation-triangle"></i> {{ form.media_type.errors.0 }}
+                  </div>
+                {% endif %}
+              </div>
+
+              <!-- File Upload Field -->
+              <div class="form-section">
+                <label for="{{ form.file.id_for_label }}" class="form-label">
+                  <i class="bi bi-file-earmark-arrow-up"></i> Media File
+                  <span class="required">*</span>
+                  <span class="form-help-text">Max 500MB • Formats: MP4, AVI, MOV, MP3, WAV, WEBM</span>
+                </label>
+                <input
+                  type="file"
+                  class="form-input {% if form.file.errors %}is-invalid{% endif %}"
+                  id="{{ form.file.id_for_label }}"
+                  name="file"
+                  accept="video/*,audio/*"
+                  required
+                >
+                {% if form.file.errors %}
+                  <div class="invalid-feedback">
+                    <i class="bi bi-exclamation-triangle"></i> {{ form.file.errors.0 }}
+                  </div>
+                {% endif %}
+              </div>
+
+              <!-- Description Field -->
+              <div class="form-section">
+                <label for="{{ form.description.id_for_label }}" class="form-label">
+                  <i class="bi bi-chat-left-quote"></i> Description
+                  <span class="optional">(Optional)</span>
+                  <span class="form-help-text">Add a description or notes about this media</span>
+                </label>
+                <textarea
+                  class="form-textarea"
+                  id="{{ form.description.id_for_label }}"
+                  name="description"
+                  placeholder="Enter description..."
+                >{{ form.description.value|default:'' }}</textarea>
+              </div>
+
+              <!-- Upload Progress -->
+              <div id="uploadProgress" class="upload-progress-container" style="display: none;">
+                <span class="upload-progress-label">Uploading...</span>
+                <div class="progress-bar-container">
+                  <div class="progress-bar-fill" id="progressBar"></div>
+                </div>
+                <span class="progress-percentage" id="progressText">0%</span>
+              </div>
+
+              <!-- Form Actions -->
+              <div class="form-actions">
+                <a href="{% url 'media_list' %}" class="btn-action btn-cancel">
+                  <i class="bi bi-x-circle"></i> Cancel
+                </a>
+                <button type="submit" class="btn-action btn-upload" id="submitBtn">
+                  <i class="bi bi-cloud-upload"></i> <span>Upload Media</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Info Box -->
+        <div class="info-box">
+          <div class="info-box-title">
+            <i class="bi bi-info-circle"></i> Upload Guidelines
+          </div>
+          <div class="info-box-content">
+            <ul>
+              <li>Maximum file size: 500MB per upload</li>
+              <li>Supported video formats: MP4, AVI, MOV, WEBM, MKV</li>
+              <li>Supported audio formats: MP3, WAV, AAC, OGG, FLAC</li>
+              <li>Use descriptive titles to easily identify your media later</li>
+              <li>Add descriptions to help you remember details about each file</li>
+              <li>Uploaded media can be used in multiple streams</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Upload Scripts -->
+<script>
+  const uploadForm = document.getElementById('uploadForm');
+  const uploadProgress = document.getElementById('uploadProgress');
+  const progressBar = document.getElementById('progressBar');
+  const progressText = document.getElementById('progressText');
+  const submitBtn = document.getElementById('submitBtn');
+
+  uploadForm.addEventListener('submit', function(e) {
+    // Show progress bar
+    uploadProgress.style.display = 'block';
+    submitBtn.disabled = true;
+
+    // Simulate upload progress
+    let progress = 0;
+    const interval = setInterval(function() {
+      progress += Math.random() * 30;
+      if (progress > 90) progress = 90;
+
+      progressBar.style.width = progress + '%';
+      progressText.textContent = Math.round(progress) + '%';
+
+      if (progress >= 90) {
+        clearInterval(interval);
+      }
+    }, 500);
+  });
+
+  // Validate file size on selection
+  document.getElementById('{{ form.file.id_for_label }}').addEventListener('change', function(e) {
+    const file = this.files[0];
+    if (file) {
+      const maxSize = 500 * 1024 * 1024; // 500MB
+      if (file.size > maxSize) {
+        alert('File size exceeds 500MB limit. Please select a smaller file.');
+        this.value = '';
+      }
+    }
+  });
+</script>
+
+{% endblock %}

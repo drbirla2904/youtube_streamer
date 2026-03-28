@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment Successful - YouTube Streamer{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="card shadow-lg mt-5">
+                <div class="card-body p-5">
+                    <div class="mb-4">
+                        <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
+                    </div>
+                    <h2 class="card-title mb-4">Payment Successful!</h2>
+                    <p class="lead">Your subscription has been activated successfully.</p>
+                    <p>You can now start creating and managing your YouTube streams.</p>
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg">Go to Dashboard</a>
+                        <a href="{% url 'stream_create' %}" class="btn btn-outline-primary">Create Your First Stream</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

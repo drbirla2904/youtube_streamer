@@ -1,0 +1,832 @@
+{% extends 'base.html' %}
+
+{% block title %}My Streams — StreamLoop{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Page wrapper ── */
+.sl-page { animation: fadeUp 0.5s var(--ease) both; }
+
+/* ── Header ── */
+.sl-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+.sl-header-left h1 {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--c-text-1);
+  margin: 0 0 4px;
+  letter-spacing: -0.5px;
+}
+.sl-header-left p {
+  font-size: 0.88rem;
+  color: var(--c-text-2);
+  margin: 0;
+}
+.sl-btn-new {
+  background: var(--c-brand);
+  color: #fff;
+  border: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px var(--c-brand-glow);
+  transition: all 0.22s var(--ease);
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.sl-btn-new:hover {
+  background: #cf2f3b;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--c-brand-glow);
+  color: #fff;
+}
+
+/* ── Toolbar: search + filter tabs ── */
+.sl-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.75rem;
+}
+.sl-search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+  max-width: 340px;
+}
+.sl-search-wrap i {
+  position: absolute;
+  left: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--c-text-3);
+  font-size: 0.95rem;
+  pointer-events: none;
+}
+.sl-search {
+  width: 100%;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border-hi);
+  border-radius: var(--radius-sm);
+  color: var(--c-text-1);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  padding: 0.6rem 1rem 0.6rem 2.4rem;
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  outline: none;
+}
+.sl-search:focus {
+  border-color: var(--c-brand);
+  box-shadow: 0 0 0 3px rgba(230,57,70,0.15);
+}
+.sl-search::placeholder { color: var(--c-text-3); }
+
+.sl-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+}
+.sl-tab {
+  background: transparent;
+  border: none;
+  color: var(--c-text-2);
+  padding: 0.45rem 1rem;
+  border-radius: calc(var(--radius-sm) - 2px);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.82rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.18s var(--ease);
+  white-space: nowrap;
+}
+.sl-tab:hover { color: var(--c-text-1); background: rgba(255,255,255,0.05); }
+.sl-tab.active {
+  background: var(--c-brand);
+  color: #fff;
+  box-shadow: 0 2px 10px var(--c-brand-glow);
+}
+.sl-tab-count {
+  background: rgba(255,255,255,0.2);
+  color: inherit;
+  border-radius: 99px;
+  padding: 0 6px;
+  font-size: 0.72rem;
+  line-height: 1.6;
+}
+.sl-tab.active .sl-tab-count { background: rgba(255,255,255,0.25); }
+
+.sl-sort {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border-hi);
+  border-radius: var(--radius-sm);
+  color: var(--c-text-2);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.55rem 0.9rem;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s var(--ease);
+}
+.sl-sort:focus { border-color: var(--c-brand); }
+.sl-sort option { background: var(--c-surface-2); color: var(--c-text-1); }
+
+/* ── Count label ── */
+.sl-count-label {
+  font-size: 0.82rem;
+  color: var(--c-text-3);
+  margin-bottom: 1rem;
+  padding-left: 2px;
+}
+.sl-count-label span { color: var(--c-text-2); font-weight: 600; }
+
+/* ── Grid ── */
+.sl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 1.5rem;
+}
+
+/* ── Card ── */
+.sl-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease), transform 0.25s var(--ease-spring);
+  animation: fadeUp 0.45s var(--ease) both;
+  position: relative;
+}
+.sl-card:hover {
+  border-color: var(--c-border-hi);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+  transform: translateY(-5px);
+}
+.sl-card.is-running { border-color: rgba(16,185,129,0.35); }
+.sl-card.is-running:hover { border-color: rgba(16,185,129,0.6); box-shadow: 0 12px 40px rgba(16,185,129,0.12); }
+
+/* Running glow strip at top */
+.sl-card-glow {
+  height: 2px;
+  width: 100%;
+  background: transparent;
+}
+.sl-card.is-running .sl-card-glow {
+  background: linear-gradient(90deg, #10b981, #34d399, #10b981);
+  background-size: 200% 100%;
+  animation: shimmer 2.2s linear infinite;
+}
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+.sl-card-head {
+  padding: 1.25rem 1.4rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  border-bottom: 1px solid var(--c-border);
+}
+.sl-card-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--c-text-1);
+  margin: 0;
+  line-height: 1.35;
+  word-break: break-word;
+}
+.sl-card-title small {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.77rem;
+  font-weight: 500;
+  color: var(--c-text-3);
+  margin-top: 3px;
+}
+
+/* Status badges */
+.sl-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.sl-badge-live {
+  background: rgba(16,185,129,0.15);
+  color: #34d399;
+  border: 1px solid rgba(16,185,129,0.3);
+}
+.sl-badge-live::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: #10b981;
+  border-radius: 50%;
+  animation: livePulse 1.8s infinite;
+}
+.sl-badge-scheduled {
+  background: rgba(244,185,66,0.15);
+  color: var(--c-gold);
+  border: 1px solid rgba(244,185,66,0.3);
+}
+.sl-badge-stopped {
+  background: rgba(255,255,255,0.06);
+  color: var(--c-text-3);
+  border: 1px solid var(--c-border);
+}
+.sl-badge-error {
+  background: rgba(230,57,70,0.12);
+  color: #f87171;
+  border: 1px solid rgba(230,57,70,0.25);
+}
+
+.sl-card-body {
+  padding: 1.1rem 1.4rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.sl-info-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.83rem;
+  color: var(--c-text-2);
+}
+.sl-info-row i { color: var(--c-brand); font-size: 0.85rem; flex-shrink: 0; }
+.sl-info-row strong { color: var(--c-text-1); }
+
+/* Uptime pill (live only) */
+.sl-uptime-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.2);
+  color: #34d399;
+  border-radius: 99px;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: monospace;
+}
+
+/* ── Card footer / actions ── */
+.sl-card-foot {
+  padding: 0.9rem 1.4rem;
+  border-top: 1px solid var(--c-border);
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.sl-act {
+  padding: 0.48rem 0.9rem;
+  border-radius: 7px;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s var(--ease);
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.sl-act-view {
+  background: rgba(255,255,255,0.05);
+  color: var(--c-text-2);
+  border-color: var(--c-border-hi);
+}
+.sl-act-view:hover { background: rgba(255,255,255,0.1); color: var(--c-text-1); }
+
+.sl-act-start {
+  background: rgba(16,185,129,0.12);
+  color: #34d399;
+  border-color: rgba(16,185,129,0.25);
+}
+.sl-act-start:hover { background: rgba(16,185,129,0.22); }
+
+.sl-act-stop {
+  background: rgba(230,57,70,0.1);
+  color: #f87171;
+  border-color: rgba(230,57,70,0.2);
+}
+.sl-act-stop:hover { background: rgba(230,57,70,0.2); }
+
+.sl-act-delete {
+  background: transparent;
+  color: var(--c-text-3);
+  border-color: transparent;
+  margin-left: auto;
+}
+.sl-act-delete:hover { color: #f87171; background: rgba(230,57,70,0.08); border-color: rgba(230,57,70,0.2); }
+
+/* ── Empty state ── */
+.sl-empty {
+  text-align: center;
+  padding: 5rem 2rem;
+  grid-column: 1 / -1;
+}
+.sl-empty-icon {
+  width: 76px; height: 76px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 2rem;
+  color: var(--c-text-3);
+  margin: 0 auto 1.25rem;
+}
+.sl-empty h4 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--c-text-2);
+  margin-bottom: 6px;
+}
+.sl-empty p { font-size: 0.88rem; color: var(--c-text-3); margin-bottom: 1.5rem; }
+
+/* ── No search results ── */
+.sl-no-results {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3.5rem 1rem;
+  color: var(--c-text-3);
+  font-size: 0.9rem;
+  display: none;
+}
+.sl-no-results i { font-size: 2rem; display: block; margin-bottom: 0.75rem; opacity: 0.4; }
+
+/* ── Toast ── */
+.sl-toast-wrap {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9990;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  pointer-events: none;
+}
+.sl-toast {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border-hi);
+  border-radius: var(--radius-md);
+  padding: 0.8rem 1.2rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--c-text-1);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  animation: toastIn 0.35s var(--ease-spring) both;
+  pointer-events: all;
+  max-width: 320px;
+}
+.sl-toast.is-success { border-color: rgba(16,185,129,0.4); }
+.sl-toast.is-success i { color: #34d399; }
+.sl-toast.is-error   { border-color: rgba(230,57,70,0.4); }
+.sl-toast.is-error   i { color: var(--c-brand); }
+.sl-toast.fading { animation: toastOut 0.3s var(--ease) forwards; }
+@keyframes toastIn  { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+@keyframes toastOut { from{opacity:1;transform:translateY(0)} to{opacity:0;transform:translateY(8px)} }
+
+/* ── Confirm modal ── */
+.sl-modal-bg {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(4px);
+  z-index: 9980;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s var(--ease);
+}
+.sl-modal-bg.open { opacity: 1; pointer-events: all; }
+.sl-modal {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border-hi);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  max-width: 400px;
+  width: calc(100% - 2rem);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+  transform: scale(0.94);
+  transition: transform 0.25s var(--ease-spring);
+}
+.sl-modal-bg.open .sl-modal { transform: scale(1); }
+.sl-modal h4 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--c-text-1);
+  margin-bottom: 0.5rem;
+}
+.sl-modal p { font-size: 0.88rem; color: var(--c-text-2); margin-bottom: 1.5rem; }
+.sl-modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; }
+.sl-modal-cancel {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--c-border-hi);
+  color: var(--c-text-2);
+  padding: 0.55rem 1.2rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.18s var(--ease);
+}
+.sl-modal-cancel:hover { background: rgba(255,255,255,0.1); color: var(--c-text-1); }
+.sl-modal-confirm {
+  background: var(--c-brand);
+  border: none;
+  color: #fff;
+  padding: 0.55rem 1.4rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.18s var(--ease);
+}
+.sl-modal-confirm:hover { background: #cf2f3b; }
+.sl-modal-confirm.is-danger { background: #dc2626; }
+.sl-modal-confirm.is-danger:hover { background: #b91c1c; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .sl-header { flex-direction: column; }
+  .sl-btn-new { align-self: flex-start; }
+  .sl-toolbar { flex-direction: column; align-items: stretch; }
+  .sl-search-wrap { max-width: 100%; }
+  .sl-tabs { overflow-x: auto; padding: 3px; }
+  .sl-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .sl-card-foot { gap: 0.4rem; }
+  .sl-act { font-size: 0.75rem; padding: 0.42rem 0.75rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sl-page">
+
+  <!-- Header -->
+  <div class="sl-header animate-up">
+    <div class="sl-header-left">
+      <h1><i class="bi bi-broadcast" style="color:var(--c-brand);margin-right:0.4rem;"></i>My Streams</h1>
+      <p>Manage and monitor your live YouTube streams</p>
+    </div>
+    <a href="{% url 'stream_create' %}" class="sl-btn-new">
+      <i class="bi bi-plus-lg"></i> New Stream
+    </a>
+  </div>
+
+  {% if streams %}
+  <!-- Toolbar -->
+  <div class="sl-toolbar animate-up delay-1">
+    <div class="sl-search-wrap">
+      <i class="bi bi-search"></i>
+      <input type="text" class="sl-search" id="slSearch" placeholder="Search streams…" autocomplete="off">
+    </div>
+
+    <div class="sl-tabs" role="tablist">
+      <button class="sl-tab active" data-filter="all" role="tab">
+        All <span class="sl-tab-count" id="cntAll">{{ streams|length }}</span>
+      </button>
+      <button class="sl-tab" data-filter="running" role="tab">
+        <i class="bi bi-broadcast"></i> Live
+        <span class="sl-tab-count" id="cntLive">0</span>
+      </button>
+      <button class="sl-tab" data-filter="scheduled" role="tab">
+        <i class="bi bi-clock"></i> Scheduled
+        <span class="sl-tab-count" id="cntSched">0</span>
+      </button>
+      <button class="sl-tab" data-filter="stopped" role="tab">
+        <i class="bi bi-stop-circle"></i> Stopped
+        <span class="sl-tab-count" id="cntStopped">0</span>
+      </button>
+    </div>
+
+    <select class="sl-sort" id="slSort" title="Sort streams">
+      <option value="newest">Newest first</option>
+      <option value="oldest">Oldest first</option>
+      <option value="alpha">A → Z</option>
+      <option value="alpha-rev">Z → A</option>
+    </select>
+  </div>
+
+  <div class="sl-count-label animate-up delay-1" id="slCountLabel">
+    Showing <span id="slCountNum">{{ streams|length }}</span> stream{{ streams|length|pluralize }}
+  </div>
+  {% endif %}
+
+  <!-- Grid -->
+  <div class="sl-grid" id="slGrid">
+    {% if streams %}
+      {% for stream in streams %}
+      <div class="sl-card {% if stream.status == 'running' %}is-running{% endif %} animate-up delay-{{ forloop.counter|add:"1" }}"
+           data-status="{{ stream.status }}"
+           data-title="{{ stream.title|lower }}"
+           data-created="{{ stream.created_at|date:'U' }}"
+           id="card-{{ stream.id }}">
+
+        <div class="sl-card-glow"></div>
+
+        <div class="sl-card-head">
+          <div style="min-width:0; flex:1;">
+            <h5 class="sl-card-title">
+              {{ stream.title }}
+              {% if stream.youtube_account %}
+              <small><i class="bi bi-youtube" style="color:var(--c-brand);"></i> {{ stream.youtube_account.channel_title }}</small>
+              {% endif %}
+            </h5>
+          </div>
+
+          {% if stream.status == 'running' %}
+            <span class="sl-badge sl-badge-live">Live</span>
+          {% elif stream.status == 'scheduled' %}
+            <span class="sl-badge sl-badge-scheduled"><i class="bi bi-clock"></i> Scheduled</span>
+          {% elif stream.status == 'error' %}
+            <span class="sl-badge sl-badge-error"><i class="bi bi-exclamation-triangle"></i> Error</span>
+          {% else %}
+            <span class="sl-badge sl-badge-stopped"><i class="bi bi-stop-circle"></i> Stopped</span>
+          {% endif %}
+        </div>
+
+        <div class="sl-card-body">
+          {% if stream.status == 'running' and stream.started_at %}
+          <div class="sl-info-row">
+            <i class="bi bi-activity"></i>
+            <span class="sl-uptime-pill" data-started="{{ stream.started_at|date:'U' }}" id="uptime-{{ stream.id }}">
+              <i class="bi bi-clock"></i> …
+            </span>
+          </div>
+          {% endif %}
+
+          {% if stream.start_time %}
+          <div class="sl-info-row">
+            <i class="bi bi-calendar-event"></i>
+            <span><strong>Start:</strong> {{ stream.start_time|date:"M d, Y · H:i" }}</span>
+          </div>
+          {% endif %}
+
+          {% if stream.end_time %}
+          <div class="sl-info-row">
+            <i class="bi bi-calendar-x"></i>
+            <span><strong>End:</strong> {{ stream.end_time|date:"M d, Y · H:i" }}</span>
+          </div>
+          {% endif %}
+
+          <div class="sl-info-row">
+            <i class="bi bi-calendar3"></i>
+            <span>Created {{ stream.created_at|date:"M d, Y" }}</span>
+          </div>
+
+          {% if stream.loop_enabled %}
+          <div class="sl-info-row">
+            <i class="bi bi-arrow-repeat"></i>
+            <span style="color:#34d399; font-weight:600;">Loop enabled</span>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="sl-card-foot">
+          <a href="{% url 'stream_detail' stream.id %}" class="sl-act sl-act-view">
+            <i class="bi bi-eye"></i> View
+          </a>
+
+          {% if stream.status == 'running' or stream.status == 'starting' %}
+            <button class="sl-act sl-act-stop"
+                    onclick="openConfirm('stop','{% url "stream_stop" stream.id %}','Stop &ldquo;{{ stream.title|escapejs }}&rdquo;?','The stream will be stopped on YouTube.','Stop Stream')">
+              <i class="bi bi-stop-circle"></i> Stop
+            </button>
+          {% elif stream.status == 'stopped' or stream.status == 'error' or stream.status == 'idle' %}
+            <a href="{% url 'stream_start' stream.id %}" class="sl-act sl-act-start">
+              <i class="bi bi-play-circle"></i> Start
+            </a>
+          {% endif %}
+
+          <button class="sl-act sl-act-delete"
+                  title="Delete stream"
+                  onclick="openConfirm('delete','{% url "stream_delete" stream.id %}','Delete &ldquo;{{ stream.title|escapejs }}&rdquo;?','This action cannot be undone.','Delete','danger')">
+            <i class="bi bi-trash3"></i>
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+
+      <div class="sl-no-results" id="slNoResults">
+        <i class="bi bi-search"></i>
+        No streams match your search
+      </div>
+
+    {% else %}
+      <!-- Empty state -->
+      <div class="sl-empty animate-up delay-2">
+        <div class="sl-empty-icon"><i class="bi bi-broadcast"></i></div>
+        <h4>No Streams Yet</h4>
+        <p>Create your first stream to start broadcasting on YouTube</p>
+        <a href="{% url 'stream_create' %}" class="sl-btn-new">
+          <i class="bi bi-plus-lg"></i> Create Your First Stream
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="sl-modal-bg" id="slModalBg">
+  <div class="sl-modal">
+    <h4 id="slModalTitle">Are you sure?</h4>
+    <p id="slModalBody">This action cannot be undone.</p>
+    <div class="sl-modal-actions">
+      <button class="sl-modal-cancel" onclick="closeConfirm()">Cancel</button>
+      <form id="slModalForm" method="post" style="margin:0;">
+        {% csrf_token %}
+        <button type="submit" class="sl-modal-confirm" id="slModalBtn">Confirm</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="sl-toast-wrap" id="slToastWrap"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Uptime tickers ──────────────────────────────────────────────────────────
+document.querySelectorAll('.sl-uptime-pill[data-started]').forEach(el => {
+  const started = parseInt(el.dataset.started, 10) * 1000;
+  function tick() {
+    const s = Math.floor((Date.now() - started) / 1000);
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    el.innerHTML = `<i class="bi bi-activity"></i> ${h ? h+'h ' : ''}${m}m ${sec}s`;
+  }
+  tick();
+  setInterval(tick, 1000);
+});
+
+// ── Live counts ─────────────────────────────────────────────────────────────
+function updateCounts() {
+  const cards = document.querySelectorAll('.sl-card[data-status]');
+  const counts = { all: cards.length, running: 0, scheduled: 0, stopped: 0 };
+  cards.forEach(c => {
+    const s = c.dataset.status;
+    if (s === 'running' || s === 'starting') counts.running++;
+    else if (s === 'scheduled') counts.scheduled++;
+    else counts.stopped++;
+  });
+  document.getElementById('cntAll').textContent    = counts.all;
+  document.getElementById('cntLive').textContent   = counts.running;
+  document.getElementById('cntSched').textContent  = counts.scheduled;
+  document.getElementById('cntStopped').textContent = counts.stopped;
+}
+updateCounts();
+
+// ── Filter + Search ─────────────────────────────────────────────────────────
+let currentFilter = 'all';
+let currentSearch = '';
+
+function applyFilter() {
+  const cards = document.querySelectorAll('.sl-card[data-status]');
+  let visible = 0;
+  cards.forEach(card => {
+    const status = card.dataset.status;
+    const title  = card.dataset.title || '';
+
+    const matchFilter =
+      currentFilter === 'all' ||
+      (currentFilter === 'running'   && (status === 'running' || status === 'starting')) ||
+      (currentFilter === 'scheduled' && status === 'scheduled') ||
+      (currentFilter === 'stopped'   && (status === 'stopped' || status === 'error' || status === 'idle'));
+
+    const matchSearch = !currentSearch || title.includes(currentSearch.toLowerCase());
+
+    const show = matchFilter && matchSearch;
+    card.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+
+  const noRes = document.getElementById('slNoResults');
+  if (noRes) noRes.style.display = visible === 0 ? 'block' : 'none';
+
+  const lbl = document.getElementById('slCountNum');
+  if (lbl) lbl.textContent = visible;
+}
+
+document.querySelectorAll('.sl-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.sl-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentFilter = tab.dataset.filter;
+    applyFilter();
+  });
+});
+
+const searchEl = document.getElementById('slSearch');
+if (searchEl) {
+  searchEl.addEventListener('input', () => {
+    currentSearch = searchEl.value.trim();
+    applyFilter();
+  });
+}
+
+// ── Sort ────────────────────────────────────────────────────────────────────
+const sortEl = document.getElementById('slSort');
+if (sortEl) {
+  sortEl.addEventListener('change', () => {
+    const grid = document.getElementById('slGrid');
+    const cards = Array.from(grid.querySelectorAll('.sl-card[data-status]'));
+    const noRes = document.getElementById('slNoResults');
+
+    cards.sort((a, b) => {
+      const v = sortEl.value;
+      if (v === 'newest')    return parseInt(b.dataset.created||0) - parseInt(a.dataset.created||0);
+      if (v === 'oldest')    return parseInt(a.dataset.created||0) - parseInt(b.dataset.created||0);
+      if (v === 'alpha')     return (a.dataset.title||'').localeCompare(b.dataset.title||'');
+      if (v === 'alpha-rev') return (b.dataset.title||'').localeCompare(a.dataset.title||'');
+      return 0;
+    });
+
+    cards.forEach(c => grid.appendChild(c));
+    if (noRes) grid.appendChild(noRes);
+  });
+}
+
+// ── Confirm modal ───────────────────────────────────────────────────────────
+function openConfirm(type, url, title, body, btnLabel, variant) {
+  document.getElementById('slModalTitle').innerHTML = title;
+  document.getElementById('slModalBody').textContent  = body;
+  document.getElementById('slModalForm').action = url;
+  const btn = document.getElementById('slModalBtn');
+  btn.textContent = btnLabel;
+  btn.className = 'sl-modal-confirm' + (variant === 'danger' ? ' is-danger' : '');
+  document.getElementById('slModalBg').classList.add('open');
+}
+function closeConfirm() {
+  document.getElementById('slModalBg').classList.remove('open');
+}
+document.getElementById('slModalBg').addEventListener('click', e => {
+  if (e.target === document.getElementById('slModalBg')) closeConfirm();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeConfirm(); });
+
+// ── Toast ───────────────────────────────────────────────────────────────────
+function showToast(msg, type) {
+  const wrap = document.getElementById('slToastWrap');
+  const t = document.createElement('div');
+  t.className = `sl-toast is-${type || 'success'}`;
+  t.innerHTML = `<i class="bi bi-${type === 'error' ? 'x-circle-fill' : 'check-circle-fill'}"></i> ${msg}`;
+  wrap.appendChild(t);
+  setTimeout(() => { t.classList.add('fading'); setTimeout(() => t.remove(), 350); }, 3500);
+}
+
+// Show Django messages as toasts if present
+{% if messages %}
+  {% for message in messages %}
+    showToast("{{ message|escapejs }}", "{% if message.tags == 'error' or message.tags == 'danger' %}error{% else %}success{% endif %}");
+  {% endfor %}
+{% endif %}
+</script>
+{% endblock %}

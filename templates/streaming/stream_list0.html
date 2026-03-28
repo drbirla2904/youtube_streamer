@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}My Streams - YouTube Streamer{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="display-5 fw-bold text-white mb-2">My Streams</h1>
+            <p class="text-white mb-0" style="opacity: 0.9;">Manage your live streams</p>
+        </div>
+        <div>
+            <a href="{% url 'stream_create' %}" class="btn btn-primary btn-lg">
+                <i class="bi bi-plus-circle"></i> Create New Stream
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <ul class="nav nav-pills mb-4" style="background: rgba(255, 255, 255, 0.1); padding: 0.5rem; border-radius: 12px;">
+        <li class="nav-item">
+            <a class="nav-link active" href="#" style="color: white;">
+                <i class="bi bi-list-ul"></i> All
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" style="color: white; opacity: 0.7;">
+                <i class="bi bi-broadcast"></i> Active
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" style="color: white; opacity: 0.7;">
+                <i class="bi bi-clock"></i> Scheduled
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" style="color: white; opacity: 0.7;">
+                <i class="bi bi-stop-circle"></i> Stopped
+            </a>
+        </li>
+    </ul>
+
+    <!-- Streams Grid -->
+    {% if streams %}
+        <div class="row g-4">
+            {% for stream in streams %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="card-title mb-0">{{ stream.title }}</h5>
+                            {% if stream.status == 'running' %}
+                                <span class="badge bg-success">
+                                    <i class="bi bi-broadcast"></i> Live
+                                </span>
+                            {% elif stream.status == 'scheduled' %}
+                                <span class="badge bg-warning text-dark">
+                                    <i class="bi bi-clock"></i> Scheduled
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary">
+                                    <i class="bi bi-stop-circle"></i> Stopped
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {% if stream.start_time %}
+                                <p class="text-muted mb-1">
+                                    <i class="bi bi-calendar"></i> 
+                                    <strong>Start:</strong> {{ stream.start_time|date:"M d, Y H:i" }}
+                                </p>
+                            {% endif %}
+                            {% if stream.end_time %}
+                                <p class="text-muted mb-1">
+                                    <i class="bi bi-calendar-x"></i> 
+                                    <strong>End:</strong> {{ stream.end_time|date:"M d, Y H:i" }}
+                                </p>
+                            {% endif %}
+                            {% if stream.loop_enabled %}
+                                <p class="text-muted mb-1">
+                                    <i class="bi bi-arrow-repeat"></i> Loop enabled
+                                </p>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'stream_detail' stream.id %}" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-eye"></i> View Details
+                            </a>
+                            {% if stream.status == 'running' %}
+                                <a href="{% url 'stream_stop' stream.id %}" class="btn btn-danger btn-sm">
+                                    <i class="bi bi-stop-circle"></i> Stop Stream
+                                </a>
+                            {% elif stream.status == 'stopped' %}
+                                <a href="{% url 'stream_start' stream.id %}" class="btn btn-success btn-sm">
+                                    <i class="bi bi-play-circle"></i> Start Stream
+                                </a>
+                            {% endif %}
+                            <a href="{% url 'stream_delete' stream.id %}" class="btn btn-outline-danger btn-sm" 
+                               onclick="return confirm('Are you sure you want to delete this stream?')">
+                                <i class="bi bi-trash"></i> Delete
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-broadcast" style="font-size: 5rem; color: var(--text-secondary); opacity: 0.3;"></i>
+                <h4 class="mt-4 mb-3">No Streams Yet</h4>
+                <p class="text-muted mb-4">Create your first stream to start broadcasting on YouTube</p>
+                <a href="{% url 'stream_create' %}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-plus-circle"></i> Create Your First Stream
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment Failed - YouTube Streamer{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="card shadow-lg mt-5">
+                <div class="card-body p-5">
+                    <div class="mb-4">
+                        <i class="fas fa-times-circle text-danger" style="font-size: 5rem;"></i>
+                    </div>
+                    <h2 class="card-title mb-4">Payment Failed</h2>
+                    <p class="lead">Unfortunately, your payment could not be processed.</p>
+                    <p>Please try again or contact support if the problem persists.</p>
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <a href="{% url 'subscribe' %}" class="btn btn-primary btn-lg">Try Again</a>
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Back to Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

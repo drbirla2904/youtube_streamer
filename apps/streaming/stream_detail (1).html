@@ -1,0 +1,890 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ stream.title }} - YouTube Streamer{% endblock %}
+
+{% block content %}
+<style>
+  /* ==================== Stream Detail Page Styles ==================== */
+  .stream-detail-container {
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  /* ==================== Page Header ==================== */
+  .stream-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .stream-detail-title h1 {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--text-primary);
+    margin: 0;
+    letter-spacing: -0.5px;
+  }
+
+  .stream-actions-group {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-stream-control {
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+  }
+
+  .btn-stream-start {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+  }
+
+  .btn-stream-start:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    color: white;
+    text-decoration: none;
+  }
+
+  .btn-stream-start:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-stream-stop {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+  }
+
+  .btn-stream-stop:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+    color: white;
+    text-decoration: none;
+  }
+
+  .btn-stream-back {
+    background: transparent;
+    border: 1.5px solid var(--border-color);
+    color: var(--text-primary);
+  }
+
+  .btn-stream-back:hover {
+    background: rgba(99, 102, 241, 0.1);
+    border-color: var(--primary-color);
+    color: var(--text-primary);
+    text-decoration: none;
+  }
+
+  /* ==================== Info Cards ==================== */
+  .detail-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition: var(--transition-smooth);
+    margin-bottom: 2rem;
+  }
+
+  .detail-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 12px 30px rgba(99, 102, 241, 0.15);
+  }
+
+  .detail-card-header {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(236, 72, 153, 0.1) 100%);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.5rem;
+  }
+
+  .detail-card-header h5 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .detail-card-header i {
+    color: var(--primary-light);
+    font-size: 1.15rem;
+  }
+
+  .detail-card-body {
+    padding: 1.75rem;
+  }
+
+  /* ==================== Info Table ==================== */
+  .info-table {
+    width: 100%;
+    margin: 0;
+  }
+
+  .info-table tr {
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .info-table tr:last-child {
+    border-bottom: none;
+  }
+
+  .info-table th {
+    width: 30%;
+    padding: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-align: left;
+    background: rgba(99, 102, 241, 0.05);
+  }
+
+  .info-table td {
+    padding: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+
+  .info-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .badge-running  { background: rgba(16,185,129,0.2);  color: #10b981; }
+  .badge-starting { background: rgba(59,130,246,0.2);  color: #3b82f6; }
+  .badge-stopping { background: rgba(245,158,11,0.2);  color: #f59e0b; }
+  .badge-error    { background: rgba(239,68,68,0.2);   color: #ef4444; }
+  .badge-stopped,
+  .badge-idle     { background: rgba(107,114,128,0.2); color: #9ca3af; }
+
+  /* Live pulse dot */
+  .live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    display: inline-block;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.4; transform: scale(1.3); }
+  }
+
+  /* ==================== Code Block ==================== */
+  .code-block {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.82rem;
+    color: #a78bfa;
+    word-break: break-all;
+    overflow-x: auto;
+  }
+
+  /* ==================== Alerts ==================== */
+  .alert-detail {
+    border-radius: 10px;
+    border: 1px solid transparent;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .alert-detail-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+  }
+
+  .alert-danger-detail {
+    background: rgba(239,68,68,0.1);
+    border-color: rgba(239,68,68,0.3);
+    color: #fca5a5;
+  }
+
+  .alert-danger-detail .alert-detail-icon { color: #ef4444; }
+
+  .alert-info-detail {
+    background: rgba(59,130,246,0.1);
+    border-color: rgba(59,130,246,0.3);
+    color: #93c5fd;
+  }
+
+  .alert-info-detail .alert-detail-icon { color: #3b82f6; }
+
+  .alert-success-detail {
+    background: rgba(16,185,129,0.1);
+    border-color: rgba(16,185,129,0.3);
+    color: #6ee7b7;
+  }
+
+  .alert-success-detail .alert-detail-icon { color: #10b981; }
+
+  /* ==================== Media / Video list ==================== */
+  .media-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .media-item {
+    background: rgba(99,102,241,0.05);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: var(--transition-smooth);
+    gap: 1rem;
+  }
+
+  .media-item:hover {
+    background: rgba(99,102,241,0.08);
+    border-color: var(--primary-color);
+  }
+
+  .media-info { flex: 1; min-width: 0; }
+
+  .media-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.3rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .media-size {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+  }
+
+  .media-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3rem 0.7rem;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Playlist video thumbnail (in detail view) */
+  .vid-thumb {
+    width: 64px;
+    height: 44px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid var(--border-color);
+    background: rgba(99,102,241,0.1);
+  }
+
+  /* ==================== Logs Table ==================== */
+  .logs-container {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: rgba(0,0,0,0.1);
+  }
+
+  .logs-table {
+    width: 100%;
+    margin: 0;
+    font-size: 0.85rem;
+  }
+
+  .logs-table thead {
+    position: sticky;
+    top: 0;
+    background: rgba(99,102,241,0.1);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .logs-table th {
+    padding: 0.75rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-align: left;
+  }
+
+  .logs-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+  }
+
+  .logs-table tr:last-child td { border-bottom: none; }
+
+  .log-level-error   { background: rgba(239,68,68,0.2);  color: #fca5a5; padding: 0.2rem 0.55rem; border-radius: 4px; font-weight: 700; }
+  .log-level-warning { background: rgba(245,158,11,0.2); color: #fcd34d; padding: 0.2rem 0.55rem; border-radius: 4px; font-weight: 700; }
+  .log-level-info    { background: rgba(59,130,246,0.2); color: #93c5fd; padding: 0.2rem 0.55rem; border-radius: 4px; font-weight: 700; }
+
+  .empty-logs {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+  }
+
+  /* ==================== Sidebar Actions ==================== */
+  .actions-card {
+    position: sticky;
+    top: 100px;
+  }
+
+  .btn-action-delete {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    text-decoration: none;
+  }
+
+  .btn-action-delete:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(239,68,68,0.3);
+    color: white;
+    text-decoration: none;
+  }
+
+  /* ==================== Quick Stats ==================== */
+  .stat-item-detail { margin-bottom: 1.5rem; }
+
+  .stat-label-detail {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+  }
+
+  .stat-value-detail {
+    font-size: 0.88rem;
+    color: var(--text-primary);
+    font-family: 'Courier New', monospace;
+    word-break: break-all;
+  }
+
+  /* Uptime counter */
+  #uptimeDisplay {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #10b981;
+    font-family: 'Courier New', monospace;
+  }
+
+  /* ==================== Animations ==================== */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ==================== Responsive ==================== */
+  @media (max-width: 768px) {
+    .stream-detail-header { flex-direction: column; align-items: flex-start; }
+    .stream-detail-title h1 { font-size: 1.5rem; }
+    .stream-actions-group { width: 100%; }
+    .btn-stream-control { flex: 1; justify-content: center; padding: 0.65rem 1rem; font-size: 0.85rem; }
+    .info-table th, .info-table td { padding: 0.75rem; font-size: 0.9rem; }
+    .actions-card { position: static; }
+    .logs-container { max-height: 300px; }
+    .media-item { flex-direction: column; align-items: flex-start; }
+    .media-badge { align-self: flex-start; margin-top: 0.5rem; }
+  }
+
+  @media (max-width: 480px) {
+    .stream-detail-title h1 { font-size: 1.25rem; }
+    .btn-stream-control { padding: 0.6rem 1rem; font-size: 0.8rem; }
+    .detail-card-header { padding: 1rem; }
+    .detail-card-header h5 { font-size: 0.95rem; }
+    .detail-card-body { padding: 1.25rem; }
+    .info-table th, .info-table td { padding: 0.6rem; font-size: 0.85rem; }
+    .code-block { font-size: 0.78rem; }
+    .logs-table th, .logs-table td { padding: 0.5rem; font-size: 0.75rem; }
+    .logs-container { max-height: 250px; }
+  }
+</style>
+
+<div class="stream-detail-container fade-in">
+  <div class="container">
+
+    <!-- ── Header ─────────────────────────────────────────────────────── -->
+    <div class="stream-detail-header">
+      <div class="stream-detail-title">
+        <h1>
+          {% if stream.status == 'running' %}<span class="live-dot" style="margin-right:0.5rem;"></span>{% endif %}
+          {{ stream.title }}
+        </h1>
+      </div>
+
+      <div class="stream-actions-group">
+
+        {# START — requires POST so we use a small form #}
+        {% if stream.status == 'idle' or stream.status == 'stopped' or stream.status == 'error' %}
+          <form method="post" action="{% url 'stream_start' stream.id %}" style="margin:0;" id="startForm">
+            {% csrf_token %}
+            <button type="submit" class="btn-stream-control btn-stream-start" id="startBtn">
+              <i class="bi bi-play-circle"></i> Start Stream
+            </button>
+          </form>
+        {% endif %}
+
+        {# STOP — also POST #}
+        {% if stream.status == 'running' or stream.status == 'starting' %}
+          <form method="post" action="{% url 'stream_stop' stream.id %}" style="margin:0;">
+            {% csrf_token %}
+            <button type="submit" class="btn-stream-control btn-stream-stop"
+                    onclick="return confirm('Stop the stream?')">
+              <i class="bi bi-stop-circle"></i> Stop Stream
+            </button>
+          </form>
+        {% endif %}
+
+        <a href="{% url 'stream_list' %}" class="btn-stream-control btn-stream-back">
+          <i class="bi bi-arrow-left"></i> Back
+        </a>
+      </div>
+    </div>
+
+    <!-- ── Starting / queued notice ──────────────────────────────────── -->
+    {% if stream.status == 'starting' %}
+      <div class="alert-detail alert-info-detail" style="margin-bottom:1.5rem;">
+        <i class="bi bi-hourglass-split alert-detail-icon"></i>
+        <div>
+          <strong>Stream is starting</strong> — the Celery worker is setting up your playlist stream.
+          This page will refresh automatically when the stream goes live.
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- ── Main Content ───────────────────────────────────────────────── -->
+    <div class="row g-4">
+
+      <!-- LEFT COLUMN ─────────────────────────────────────────────────── -->
+      <div class="col-lg-8">
+
+        <!-- Stream Information -->
+        <div class="detail-card">
+          <div class="detail-card-header">
+            <h5><i class="bi bi-info-circle"></i> Stream Information</h5>
+          </div>
+          <div class="detail-card-body">
+            <table class="info-table">
+              <tr>
+                <th>Status</th>
+                <td>
+                  {% if stream.status == 'running' %}
+                    <span class="info-badge badge-running"><span class="live-dot"></span> Live</span>
+                  {% elif stream.status == 'starting' %}
+                    <span class="info-badge badge-starting"><i class="bi bi-hourglass-split"></i> Starting</span>
+                  {% elif stream.status == 'stopping' %}
+                    <span class="info-badge badge-stopping"><i class="bi bi-hourglass"></i> Stopping</span>
+                  {% elif stream.status == 'error' %}
+                    <span class="info-badge badge-error"><i class="bi bi-exclamation-triangle"></i> Error</span>
+                  {% else %}
+                    <span class="info-badge badge-stopped"><i class="bi bi-stop-circle"></i> {{ stream.status|capfirst }}</span>
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <th>YouTube Channel</th>
+                <td>{{ stream.youtube_account.channel_title }}</td>
+              </tr>
+
+              
+              <tr>
+                <th>Description</th>
+                <td>{{ stream.description|default:"No description provided" }}</td>
+              </tr>
+              <tr>
+                <th>Loop</th>
+                <td>
+                  {% if stream.loop_enabled %}
+                    <i class="bi bi-check-circle" style="color:#10b981;"></i>
+                    <span style="color:#10b981;">Enabled</span>
+                  {% else %}
+                    <i class="bi bi-x-circle" style="color:#ef4444;"></i>
+                    <span style="color:#ef4444;">Disabled</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% if stream.scheduled_start_time %}
+              <tr>
+                <th>Scheduled Start</th>
+                <td>{{ stream.scheduled_start_time|date:"M d, Y H:i:s" }}</td>
+              </tr>
+              {% endif %}
+              <tr>
+                <th>Started At</th>
+                <td>{{ stream.started_at|date:"M d, Y H:i:s"|default:"Not started yet" }}</td>
+              </tr>
+              <tr>
+                <th>Created</th>
+                <td>{{ stream.created_at|date:"M d, Y H:i:s" }}</td>
+              </tr>
+              <tr>
+                <th>Source</th>
+                <td>
+                  {% if stream.media_files.exists %}
+                    <i class="bi bi-hdd" style="color:var(--primary-light);"></i> Stored media files
+                  {% elif stream.playlist_videos %}
+                    <i class="bi bi-collection-play" style="color:var(--primary-light);"></i> YouTube playlist (direct stream)
+                  {% else %}
+                    <span style="color:var(--text-secondary);">No source configured</span>
+                  {% endif %}
+                </td>
+              </tr>
+            </table>
+
+            {% if stream.error_message %}
+              <div class="alert-detail alert-danger-detail" style="margin-top:1rem;">
+                <i class="bi bi-exclamation-circle-fill alert-detail-icon"></i>
+                <div><strong>Error:</strong> {{ stream.error_message }}</div>
+              </div>
+            {% endif %}
+
+            {% if stream.stream_url %}
+              <div class="alert-detail alert-info-detail" style="margin-top:1rem;">
+                <i class="bi bi-info-circle-fill alert-detail-icon"></i>
+                <div>
+                  <strong>RTMP Ingest URL:</strong>
+                  <div class="code-block" style="margin-top:0.5rem;">{{ stream.stream_url }}</div>
+                </div>
+              </div>
+            {% endif %}
+
+            {% if stream.status == 'running' %}
+              <div class="alert-detail alert-success-detail" style="margin-top:1rem;">
+                <i class="bi bi-broadcast alert-detail-icon"></i>
+                <div>
+                  <strong>Stream is live!</strong>
+                  Uptime: <span id="uptimeDisplay">{{ stream.uptime_seconds }}s</span>
+                </div>
+              </div>
+            {% endif %}
+
+
+           
+          </div>
+        </div>
+
+        <!-- Playlist Info (shown when stream uses a YouTube playlist) -->
+        {% if stream.playlist_videos %}
+        <div class="detail-card">
+          <div class="detail-card-header">
+             <form method="post" enctype="multipart/form-data" action="{% url 'stream_update_thumbnail' stream.id %}">
+                {% csrf_token %}
+                <input type="file" name="thumbnail" accept="image/jpeg,image/png,image/gif">
+                <button type="submit">Update thumbnail</button>
+            </form>
+            <h5><i class="bi bi-collection-play"></i> YouTube Playlist
+              {% with info=stream.playlist_videos.0 %}
+                {% if info.total_videos %}
+                  <span style="font-weight:400; font-size:0.9rem; color:var(--text-secondary); margin-left:0.5rem;">
+                    — {{ info.total_videos }} videos
+                  </span>
+                {% endif %}
+              {% endwith %}
+            </h5>
+          </div>
+          <div class="detail-card-body">
+            {% with info=stream.playlist_videos.0 %}
+              <p style="margin:0 0 1rem; font-size:0.9rem; color:var(--text-secondary);">
+                <i class="bi bi-lightning-charge" style="color:var(--primary-light);"></i>
+                Playlist ID: <code style="color:var(--primary-light);">{{ info.youtube_playlist_id }}</code>
+                &nbsp;·&nbsp; Streams directly via yt-dlp — no storage used
+              </p>
+
+              {% if info.videos %}
+                <div class="media-list" style="max-height:360px; overflow-y:auto; gap:0;">
+                  {% for video in info.videos|slice:":30" %}
+                    <div class="media-item" style="border-radius:0; border-left:none; border-right:none; border-top:none;">
+                      <span style="min-width:1.8rem; font-size:0.8rem; color:var(--text-secondary); font-weight:700;">{{ forloop.counter }}</span>
+                      <div class="media-info">
+                        <div class="media-title" title="{{ video.title }}">{{ video.title }}</div>
+                        <div class="media-size">{{ video.video_id }}</div>
+                      </div>
+                      <a href="https://www.youtube.com/watch?v={{ video.video_id }}"
+                         target="_blank" rel="noopener"
+                         style="color:var(--primary-light); font-size:0.85rem; flex-shrink:0;">
+                        <i class="bi bi-box-arrow-up-right"></i>
+                      </a>
+                    </div>
+                  {% endfor %}
+                  {% if info.videos|length > 30 %}
+                    <div style="padding:0.85rem 1.25rem; text-align:center; color:var(--text-secondary); font-size:0.85rem;">
+                      … and {{ info.videos|length|add:"-30" }} more videos
+                    </div>
+                  {% endif %}
+                </div>
+              {% else %}
+                <p style="color:var(--text-secondary); font-size:0.9rem; margin:0;">
+                  Video list will load when the stream starts for the first time.
+                </p>
+              {% endif %}
+            {% endwith %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Stored Media Files (shown when stream has uploaded files) -->
+        {% if stream.media_files.exists %}
+        <div class="detail-card">
+          <div class="detail-card-header">
+            <h5><i class="bi bi-hdd"></i> Stored Media Files ({{ stream.media_files.count }})</h5>
+          </div>
+          <div class="detail-card-body">
+            <div class="media-list">
+              {% for media in stream.media_files.all %}
+                <div class="media-item">
+                  <div class="media-info">
+                    <div class="media-title">
+                      <i class="bi bi-file-earmark-play"></i>
+                      {{ media.title }}
+                    </div>
+                    <div class="media-size">{{ media.file_size|filesizeformat }}</div>
+                  </div>
+                  <span class="media-badge">{{ media.media_type|upper }}</span>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Stream Logs -->
+        <div class="detail-card">
+          <div class="detail-card-header">
+            <h5><i class="bi bi-terminal"></i> Stream Logs</h5>
+          </div>
+          <div class="detail-card-body">
+            <div class="logs-container">
+              {% if logs %}
+                <table class="logs-table">
+                  <thead>
+                    <tr>
+                      <th width="18%">Time</th>
+                      <th width="14%">Level</th>
+                      <th width="68%">Message</th>
+                    </tr>
+                  </thead>
+                  <tbody id="logsBody">
+                    {% for log in logs %}
+                      <tr>
+                        <td>{{ log.created_at|date:"H:i:s" }}</td>
+                        <td>
+                          {% if log.level == 'ERROR' %}
+                            <span class="log-level-error">ERROR</span>
+                          {% elif log.level == 'WARNING' %}
+                            <span class="log-level-warning">WARN</span>
+                          {% else %}
+                            <span class="log-level-info">INFO</span>
+                          {% endif %}
+                        </td>
+                        <td>{{ log.message }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              {% else %}
+                <div class="empty-logs">
+                  <i class="bi bi-inbox" style="font-size:2rem; opacity:0.3; display:block; margin-bottom:0.75rem;"></i>
+                  No logs yet
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /col-lg-8 -->
+
+      <!-- RIGHT SIDEBAR ───────────────────────────────────────────────── -->
+      <div class="col-lg-4">
+
+        <!-- Quick Stats -->
+        <div class="detail-card">
+          <div class="detail-card-header">
+            <h5><i class="bi bi-speedometer2"></i> Quick Stats</h5>
+          </div>
+          <div class="detail-card-body">
+
+            <div class="stat-item-detail">
+              <div class="stat-label-detail">Stream ID</div>
+              <div class="stat-value-detail">{{ stream.id }}</div>
+            </div>
+
+            {% if stream.broadcast_id %}
+              <div class="stat-item-detail">
+                <div class="stat-label-detail">YouTube Broadcast</div>
+                <div class="stat-value-detail">
+                  <a href="https://studio.youtube.com/video/{{ stream.broadcast_id }}/livestreaming"
+                     target="_blank" rel="noopener"
+                     style="color:var(--primary-light);">
+                    {{ stream.broadcast_id }} <i class="bi bi-box-arrow-up-right"></i>
+                  </a>
+                </div>
+              </div>
+            {% endif %}
+
+            {% if stream.process_id %}
+              <div class="stat-item-detail">
+                <div class="stat-label-detail">FFmpeg PID</div>
+                <div class="stat-value-detail">{{ stream.process_id }}</div>
+              </div>
+            {% endif %}
+
+            {% if stream.status == 'running' %}
+              <div class="stat-item-detail">
+                <div class="stat-label-detail">Uptime</div>
+                <div class="stat-value-detail" id="uptimeStat">calculating…</div>
+              </div>
+            {% endif %}
+
+            {% if stream.last_heartbeat %}
+              <div class="stat-item-detail">
+                <div class="stat-label-detail">Last Heartbeat</div>
+                <div class="stat-value-detail">{{ stream.last_heartbeat|date:"H:i:s" }}</div>
+              </div>
+            {% endif %}
+
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="detail-card actions-card">
+          <div class="detail-card-header">
+            <h5><i class="bi bi-lightning"></i> Actions</h5>
+          </div>
+          <div class="detail-card-body" style="display:flex; flex-direction:column; gap:1rem;">
+
+            {% if stream.status == 'stopped' or stream.status == 'error' or stream.status == 'idle' %}
+              <a href="{% url 'stream_delete' stream.id %}"
+                 class="btn-action-delete"
+                 onclick="return confirm('Delete this stream? This cannot be undone.')">
+                <i class="bi bi-trash"></i> Delete Stream
+              </a>
+            {% else %}
+              <p style="text-align:center; color:var(--text-secondary); margin:0; font-size:0.9rem;">
+                Stop the stream before deleting
+              </p>
+            {% endif %}
+
+          </div>
+        </div>
+
+      </div><!-- /col-lg-4 -->
+    </div>
+  </div>
+</div>
+
+<!-- ── Live polling: refresh status every 8 s when running/starting ───── -->
+{% if stream.status == 'running' or stream.status == 'starting' or stream.status == 'stopping' %}
+<script>
+(function () {
+  const STATUS_URL = '{% url "stream_status_api" stream.id %}';
+  const CURRENT_STATUS = '{{ stream.status }}';
+  let uptimeSeconds = {{ stream.uptime_seconds }};
+
+  // Uptime counter (client-side ticking)
+  const uptimeDisplayEl = document.getElementById('uptimeDisplay');
+  const uptimeStatEl    = document.getElementById('uptimeStat');
+
+  function formatUptime(s) {
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    if (h > 0) return `${h}h ${m}m ${sec}s`;
+    if (m > 0) return `${m}m ${sec}s`;
+    return `${sec}s`;
+  }
+
+  if (CURRENT_STATUS === 'running') {
+    setInterval(() => {
+      uptimeSeconds++;
+      const fmt = formatUptime(uptimeSeconds);
+      if (uptimeDisplayEl) uptimeDisplayEl.textContent = fmt;
+      if (uptimeStatEl)    uptimeStatEl.textContent    = fmt;
+    }, 1000);
+  }
+
+  // Status polling — reload page on status change
+  setInterval(async () => {
+    try {
+      const res  = await fetch(STATUS_URL, { credentials: 'same-origin' });
+      const data = await res.json();
+      if (data.status !== CURRENT_STATUS) {
+        location.reload();
+      }
+    } catch (err) {
+      console.warn('Status poll error:', err);
+    }
+  }, 8000);  // every 8 seconds
+})();
+</script>
+{% endif %}
+
+<!-- Start button: disable on click to prevent double-submit -->
+<script>
+(function () {
+  const startForm = document.getElementById('startForm');
+  const startBtn  = document.getElementById('startBtn');
+  if (startForm && startBtn) {
+    startForm.addEventListener('submit', () => {
+      startBtn.disabled = true;
+      startBtn.innerHTML = '<span style="display:inline-block;width:0.9rem;height:0.9rem;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;"></span> Starting…';
+    });
+  }
+})();
+</script>
+
+{% endblock %}

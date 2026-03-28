@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - YouTube Streamer{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center fade-in">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header text-center">
+                <i class="bi bi-person-plus" style="font-size: 2.5rem;"></i>
+                <h3 class="mt-2 mb-0">Create Your Account</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.username.id_for_label }}" class="form-label">
+                                <i class="bi bi-person"></i> Username *
+                            </label>
+                            <input type="text" 
+                                   class="form-control {% if form.username.errors %}is-invalid{% endif %}" 
+                                   id="{{ form.username.id_for_label }}" 
+                                   name="username" 
+                                   placeholder="Choose a username"
+                                   value="{{ form.username.value|default:'' }}"
+                                   required>
+                            {% if form.username.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.username.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">
+                                <i class="bi bi-envelope"></i> Email *
+                            </label>
+                            <input type="email" 
+                                   class="form-control {% if form.email.errors %}is-invalid{% endif %}" 
+                                   id="{{ form.email.id_for_label }}" 
+                                   name="email" 
+                                   placeholder="your@email.com"
+                                   value="{{ form.email.value|default:'' }}"
+                                   required>
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.email.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.phone.id_for_label }}" class="form-label">
+                            <i class="bi bi-telephone"></i> Phone (Optional)
+                        </label>
+                        <input type="text" 
+                               class="form-control {% if form.phone.errors %}is-invalid{% endif %}" 
+                               id="{{ form.phone.id_for_label }}" 
+                               name="phone" 
+                               placeholder="+1234567890"
+                               value="{{ form.phone.value|default:'' }}">
+                        {% if form.phone.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.phone.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.password1.id_for_label }}" class="form-label">
+                                <i class="bi bi-lock"></i> Password *
+                            </label>
+                            <input type="password" 
+                                   class="form-control {% if form.password1.errors %}is-invalid{% endif %}" 
+                                   id="{{ form.password1.id_for_label }}" 
+                                   name="password1" 
+                                   placeholder="Enter password"
+                                   required>
+                            {% if form.password1.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.password1.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label for="{{ form.password2.id_for_label }}" class="form-label">
+                                <i class="bi bi-lock-fill"></i> Confirm Password *
+                            </label>
+                            <input type="password" 
+                                   class="form-control {% if form.password2.errors %}is-invalid{% endif %}" 
+                                   id="{{ form.password2.id_for_label }}" 
+                                   name="password2" 
+                                   placeholder="Confirm password"
+                                   required>
+                            {% if form.password2.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.password2.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 mb-3">
+                        <i class="bi bi-person-plus"></i> Create Account
+                    </button>
+                    <div class="text-center">
+                        <p class="text-muted mb-0">
+                            Already have an account? 
+                            <a href="{% url 'login' %}" class="text-decoration-none">Login here</a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

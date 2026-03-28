@@ -1,0 +1,672 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard — StreamLoop{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ============================================================
+     DASHBOARD – aligned to base.html design tokens
+  ============================================================ */
+
+  /* ── Page header ── */
+  .dash-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+    animation: fadeUp .5s var(--ease) both;
+  }
+
+  .dash-greeting {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--c-text-1);
+    letter-spacing: -.4px;
+    line-height: 1.15;
+    margin: 0 0 .3rem;
+  }
+  .dash-greeting span { color: var(--c-brand); }
+
+  .dash-date {
+    font-size: .875rem;
+    color: var(--c-text-2);
+    font-weight: 400;
+  }
+
+  .btn-create {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    background: var(--c-brand);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: .75rem 1.5rem;
+    font-family: var(--font-display);
+    font-size: .9rem;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 6px 20px var(--c-brand-glow);
+    transition: transform .22s var(--ease-spring), box-shadow .22s var(--ease);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .btn-create:hover {
+    color: #fff;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px var(--c-brand-glow);
+  }
+  .btn-create:active { transform: translateY(0); }
+
+  /* ── Stat cards grid ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .stat-card {
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .25s var(--ease), transform .25s var(--ease), box-shadow .25s var(--ease);
+    animation: fadeUp .5s var(--ease) both;
+  }
+  .stat-card:nth-child(1) { animation-delay: .06s; }
+  .stat-card:nth-child(2) { animation-delay: .12s; }
+  .stat-card:nth-child(3) { animation-delay: .18s; }
+  .stat-card:nth-child(4) { animation-delay: .24s; }
+
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--stat-accent, var(--c-brand));
+    opacity: .7;
+  }
+
+  .stat-card:hover {
+    border-color: var(--stat-accent, var(--c-brand));
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0,0,0,.35);
+  }
+
+  .stat-accent-red    { --stat-accent: #e63946; }
+  .stat-accent-green  { --stat-accent: #10b981; }
+  .stat-accent-gold   { --stat-accent: #f4b942; }
+  .stat-accent-blue   { --stat-accent: #60a5fa; }
+
+  .stat-icon {
+    font-size: 1.5rem;
+    color: var(--stat-accent, var(--c-brand));
+    margin-bottom: .85rem;
+    display: block;
+  }
+
+  .stat-label {
+    font-size: .75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    color: var(--c-text-2);
+    margin-bottom: .4rem;
+  }
+
+  .stat-value {
+    font-family: var(--font-display);
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: var(--c-text-1);
+    line-height: 1;
+    margin-bottom: .9rem;
+  }
+
+  .stat-link {
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--stat-accent, var(--c-brand));
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    transition: gap .2s var(--ease), opacity .2s;
+  }
+  .stat-link:hover { gap: .6rem; opacity: .8; }
+
+  /* ── Section grid: actions + recent streams ── */
+  .dash-grid {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  @media (max-width: 900px) { .dash-grid { grid-template-columns: 1fr; } }
+
+  /* ── Panel base ── */
+  .panel {
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    animation: fadeUp .5s var(--ease) both;
+    animation-delay: .28s;
+  }
+  .panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--c-border);
+    gap: 1rem;
+  }
+  .panel-title {
+    font-family: var(--font-display);
+    font-size: .95rem;
+    font-weight: 700;
+    color: var(--c-text-1);
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    margin: 0;
+  }
+  .panel-title i { color: var(--c-brand); }
+
+  .btn-link-sm {
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--c-text-2);
+    text-decoration: none;
+    padding: .35rem .75rem;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-sm);
+    transition: color .2s, border-color .2s, background .2s;
+    white-space: nowrap;
+  }
+  .btn-link-sm:hover {
+    color: var(--c-text-1);
+    border-color: var(--c-border-hi);
+    background: var(--c-surface-2);
+    text-decoration: none;
+  }
+
+  /* ── Quick actions panel ── */
+  .actions-body { padding: 1.25rem; display: flex; flex-direction: column; gap: .75rem; }
+
+  .action-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.125rem;
+    background: var(--c-surface-2);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: border-color .2s var(--ease), transform .2s var(--ease), box-shadow .2s var(--ease);
+    cursor: pointer;
+  }
+  .action-item:hover {
+    border-color: var(--c-border-hi);
+    transform: translateX(4px);
+    box-shadow: 0 4px 16px rgba(0,0,0,.25);
+    text-decoration: none;
+  }
+
+  .action-ico {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    display: grid;
+    place-items: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .ico-red   { background: rgba(230,57,70,.15); color: var(--c-brand); }
+  .ico-green { background: rgba(16,185,129,.15); color: #10b981; }
+  .ico-gold  { background: rgba(244,185,66,.15); color: var(--c-gold); }
+
+  .action-text h6 {
+    font-size: .875rem;
+    font-weight: 700;
+    color: var(--c-text-1);
+    margin: 0 0 .15rem;
+  }
+  .action-text p {
+    font-size: .78rem;
+    color: var(--c-text-2);
+    margin: 0;
+  }
+
+  .action-arrow {
+    margin-left: auto;
+    color: var(--c-text-3);
+    font-size: .9rem;
+    transition: color .2s, transform .2s;
+  }
+  .action-item:hover .action-arrow { color: var(--c-text-1); transform: translateX(3px); }
+
+  /* ── YouTube account item inside actions ── */
+  .yt-account {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .85rem 1.125rem;
+    background: var(--c-surface-2);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-md);
+  }
+  .yt-account .action-ico { background: rgba(255,0,0,.12); color: #ff4444; }
+  .yt-channel-name { font-size: .875rem; font-weight: 600; color: var(--c-text-1); margin: 0 0 .1rem; }
+  .yt-channel-sub  { font-size: .75rem; color: var(--c-text-2); }
+
+  .btn-disconnect {
+    margin-left: auto;
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--c-text-2);
+    background: transparent;
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-sm);
+    padding: .3rem .7rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color .2s, border-color .2s, background .2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .btn-disconnect:hover {
+    color: #fca5a5;
+    border-color: rgba(239,68,68,.4);
+    background: rgba(239,68,68,.08);
+    text-decoration: none;
+  }
+
+  .yt-empty {
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--c-text-2);
+    font-size: .875rem;
+  }
+  .yt-empty i { font-size: 1.75rem; color: var(--c-text-3); display: block; margin-bottom: .5rem; }
+
+  /* ── Streams table panel ── */
+  .streams-panel { animation-delay: .34s; }
+
+  .table-wrap { overflow-x: auto; }
+
+  table.dash-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .dash-table th {
+    padding: .75rem 1.25rem;
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--c-text-3);
+    border-bottom: 1px solid var(--c-border);
+    white-space: nowrap;
+    text-align: left;
+  }
+  .dash-table td {
+    padding: .9rem 1.25rem;
+    font-size: .875rem;
+    color: var(--c-text-1);
+    border-bottom: 1px solid var(--c-border);
+    vertical-align: middle;
+  }
+  .dash-table tr:last-child td { border-bottom: none; }
+  .dash-table tbody tr {
+    transition: background .15s var(--ease);
+  }
+  .dash-table tbody tr:hover { background: rgba(255,255,255,.03); }
+
+  .stream-title { font-weight: 600; color: var(--c-text-1); }
+
+  /* ── Status badges ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    font-size: .72rem;
+    font-weight: 700;
+    padding: .3rem .7rem;
+    border-radius: 99px;
+    white-space: nowrap;
+    letter-spacing: .2px;
+  }
+  .badge-live {
+    background: rgba(230,57,70,.15);
+    color: var(--c-brand);
+    border: 1px solid rgba(230,57,70,.3);
+    animation: livePulse 2s infinite;
+  }
+  .badge-scheduled {
+    background: rgba(244,185,66,.12);
+    color: var(--c-gold);
+    border: 1px solid rgba(244,185,66,.25);
+  }
+  .badge-stopped {
+    background: rgba(255,255,255,.05);
+    color: var(--c-text-2);
+    border: 1px solid var(--c-border);
+  }
+
+  /* ── Table action buttons ── */
+  .td-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+
+  .btn-tbl {
+    font-size: .78rem;
+    font-weight: 600;
+    padding: .35rem .75rem;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    transition: background .2s, border-color .2s, color .2s;
+    border: 1px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn-tbl-view {
+    background: var(--c-surface-2);
+    color: var(--c-text-1);
+    border-color: var(--c-border);
+  }
+  .btn-tbl-view:hover { border-color: var(--c-border-hi); color: var(--c-text-1); text-decoration: none; }
+  .btn-tbl-stop {
+    background: rgba(239,68,68,.08);
+    color: #fca5a5;
+    border-color: rgba(239,68,68,.25);
+  }
+  .btn-tbl-stop:hover { background: rgba(239,68,68,.16); color: #fca5a5; text-decoration: none; }
+
+  /* ── Empty state ── */
+  .empty-state {
+    padding: 3.5rem 2rem;
+    text-align: center;
+  }
+  .empty-state-ico {
+    font-size: 2.5rem;
+    color: var(--c-text-3);
+    margin-bottom: 1rem;
+    display: block;
+  }
+  .empty-state p {
+    color: var(--c-text-2);
+    font-size: .9rem;
+    margin-bottom: 1.25rem;
+  }
+
+  /* ── Subscription banner ── */
+  .sub-banner {
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    animation: fadeUp .5s var(--ease) both;
+    animation-delay: .42s;
+    position: relative;
+    overflow: hidden;
+  }
+  .sub-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 50% 100% at 0% 50%, rgba(244,185,66,.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .sub-info h5 {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--c-text-1);
+    margin: 0 0 .3rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .sub-info h5 i { color: var(--c-gold); }
+  .sub-info p { font-size: .85rem; color: var(--c-text-2); margin: 0; }
+
+  .btn-upgrade {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    background: linear-gradient(135deg, var(--c-gold), var(--c-accent));
+    color: #0f0a00;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: .7rem 1.4rem;
+    font-family: var(--font-display);
+    font-size: .875rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition: transform .22s var(--ease-spring), box-shadow .22s var(--ease);
+    box-shadow: 0 6px 20px rgba(244,185,66,.3);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .btn-upgrade:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(244,185,66,.45);
+    color: #0f0a00;
+    text-decoration: none;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .dash-greeting { font-size: 1.5rem; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .dash-header { margin-bottom: 1.75rem; }
+  }
+  @media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Page header ── -->
+<div class="dash-header animate-up">
+  <div>
+    <h1 class="dash-greeting">Hey, <span>{{ user.username }}</span> 👋</h1>
+    <p class="dash-date">Here's what's happening with your streams today.</p>
+  </div>
+  <a href="{% url 'stream_create' %}" class="btn-create">
+    <i class="bi bi-plus-lg"></i> New Stream
+  </a>
+</div>
+
+<!-- ── Stats ── -->
+<div class="stats-grid">
+  <div class="stat-card stat-accent-red">
+    <i class="bi bi-broadcast-tower stat-icon"></i>
+    <div class="stat-label">Active Streams</div>
+    <div class="stat-value">{{ active_streams.count }}</div>
+    <a href="{% url 'stream_list' %}" class="stat-link">View all <i class="bi bi-arrow-right"></i></a>
+  </div>
+
+  <div class="stat-card stat-accent-green">
+    <i class="bi bi-youtube stat-icon"></i>
+    <div class="stat-label">YouTube Accounts</div>
+    <div class="stat-value">{{ youtube_accounts.count|default:"0" }}</div>
+  </div>
+
+  <div class="stat-card stat-accent-gold">
+    <i class="bi bi-calendar-check stat-icon"></i>
+    <div class="stat-label">Scheduled</div>
+    <div class="stat-value">{{ scheduled_streams }}</div>
+    <a href="{% url 'stream_list' %}" class="stat-link">View <i class="bi bi-arrow-right"></i></a>
+  </div>
+</div>
+
+<!-- ── Main grid: quick actions + streams table ── -->
+<div class="dash-grid">
+
+  <!-- Quick Actions -->
+  <div class="panel">
+    <div class="panel-head">
+      <h5 class="panel-title"><i class="bi bi-lightning-fill"></i> Quick Actions</h5>
+    </div>
+    <div class="actions-body">
+
+      <!-- YouTube Accounts -->
+      {% if youtube_accounts %}
+        {% for account in youtube_accounts %}
+          <div class="yt-account">
+            <div class="action-ico ico-red">
+              <i class="bi bi-youtube"></i>
+            </div>
+            <div>
+              <p class="yt-channel-name">{{ account.channel_title }}</p>
+              <p class="yt-channel-sub">Connected</p>
+            </div>
+            <a href="{% url 'disconnect_youtube' account.id %}"
+               onclick="return confirm('Disconnect from YouTube?');"
+               class="btn-disconnect">
+              <i class="bi bi-unlink"></i> Disconnect
+            </a>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="yt-empty">
+          <i class="bi bi-youtube"></i>
+          No connected accounts
+        </div>
+        <a href="{% url 'connect_youtube' %}" class="action-item">
+          <div class="action-ico ico-red"><i class="bi bi-youtube"></i></div>
+          <div class="action-text">
+            <h6>Connect YouTube</h6>
+            <p>Link your channel to start streaming</p>
+          </div>
+          <i class="bi bi-chevron-right action-arrow"></i>
+        </a>
+      {% endif %}
+
+      <!-- Schedule Stream -->
+      <a href="{% url 'stream_create' %}" class="action-item">
+        <div class="action-ico ico-green"><i class="bi bi-calendar-plus"></i></div>
+        <div class="action-text">
+          <h6>Schedule Stream</h6>
+          <p>Plan an upcoming broadcast</p>
+        </div>
+        <i class="bi bi-chevron-right action-arrow"></i>
+      </a>
+
+      <!-- New Stream now -->
+      <a href="{% url 'stream_create' %}" class="action-item">
+        <div class="action-ico ico-red"><i class="bi bi-broadcast"></i></div>
+        <div class="action-text">
+          <h6>Go Live Now</h6>
+          <p>Start a new stream immediately</p>
+        </div>
+        <i class="bi bi-chevron-right action-arrow"></i>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- Recent Streams -->
+  <div class="panel streams-panel">
+    <div class="panel-head">
+      <h5 class="panel-title"><i class="bi bi-broadcast"></i> Recent Streams</h5>
+      <a href="{% url 'stream_list' %}" class="btn-link-sm">View all</a>
+    </div>
+
+    {% if recent_streams %}
+      <div class="table-wrap">
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Status</th>
+              <th>Started</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for stream in recent_streams %}
+            <tr>
+              <td><span class="stream-title">{{ stream.title }}</span></td>
+              <td>
+                {% if stream.status == 'running' %}
+                  <span class="badge badge-live"><i class="bi bi-broadcast"></i> Live</span>
+                {% elif stream.status == 'scheduled' %}
+                  <span class="badge badge-scheduled"><i class="bi bi-clock"></i> Scheduled</span>
+                {% else %}
+                  <span class="badge badge-stopped"><i class="bi bi-stop-circle"></i> Stopped</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if stream.started_at %}
+                  {{ stream.started_at|date:"M d, Y H:i" }}
+                {% else %}
+                  <span style="color: var(--c-text-3);">—</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="td-actions">
+                  <a href="{% url 'stream_detail' stream.id %}" class="btn-tbl btn-tbl-view">
+                    <i class="bi bi-eye"></i> View
+                  </a>
+                  {% if stream.status == 'running' %}
+                    <a href="{% url 'stream_stop' stream.id %}"
+                       class="btn-tbl btn-tbl-stop"
+                       onclick="return confirm('Stop this stream?');">
+                      <i class="bi bi-stop-circle"></i> Stop
+                    </a>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <i class="bi bi-broadcast empty-state-ico"></i>
+        <p>No streams yet. Create your first stream to get started!</p>
+        <a href="{% url 'stream_create' %}" class="btn-create">
+          <i class="bi bi-plus-lg"></i> Create Stream
+        </a>
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- ── Subscription banner ── -->
+{% if subscription %}
+<div class="sub-banner">
+  <div class="sub-info">
+    <h5><i class="bi bi-star-fill"></i> {{ subscription.plan_type|title }} Plan</h5>
+    <p>
+      <strong>Max Streams:</strong> {{ subscription.max_streams }} &nbsp;·&nbsp;
+      <strong>Expires:</strong> {{ subscription.end_date|date:"M d, Y" }}
+    </p>
+  </div>
+  <a href="{% url 'subscribe' %}" class="btn-upgrade">
+    <i class="bi bi-arrow-up-circle-fill"></i> Upgrade Plan
+  </a>
+</div>
+{% endif %}
+
+{% endblock %}

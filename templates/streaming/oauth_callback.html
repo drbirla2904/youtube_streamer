@@ -1,0 +1,410 @@
+{% extends 'base.html' %}
+
+{% block title %}YouTube Connected - YouTube Streamer{% endblock %}
+
+{% block content %}
+<style>
+  /* ==================== Success Page Styles ==================== */
+  .success-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 200px);
+    padding: 2rem;
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  /* ==================== Success Card ==================== */
+  .success-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    transition: var(--transition-smooth);
+    max-width: 550px;
+    width: 100%;
+  }
+
+  .success-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 60px rgba(99, 102, 241, 0.2);
+  }
+
+  /* ==================== Success Header ==================== */
+  .success-header {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(99, 102, 241, 0.1) 100%);
+    padding: 3rem 2rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .success-icon {
+    font-size: 4rem;
+    color: #10b981;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+    animation: scaleIn 0.5s ease-out;
+  }
+
+  .success-title {
+    font-size: 1.75rem;
+    font-weight: 900;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    letter-spacing: -0.5px;
+  }
+
+  .success-subtitle {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* ==================== Success Body ==================== */
+  .success-body {
+    padding: 2.5rem;
+    text-align: center;
+  }
+
+  .success-message {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    line-height: 1.7;
+  }
+
+  .success-details {
+    background: rgba(16, 185, 129, 0.05);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-left: 4px solid #10b981;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    text-align: left;
+  }
+
+  .success-detail-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+  }
+
+  .success-detail-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .success-detail-item i {
+    color: #10b981;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  /* ==================== Action Buttons ==================== */
+  .success-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .btn-action-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    border: none;
+    padding: 0.95rem 2rem;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+  }
+
+  .btn-action-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(99, 102, 241, 0.4);
+    color: white;
+  }
+
+  .btn-action-secondary {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--primary-light);
+    border: 1.5px solid var(--primary-color);
+    padding: 0.95rem 2rem;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    text-decoration: none;
+  }
+
+  .btn-action-secondary:hover {
+    background: var(--primary-color);
+    color: white;
+  }
+
+  /* ==================== Info Features ==================== */
+  .feature-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+    text-align: left;
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .feature-icon {
+    font-size: 1.5rem;
+    color: var(--primary-light);
+    flex-shrink: 0;
+    margin-top: 0.25rem;
+  }
+
+  .feature-content {
+    flex: 1;
+  }
+
+  .feature-title {
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+    font-size: 0.95rem;
+  }
+
+  .feature-description {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* ==================== Animations ==================== */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* ==================== Responsive Design ==================== */
+  @media (max-width: 768px) {
+    .success-container {
+      min-height: auto;
+      padding: 1rem;
+    }
+
+    .success-header {
+      padding: 2rem 1.5rem;
+    }
+
+    .success-icon {
+      font-size: 3.5rem;
+    }
+
+    .success-title {
+      font-size: 1.5rem;
+    }
+
+    .success-body {
+      padding: 1.75rem;
+    }
+
+    .success-message {
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    .success-details {
+      padding: 1.25rem;
+    }
+
+    .btn-action-primary,
+    .btn-action-secondary {
+      padding: 0.85rem 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    .feature-list {
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .success-container {
+      padding: 1rem 0.75rem;
+    }
+
+    .success-header {
+      padding: 1.5rem 1rem;
+      border-radius: 16px 16px 0 0;
+    }
+
+    .success-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .success-title {
+      font-size: 1.25rem;
+    }
+
+    .success-subtitle {
+      font-size: 0.9rem;
+    }
+
+    .success-body {
+      padding: 1.5rem 1rem;
+    }
+
+    .success-message {
+      font-size: 0.9rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .success-details {
+      padding: 1rem;
+    }
+
+    .success-detail-item {
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .btn-action-primary,
+    .btn-action-secondary {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .feature-list {
+      gap: 0.5rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+    }
+
+    .feature-item {
+      gap: 0.75rem;
+    }
+
+    .feature-icon {
+      font-size: 1.25rem;
+    }
+
+    .feature-title {
+      font-size: 0.9rem;
+    }
+
+    .feature-description {
+      font-size: 0.8rem;
+    }
+  }
+</style>
+
+<div class="success-container fade-in">
+  <div class="success-card">
+    <!-- Header -->
+    <div class="success-header">
+      <i class="bi bi-check-circle success-icon"></i>
+      <h1 class="success-title">YouTube Connected!</h1>
+      <p class="success-subtitle">Your YouTube account has been successfully linked to YouTube Streamer</p>
+    </div>
+
+    <!-- Body -->
+    <div class="success-body">
+      <p class="success-message">
+        Your account is now ready to use. You can start creating and managing live streams right away.
+      </p>
+
+      <!-- Success Details -->
+      <div class="success-details">
+        <div class="success-detail-item">
+          <i class="bi bi-check2-circle"></i>
+          <span>Account authenticated and verified</span>
+        </div>
+        <div class="success-detail-item">
+          <i class="bi bi-check2-circle"></i>
+          <span>OAuth access granted securely</span>
+        </div>
+        <div class="success-detail-item">
+          <i class="bi bi-check2-circle"></i>
+          <span>Ready to create streams</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="success-actions">
+        <a href="{% url 'dashboard' %}" class="btn-action-primary">
+          <i class="bi bi-house-fill"></i> Go to Dashboard
+        </a>
+        <a href="{% url 'stream_list' %}" class="btn-action-secondary">
+          <i class="bi bi-collection-play"></i> View My Streams
+        </a>
+      </div>
+
+      <!-- Feature List -->
+      <div class="feature-list">
+        <div class="feature-item">
+          <i class="bi bi-broadcast feature-icon"></i>
+          <div class="feature-content">
+            <div class="feature-title">Create Live Streams</div>
+            <div class="feature-description">Set up and manage multiple live streams with custom settings</div>
+          </div>
+        </div>
+        <div class="feature-item">
+          <i class="bi bi-collection-play feature-icon"></i>
+          <div class="feature-content">
+            <div class="feature-title">Manage Media</div>
+            <div class="feature-description">Upload and organize media files for streaming</div>
+          </div>
+        </div>
+        <div class="feature-item">
+          <i class="bi bi-graph-up feature-icon"></i>
+          <div class="feature-content">
+            <div class="feature-title">Monitor Performance</div>
+            <div class="feature-description">Track streaming stats and performance metrics</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

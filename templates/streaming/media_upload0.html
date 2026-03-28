@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Media - YouTube Streamer{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Page Header -->
+            <div class="text-center mb-4">
+                <h1 class="display-5 fw-bold text-white mb-2">Upload Media</h1>
+                <p class="text-white mb-0" style="opacity: 0.9;">Add videos or audio files to your library</p>
+            </div>
+
+            <div class="card">
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data" id="uploadForm">
+                        {% csrf_token %}
+
+                        <div class="mb-4">
+                            <label for="{{ form.title.id_for_label }}" class="form-label">
+                                <i class="bi bi-tag"></i> Title *
+                            </label>
+                            <input type="text" 
+                                   class="form-control {% if form.title.errors %}is-invalid{% endif %}" 
+                                   id="{{ form.title.id_for_label }}" 
+                                   name="title" 
+                                   placeholder="Enter media title"
+                                   value="{{ form.title.value|default:'' }}"
+                                   required>
+                            {% if form.title.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.title.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="{{ form.media_type.id_for_label }}" class="form-label">
+                                <i class="bi bi-collection"></i> Media Type *
+                            </label>
+                            <select class="form-select {% if form.media_type.errors %}is-invalid{% endif %}" 
+                                    id="{{ form.media_type.id_for_label }}" 
+                                    name="media_type"
+                                    required>
+                                <option value="">Select media type</option>
+                                <option value="video" {% if form.media_type.value == 'video' %}selected{% endif %}>Video</option>
+                                <option value="audio" {% if form.media_type.value == 'audio' %}selected{% endif %}>Audio</option>
+                            </select>
+                            {% if form.media_type.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.media_type.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="{{ form.file.id_for_label }}" class="form-label">
+                                <i class="bi bi-file-earmark-arrow-up"></i> File *
+                            </label>
+                            <input type="file" 
+                                   class="form-control {% if form.file.errors %}is-invalid{% endif %}" 
+                                   id="{{ form.file.id_for_label }}" 
+                                   name="file"
+                                   accept="video/*,audio/*"
+                                   required>
+                            <small class="text-muted">
+                                Supported formats: MP4, AVI, MOV, MP3, WAV (Max: 500MB)
+                            </small>
+                            {% if form.file.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.file.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">
+                                <i class="bi bi-text-paragraph"></i> Description (Optional)
+                            </label>
+                            <textarea class="form-control" 
+                                      id="{{ form.description.id_for_label }}" 
+                                      name="description" 
+                                      rows="3"
+                                      placeholder="Add a description...">{{ form.description.value|default:'' }}</textarea>
+                        </div>
+
+                        <!-- Upload Progress -->
+                        <div id="uploadProgress" class="mb-3" style="display: none;">
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                     role="progressbar" 
+                                     style="width: 0%"
+                                     id="progressBar">0%</div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'media_list' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="submitBtn">
+                                <i class="bi bi-cloud-upload"></i> Upload Media
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Simple upload progress simulation
+document.getElementById('uploadForm').addEventListener('submit', function() {
+    document.getElementById('uploadProgress').style.display = 'block';
+    document.getElementById('submitBtn').disabled = true;
+    
+    let progress = 0;
+    const interval = setInterval(function() {
+        progress += 10;
+        document.getElementById('progressBar').style.width = progress + '%';
+        document.getElementById('progressBar').textContent = progress + '%';
+        
+        if (progress >= 90) {
+            clearInterval(interval);
+        }
+    }, 200);
+});
+</script>
+{% endblock %}

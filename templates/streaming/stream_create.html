@@ -1,0 +1,985 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Stream - YouTube Streamer{% endblock %}
+
+{% block content %}
+<style>
+  /* ==================== Create Stream Page Styles ==================== */
+  .create-stream-container {
+    animation: fadeInUp 0.6s ease-out;
+    padding: 2rem 0;
+  }
+
+  /* ==================== Page Header ==================== */
+  .create-stream-header {
+    margin-bottom: 2.5rem;
+  }
+
+  .create-stream-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.5px;
+  }
+
+  .create-stream-subtitle {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  /* ==================== Form Card ==================== */
+  .form-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition: var(--transition-smooth);
+  }
+
+  .form-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 12px 30px rgba(99, 102, 241, 0.15);
+  }
+
+  /* ==================== Form Sections ==================== */
+  .form-body {
+    padding: 2.5rem;
+  }
+
+  .form-section {
+    margin-bottom: 2rem;
+  }
+
+  .form-section:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.3px;
+  }
+
+  .form-label .required {
+    color: var(--danger-color);
+    margin-left: 0.3rem;
+  }
+
+  .form-label .optional {
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .form-help-text {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-top: 0.4rem;
+  }
+
+  /* ==================== Form Inputs ==================== */
+  .form-input,
+  .form-textarea,
+  .form-select {
+    width: 100%;
+    padding: 0.9rem 1.2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1.5px solid var(--border-color);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    transition: var(--transition-smooth);
+    font-family: 'Inter', sans-serif;
+  }
+
+  .form-input::placeholder,
+  .form-textarea::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.6;
+  }
+
+  .form-input:focus,
+  .form-textarea:focus,
+  .form-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  }
+
+  .form-textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  .form-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='%236366f1'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.75rem;
+  }
+
+  /* ==================== Drop Zone ==================== */
+  .drop-zone {
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    background: rgba(99, 102, 241, 0.05);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+  }
+
+  .drop-zone:hover {
+    border-color: var(--primary-light);
+    background: rgba(99, 102, 241, 0.08);
+  }
+
+  .drop-zone.active {
+    border-color: var(--primary-color);
+    background: rgba(99, 102, 241, 0.15);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  }
+
+  .drop-zone-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin: 0 auto 1rem;
+    color: var(--text-secondary);
+    opacity: 0.4;
+    transition: var(--transition-smooth);
+  }
+
+  .drop-zone:hover .drop-zone-icon {
+    color: var(--primary-light);
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+
+  .drop-zone-text {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .drop-zone-link {
+    color: var(--primary-light);
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: var(--transition-smooth);
+  }
+
+  .drop-zone-link:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+  }
+
+  .drop-zone-hint {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+
+  .file-input-hidden {
+    display: none;
+  }
+
+  /* ==================== Thumbnail Preview ==================== */
+  .thumbnail-preview {
+    margin-top: 1.5rem;
+    padding: 1.5rem;
+    background: rgba(99, 102, 241, 0.05);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+  }
+
+  .thumbnail-preview-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 1rem;
+  }
+
+  .thumbnail-preview-img {
+    max-width: 300px;
+    max-height: 200px;
+    display: block;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+  }
+
+  .thumbnail-remove-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 0.6rem 1.2rem;
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger-color);
+    border: 1px solid var(--danger-color);
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+  }
+
+  .thumbnail-remove-btn:hover {
+    background: var(--danger-color);
+    color: white;
+  }
+
+  /* ==================== Playlist / Video List ==================== */
+  .media-list {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    max-height: 420px;
+    overflow-y: auto;
+    background: rgba(99, 102, 241, 0.02);
+  }
+
+  .media-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    transition: var(--transition-smooth);
+    gap: 1rem;
+  }
+
+  .media-item:last-child {
+    border-bottom: none;
+  }
+
+  .media-item:hover {
+    background: rgba(99, 102, 241, 0.05);
+  }
+
+  .media-thumbnail {
+    width: 72px;
+    height: 50px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid var(--border-color);
+    background: rgba(99, 102, 241, 0.1);
+  }
+
+  .media-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .media-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .media-meta {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .media-index {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-weight: 700;
+    min-width: 1.5rem;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* ==================== Playlist stats bar ==================== */
+  .playlist-stats-bar {
+    padding: 0.85rem 1.25rem;
+    border-top: 1px solid var(--border-color);
+    background: rgba(99, 102, 241, 0.05);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .playlist-stats-bar strong {
+    color: var(--text-primary);
+  }
+
+  /* ==================== Empty State ==================== */
+  .empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: rgba(99, 102, 241, 0.05);
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+  }
+
+  .empty-state-icon {
+    font-size: 3.5rem;
+    color: var(--text-secondary);
+    opacity: 0.3;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .empty-state-text {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+  }
+
+  /* ==================== Toggle Switch ==================== */
+  .toggle-switch {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .toggle-switch input[type="checkbox"] {
+    width: 1.5rem;
+    height: 1.5rem;
+    cursor: pointer;
+    accent-color: var(--primary-color);
+  }
+
+  .toggle-switch label {
+    font-weight: 700;
+    color: var(--text-primary);
+    cursor: pointer;
+    margin: 0;
+  }
+
+  .toggle-switch .form-help-text {
+    margin-top: 0.3rem;
+  }
+
+  /* ==================== Form Actions ==================== */
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .btn-action {
+    padding: 0.85rem 2rem;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    flex: 1;
+  }
+
+  .btn-cancel {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--primary-light);
+    border: 1px solid var(--primary-color);
+  }
+
+  .btn-cancel:hover {
+    background: var(--primary-color);
+    color: white;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(99, 102, 241, 0.4);
+    color: white;
+    text-decoration: none;
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* ==================== Alerts ==================== */
+  .alert-message {
+    padding: 1.25rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    animation: slideIn 0.3s ease-out;
+  }
+
+  .alert-success {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border-left-color: #10b981;
+  }
+
+  .alert-error {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-left-color: #ef4444;
+  }
+
+  .alert-warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    border-left-color: #f59e0b;
+  }
+
+  /* ==================== Info Box ==================== */
+  .info-box {
+    background: rgba(99, 102, 241, 0.05);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--primary-color);
+    border-radius: 12px;
+    padding: 1.75rem;
+    margin-top: 2rem;
+  }
+
+  .info-box-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .info-box-content {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+
+  .info-box-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .info-box-content li {
+    padding-left: 1.75rem;
+    position: relative;
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+  }
+
+  .info-box-content li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--primary-light);
+    font-weight: 900;
+  }
+
+  /* ==================== Animations ==================== */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .loading-spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* ==================== Scheduled Time ==================== */
+  .scheduled-info {
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: #93c5fd;
+    display: none;
+  }
+
+  /* ==================== Responsive ==================== */
+  @media (max-width: 768px) {
+    .create-stream-container { padding: 1rem 0; }
+    .create-stream-title     { font-size: 1.75rem; }
+    .form-body               { padding: 1.75rem; }
+    .form-actions            { flex-direction: column; }
+    .btn-action              { width: 100%; }
+    .media-list              { max-height: 320px; }
+    .info-box                { padding: 1.25rem; }
+  }
+
+  @media (max-width: 480px) {
+    .create-stream-title  { font-size: 1.5rem; }
+    .form-body            { padding: 1.25rem; }
+    .form-input,
+    .form-textarea,
+    .form-select          { padding: 0.8rem 1rem; font-size: 0.9rem; }
+    .btn-action           { padding: 0.75rem 1.5rem; font-size: 0.9rem; }
+    .drop-zone            { padding: 1.5rem 1rem; }
+    .media-item           { padding: 0.85rem 1rem; }
+    .media-thumbnail      { width: 60px; height: 42px; }
+    .info-box-content li  { padding-left: 1.5rem; margin-bottom: 0.5rem; }
+    .thumbnail-preview-img { max-width: 100%; }
+  }
+</style>
+
+<div class="create-stream-container fade-in">
+  <div class="container">
+
+    <!-- Header -->
+    <div class="create-stream-header">
+      <h1 class="create-stream-title">🎬 Create Stream</h1>
+      <p class="create-stream-subtitle">Select a YouTube playlist and go live — no file uploads needed</p>
+    </div>
+
+    <!-- Form Card -->
+    <div class="form-card">
+      <div class="form-body">
+
+        <!-- Django messages -->
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert-message alert-{{ message.tags }}">
+              <i class="bi bi-{% if message.tags == 'error' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %}"></i>
+              <span>{{ message }}</span>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" novalidate id="createStreamForm">
+          {% csrf_token %}
+
+          <!-- Stream Title -->
+          <div class="form-section">
+            <label for="title" class="form-label">
+              <i class="bi bi-pencil-square"></i> Stream Title
+              <span class="required">*</span>
+              <span class="form-help-text">Max 255 characters — visible on YouTube</span>
+            </label>
+            <input
+              type="text"
+              name="title"
+              id="title"
+              class="form-input"
+              placeholder="Enter an engaging stream title"
+              maxlength="255"
+              required
+            >
+          </div>
+
+          <!-- Description -->
+          <div class="form-section">
+            <label for="description" class="form-label">
+              <i class="bi bi-textarea-t"></i> Description
+              <span class="optional">(Optional)</span>
+              <span class="form-help-text">Max 5000 characters — include hashtags, links, etc.</span>
+            </label>
+            <textarea
+              name="description"
+              id="description"
+              class="form-textarea"
+              placeholder="Describe your stream…"
+              maxlength="5000"
+            ></textarea>
+          </div>
+
+          <!-- Thumbnail -->
+          <div class="form-section">
+            <label for="thumbnail" class="form-label">
+              <i class="bi bi-image"></i> Stream Thumbnail
+              <span class="optional">(Optional)</span>
+              <span class="form-help-text">JPG or PNG · Max 2 MB · Recommended 1280×720 px</span>
+            </label>
+            <div class="drop-zone" id="dropZoneThumbnail" onclick="document.getElementById('thumbnail').click()">
+              <i class="bi bi-cloud-arrow-up drop-zone-icon"></i>
+              <p class="drop-zone-text">
+                <span class="drop-zone-link">Click to upload</span> or drag and drop
+              </p>
+              <p class="drop-zone-hint">JPG, PNG · Max 2 MB</p>
+            </div>
+            <input type="file" name="thumbnail" id="thumbnail" class="file-input-hidden" accept="image/jpeg,image/png">
+
+            <div id="thumbnailPreview" class="thumbnail-preview" style="display:none;">
+              <span class="thumbnail-preview-label">Preview:</span>
+              <img id="thumbnailImg" src="" alt="Thumbnail preview" class="thumbnail-preview-img">
+              <button type="button" class="thumbnail-remove-btn" onclick="removeThumbnail()">
+                <i class="bi bi-x-circle"></i> Remove
+              </button>
+            </div>
+          </div>
+
+          <!-- YouTube Account -->
+          <div class="form-section">
+            <label for="youtube_account" class="form-label">
+              <i class="bi bi-youtube"></i> YouTube Account
+              <span class="required">*</span>
+            </label>
+            <select name="youtube_account" id="youtube_account" class="form-select" required>
+              <option value="">Select YouTube account…</option>
+              {% for account in youtube_accounts %}
+                <option value="{{ account.id }}">📺 {{ account.channel_title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- YouTube Playlist -->
+          <div class="form-section">
+            <label class="form-label">
+              <i class="bi bi-collection-play"></i> YouTube Playlist
+              <span class="required">*</span>
+              <span class="form-help-text">Select a playlist — videos stream live without downloading</span>
+            </label>
+
+            <select name="playlist_id" id="playlistSelect" class="form-select" required>
+              {% if playlists %}
+                <option value="">Choose a playlist…</option>
+                {% for pl in playlists %}
+                  <option value="{{ pl.id }}">{{ pl.title }} ({{ pl.video_count }} videos)</option>
+                {% endfor %}
+              {% else %}
+                <option value="">No playlists found — connect YouTube first</option>
+              {% endif %}
+            </select>
+
+            <!-- Preview button -->
+            <button
+              type="button"
+              id="loadVideosBtn"
+              class="btn-action btn-primary"
+              style="margin-top:0.85rem; max-width:260px;"
+              {% if not playlists %}disabled{% endif %}
+            >
+              <i class="bi bi-eye"></i> Preview Playlist Videos
+            </button>
+
+            <!-- Video list preview -->
+            <div id="playlistPreview" style="margin-top:1rem; display:none;">
+              <div class="media-list" id="videoList"></div>
+              <div class="playlist-stats-bar" id="playlistStats" style="display:none;">
+                <span><strong id="totalVideos">0</strong> videos</span>
+                <span id="streamNote" style="color: var(--primary-light);">
+                  <i class="bi bi-lightning-charge"></i> Streams directly — no storage used
+                </span>
+              </div>
+            </div>
+
+            <!-- No playlists state -->
+            {% if not playlists %}
+              <div class="empty-state" style="margin-top:1rem;">
+                <i class="bi bi-music-note-list empty-state-icon"></i>
+                <p class="empty-state-text">No playlists found on your YouTube account</p>
+                <a href="{% url 'connect_youtube' %}" class="btn-action btn-primary" style="display:inline-flex; max-width:220px;">
+                  <i class="bi bi-youtube"></i> Connect YouTube
+                </a>
+              </div>
+            {% endif %}
+          </div>
+          
+          <!-- Scheduled Start (optional) -->
+           <!--
+          <div class="form-section">
+            <label for="scheduled_start_time" class="form-label">
+              <i class="bi bi-calendar-event"></i> Schedule Start Time
+              <span class="optional">(Optional)</span>
+              <span class="form-help-text">Leave blank to start manually from the stream detail page</span>
+            </label>
+            <input
+              type="datetime-local"
+              name="scheduled_start_time"
+              id="scheduled_start_time"
+              class="form-input"
+            >
+            <div class="scheduled-info" id="scheduledInfo">
+              <i class="bi bi-info-circle"></i>
+              Stream will be created in <strong>Scheduled</strong> state and start automatically at the selected time.
+            </div>
+          </div>
+
+          -->
+
+          
+
+          <!-- Loop toggle -->
+          <div class="form-section">
+            <div class="toggle-switch">
+              <input type="checkbox" name="loop_enabled" id="loop_enabled" checked>
+              <div>
+                <label for="loop_enabled"><i class="bi bi-arrow-repeat"></i> Enable Loop</label>
+                <span class="form-help-text">Playlist repeats continuously until you stop the stream</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="form-actions">
+            <a href="{% url 'stream_list' %}" class="btn-action btn-cancel">
+              <i class="bi bi-arrow-left"></i> Cancel
+            </a>
+            <button type="submit" class="btn-action btn-primary" id="submitBtn">
+              <i class="bi bi-plus-circle"></i> <span>Create Stream</span>
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+    <!-- Info box -->
+    <div class="info-box">
+      <div class="info-box-title"><i class="bi bi-lightbulb"></i> How it works</div>
+      <div class="info-box-content">
+        <ul>
+          <li>Connect your YouTube account to see your playlists above</li>
+          <li>Select a playlist — videos are streamed live via yt-dlp, no downloads needed</li>
+          <li>Optionally preview playlist videos before creating the stream</li>
+          <li>Click <strong>Create Stream</strong>, then open the stream and press <strong>Start</strong> to go live</li>
+          <li>Enable <em>Loop</em> to repeat the playlist continuously 24/7</li>
+          <li>Optionally schedule a future start time and the stream launches automatically</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── CSRF helper ────────────────────────────────────────────────────────────────
+function getCookie(name) {
+  let value = null;
+  document.cookie.split(';').forEach(c => {
+    const [k, v] = c.trim().split('=');
+    if (k === name) value = decodeURIComponent(v);
+  });
+  return value;
+}
+const CSRF_TOKEN = getCookie('csrftoken');
+
+// ── Element refs ───────────────────────────────────────────────────────────────
+const playlistSelect  = document.getElementById('playlistSelect');
+const loadVideosBtn   = document.getElementById('loadVideosBtn');
+const playlistPreview = document.getElementById('playlistPreview');
+const videoListEl     = document.getElementById('videoList');
+const playlistStats   = document.getElementById('playlistStats');
+const totalVideosEl   = document.getElementById('totalVideos');
+const submitBtn       = document.getElementById('submitBtn');
+const scheduledInput  = document.getElementById('scheduled_start_time');
+const scheduledInfo   = document.getElementById('scheduledInfo');
+
+// ── Scheduled time hint ────────────────────────────────────────────────────────
+if (scheduledInput) {
+  scheduledInput.addEventListener('change', () => {
+    scheduledInfo.style.display = scheduledInput.value ? 'block' : 'none';
+  });
+}
+
+// ── Preview playlist videos ────────────────────────────────────────────────────
+loadVideosBtn.addEventListener('click', async () => {
+  const playlistId = playlistSelect.value;
+  if (!playlistId) {
+    alert('Please select a playlist first');
+    return;
+  }
+
+  loadVideosBtn.disabled = true;
+  loadVideosBtn.innerHTML = '<span class="loading-spinner"></span> Loading…';
+  videoListEl.innerHTML = '';
+  playlistPreview.style.display = 'none';
+  playlistStats.style.display = 'none';
+
+  try {
+    // Use absolute path — note leading slash so it works from any page depth
+    const res = await fetch(`/streaming/streams/api/playlist/${playlistId}/videos/`, {
+      headers: {
+        'Accept': 'application/json',
+        'X-CSRFToken': CSRF_TOKEN,
+      },
+      credentials: 'same-origin',
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    if (data.error) throw new Error(data.error);
+
+    const videos = data.videos || [];
+
+    if (videos.length === 0) {
+      videoListEl.innerHTML = `
+        <div style="padding:2rem; text-align:center; color:var(--text-secondary);">
+          <i class="bi bi-inbox" style="font-size:2rem; opacity:0.4; display:block; margin-bottom:0.5rem;"></i>
+          No videos found in this playlist
+        </div>`;
+    } else {
+      videoListEl.innerHTML = videos.map((v, i) => `
+        <div class="media-item">
+          ${v.thumbnail
+            ? `<img src="${escHtml(v.thumbnail)}" alt="" class="media-thumbnail" loading="lazy">`
+            : `<div class="media-thumbnail" style="background:rgba(99,102,241,0.1);"></div>`
+          }
+          <div class="media-info">
+            <p class="media-title" title="${escHtml(v.title)}">${escHtml(v.title)}</p>
+            <p class="media-meta">ID: ${escHtml(v.video_id)}</p>
+          </div>
+          <span class="media-index">#${i + 1}</span>
+        </div>
+      `).join('');
+
+      totalVideosEl.textContent = videos.length;
+      playlistStats.style.display = 'flex';
+    }
+
+    playlistPreview.style.display = 'block';
+
+  } catch (err) {
+    console.error('Playlist preview error:', err);
+    videoListEl.innerHTML = `
+      <div style="padding:1.5rem; text-align:center; color:#ef4444;">
+        <i class="bi bi-exclamation-triangle"></i> ${escHtml(err.message || 'Failed to load playlist')}
+      </div>`;
+    playlistPreview.style.display = 'block';
+  } finally {
+    loadVideosBtn.disabled = false;
+    loadVideosBtn.innerHTML = '<i class="bi bi-eye"></i> Preview Playlist Videos';
+  }
+});
+
+// ── Form submit guard ──────────────────────────────────────────────────────────
+document.getElementById('createStreamForm').addEventListener('submit', (e) => {
+  const title      = document.getElementById('title').value.trim();
+  const playlistId = playlistSelect.value;
+  const ytAccount  = document.getElementById('youtube_account').value;
+
+  if (!title) {
+    e.preventDefault();
+    showFormError('Please enter a stream title');
+    return;
+  }
+  if (!ytAccount) {
+    e.preventDefault();
+    showFormError('Please select a YouTube account');
+    return;
+  }
+  if (!playlistId) {
+    e.preventDefault();
+    showFormError('Please select a YouTube playlist');
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<span class="loading-spinner"></span> Creating…';
+});
+
+function showFormError(msg) {
+  const existing = document.getElementById('jsFormError');
+  if (existing) existing.remove();
+  const el = document.createElement('div');
+  el.id = 'jsFormError';
+  el.className = 'alert-message alert-error';
+  el.innerHTML = `<i class="bi bi-exclamation-circle"></i><span>${escHtml(msg)}</span>`;
+  document.getElementById('createStreamForm').prepend(el);
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ── XSS-safe HTML escape ───────────────────────────────────────────────────────
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ── Thumbnail drag-and-drop / preview ─────────────────────────────────────────
+const thumbnailInput   = document.getElementById('thumbnail');
+const dropZone         = document.getElementById('dropZoneThumbnail');
+
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev =>
+  dropZone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); })
+);
+['dragenter', 'dragover'].forEach(ev =>
+  dropZone.addEventListener(ev, () => dropZone.classList.add('active'))
+);
+['dragleave', 'drop'].forEach(ev =>
+  dropZone.addEventListener(ev, () => dropZone.classList.remove('active'))
+);
+dropZone.addEventListener('drop', e => {
+  const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+  if (files.length) {
+    const dt = new DataTransfer();
+    dt.items.add(files[0]);
+    thumbnailInput.files = dt.files;
+    previewThumbnail();
+  }
+});
+
+thumbnailInput.addEventListener('change', previewThumbnail);
+
+function previewThumbnail() {
+  const file = thumbnailInput.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) {
+    alert('Thumbnail must be under 2 MB');
+    thumbnailInput.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('thumbnailImg').src = e.target.result;
+    document.getElementById('thumbnailPreview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeThumbnail() {
+  thumbnailInput.value = '';
+  document.getElementById('thumbnailPreview').style.display = 'none';
+}
+</script>
+
+{% endblock %}

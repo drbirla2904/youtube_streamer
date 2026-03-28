@@ -1,0 +1,410 @@
+{% extends 'base.html' %}
+
+{% block title %}Register — StreamLoop{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ── Auth page wrapper ── */
+  .auth-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - var(--nav-h) - 120px);
+    padding: 3rem 1rem;
+  }
+
+  .auth-panel {
+    width: 100%;
+    max-width: 540px;
+    animation: fadeUp .55s var(--ease) both;
+  }
+
+  /* ── Card shell ── */
+  .auth-card {
+    background: var(--c-surface);
+    border: 1px solid var(--c-border-hi);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: 0 0 0 1px var(--c-border), 0 32px 64px rgba(0,0,0,.55);
+    transition: box-shadow .3s var(--ease);
+  }
+  .auth-card:hover {
+    box-shadow: 0 0 0 1px var(--c-brand-glow), 0 40px 80px rgba(230,57,70,.12);
+  }
+
+  /* ── Card header ── */
+  .auth-head {
+    position: relative;
+    padding: 2.5rem 2.5rem 2rem;
+    text-align: center;
+    border-bottom: 1px solid var(--c-border);
+    overflow: hidden;
+  }
+  .auth-head::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(230,57,70,.13) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .auth-icon-ring {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    background: var(--c-brand-dim);
+    border: 1px solid var(--c-brand-glow);
+    border-radius: 50%;
+    margin-bottom: 1.25rem;
+    font-size: 1.6rem;
+    color: var(--c-brand);
+    box-shadow: 0 8px 24px var(--c-brand-glow);
+    animation: livePulse 2.4s infinite;
+  }
+
+  .auth-title {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--c-text-1);
+    margin: 0;
+    letter-spacing: -.3px;
+  }
+  .auth-subtitle {
+    font-size: .875rem;
+    color: var(--c-text-2);
+    margin: .4rem 0 0;
+  }
+
+  /* ── Body ── */
+  .auth-body { padding: 2.25rem 2.5rem 2.5rem; }
+
+  /* ── Section divider ── */
+  .form-section-label {
+    font-size: .7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--c-text-3);
+    margin: 1.75rem 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+  }
+  .form-section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--c-border);
+  }
+
+  /* ── Two-col grid ── */
+  .field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 500px) { .field-grid { grid-template-columns: 1fr; } }
+
+  /* ── Field ── */
+  .field { display: flex; flex-direction: column; gap: .55rem; margin-bottom: 1.1rem; }
+  .field:last-of-type { margin-bottom: 0; }
+
+  .field-label {
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--c-text-2);
+    letter-spacing: .4px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex-wrap: wrap;
+  }
+  .field-label i { color: var(--c-brand); font-size: .95rem; }
+  .field-label .opt {
+    color: var(--c-text-3);
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: .75rem;
+  }
+  .field-label .req { color: var(--c-brand); }
+
+  .field-input {
+    width: 100%;
+    background: var(--c-surface-2);
+    border: 1px solid var(--c-border-hi);
+    border-radius: var(--radius-md);
+    padding: .8rem 1rem;
+    color: var(--c-text-1);
+    font-family: var(--font-body);
+    font-size: .95rem;
+    font-weight: 500;
+    transition: border-color .2s var(--ease), box-shadow .2s var(--ease), background .2s var(--ease);
+    outline: none;
+  }
+  .field-input::placeholder { color: var(--c-text-3); }
+  .field-input:focus {
+    border-color: var(--c-brand);
+    background: rgba(230,57,70,.04);
+    box-shadow: 0 0 0 3px rgba(230,57,70,.15);
+  }
+  .field-input.is-invalid {
+    border-color: #ef4444;
+    background: rgba(239,68,68,.04);
+  }
+  .field-input.is-invalid:focus {
+    box-shadow: 0 0 0 3px rgba(239,68,68,.15);
+  }
+
+  /* ── Error blocks ── */
+  .err-global {
+    background: rgba(239,68,68,.08);
+    border: 1px solid rgba(239,68,68,.25);
+    border-radius: var(--radius-md);
+    padding: .85rem 1rem;
+    color: #fca5a5;
+    font-size: .875rem;
+    font-weight: 500;
+    display: flex;
+    align-items: flex-start;
+    gap: .65rem;
+    margin-bottom: 1.5rem;
+    animation: fadeUp .3s var(--ease) both;
+  }
+  .err-global i { font-size: 1.05rem; flex-shrink: 0; margin-top: .05rem; }
+
+  .err-field {
+    background: rgba(239,68,68,.07);
+    border-left: 2px solid #ef4444;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: .45rem .75rem;
+    color: #fca5a5;
+    font-size: .82rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    animation: fadeUp .25s var(--ease) both;
+  }
+
+  /* ── Password hint ── */
+  .pwd-hint {
+    background: rgba(244,185,66,.06);
+    border: 1px solid rgba(244,185,66,.15);
+    border-radius: var(--radius-sm);
+    padding: .65rem .9rem;
+    color: var(--c-text-2);
+    font-size: .8rem;
+    margin-top: .35rem;
+    display: flex;
+    align-items: flex-start;
+    gap: .55rem;
+  }
+  .pwd-hint i { color: var(--c-gold); flex-shrink: 0; margin-top: .1rem; }
+
+  /* ── Submit button ── */
+  .btn-auth {
+    width: 100%;
+    background: var(--c-brand);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: .9rem 1.25rem;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .65rem;
+    margin-top: 1.75rem;
+    box-shadow: 0 8px 24px var(--c-brand-glow);
+    transition: transform .22s var(--ease-spring), box-shadow .22s var(--ease);
+    letter-spacing: -.1px;
+  }
+  .btn-auth:hover {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 14px 32px var(--c-brand-glow);
+  }
+  .btn-auth:active { transform: translateY(0) scale(.99); }
+
+  /* ── Footer ── */
+  .auth-footer {
+    text-align: center;
+    margin-top: 1.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--c-border);
+    font-size: .875rem;
+    color: var(--c-text-2);
+  }
+  .auth-footer a {
+    color: var(--c-brand);
+    font-weight: 700;
+    text-decoration: none;
+    transition: opacity .2s;
+  }
+  .auth-footer a:hover { opacity: .75; }
+
+  /* ── Responsive ── */
+  @media (max-width: 480px) {
+    .auth-head { padding: 2rem 1.5rem 1.75rem; }
+    .auth-body { padding: 1.75rem 1.5rem 2rem; }
+    .auth-icon-ring { width: 54px; height: 54px; font-size: 1.3rem; }
+    .auth-title { font-size: 1.25rem; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-panel">
+    <div class="auth-card">
+
+      <!-- Header -->
+      <div class="auth-head">
+        <div class="auth-icon-ring">
+          <i class="bi bi-person-plus-fill"></i>
+        </div>
+        <h1 class="auth-title">Create your account</h1>
+        <p class="auth-subtitle">Start streaming to YouTube in minutes</p>
+      </div>
+
+      <!-- Body -->
+      <div class="auth-body">
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          <!-- Non-field errors -->
+          {% if form.non_field_errors %}
+            <div class="err-global">
+              <i class="bi bi-exclamation-circle-fill"></i>
+              <div>{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>
+            </div>
+          {% endif %}
+
+          <!-- Section: Account Info -->
+          <div class="form-section-label">Account Info</div>
+
+          <div class="field-grid">
+            <!-- Username -->
+            <div class="field">
+              <label for="{{ form.username.id_for_label }}" class="field-label">
+                <i class="bi bi-person-fill"></i> Username <span class="req">*</span>
+              </label>
+              <input
+                type="text"
+                class="field-input {% if form.username.errors %}is-invalid{% endif %}"
+                id="{{ form.username.id_for_label }}"
+                name="username"
+                value="{{ form.username.value|default:'' }}"
+                placeholder="Choose a username"
+                autocomplete="username"
+                required>
+              {% for e in form.username.errors %}
+                <span class="err-field"><i class="bi bi-exclamation-triangle-fill"></i> {{ e }}</span>
+              {% endfor %}
+            </div>
+
+            <!-- Email -->
+            <div class="field">
+              <label for="{{ form.email.id_for_label }}" class="field-label">
+                <i class="bi bi-envelope-fill"></i> Email <span class="req">*</span>
+              </label>
+              <input
+                type="email"
+                class="field-input {% if form.email.errors %}is-invalid{% endif %}"
+                id="{{ form.email.id_for_label }}"
+                name="email"
+                value="{{ form.email.value|default:'' }}"
+                placeholder="your@email.com"
+                autocomplete="email"
+                required>
+              {% for e in form.email.errors %}
+                <span class="err-field"><i class="bi bi-exclamation-triangle-fill"></i> {{ e }}</span>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Phone -->
+          <div class="field">
+            <label for="{{ form.phone.id_for_label }}" class="field-label">
+              <i class="bi bi-telephone-fill"></i> Phone <span class="opt">(optional)</span>
+            </label>
+            <input
+              type="tel"
+              class="field-input {% if form.phone.errors %}is-invalid{% endif %}"
+              id="{{ form.phone.id_for_label }}"
+              name="phone"
+              value="{{ form.phone.value|default:'' }}"
+              placeholder="+91 00000 00000"
+              autocomplete="tel">
+            {% for e in form.phone.errors %}
+              <span class="err-field"><i class="bi bi-exclamation-triangle-fill"></i> {{ e }}</span>
+            {% endfor %}
+          </div>
+
+          <!-- Section: Security -->
+          <div class="form-section-label">Security</div>
+
+          <div class="field-grid">
+            <!-- Password -->
+            <div class="field">
+              <label for="{{ form.password1.id_for_label }}" class="field-label">
+                <i class="bi bi-lock-fill"></i> Password <span class="req">*</span>
+              </label>
+              <input
+                type="password"
+                class="field-input {% if form.password1.errors %}is-invalid{% endif %}"
+                id="{{ form.password1.id_for_label }}"
+                name="password1"
+                placeholder="Strong password"
+                autocomplete="new-password"
+                required>
+              {% for e in form.password1.errors %}
+                <span class="err-field"><i class="bi bi-exclamation-triangle-fill"></i> {{ e }}</span>
+              {% endfor %}
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="field">
+              <label for="{{ form.password2.id_for_label }}" class="field-label">
+                <i class="bi bi-shield-lock-fill"></i> Confirm <span class="req">*</span>
+              </label>
+              <input
+                type="password"
+                class="field-input {% if form.password2.errors %}is-invalid{% endif %}"
+                id="{{ form.password2.id_for_label }}"
+                name="password2"
+                placeholder="Repeat password"
+                autocomplete="new-password"
+                required>
+              {% for e in form.password2.errors %}
+                <span class="err-field"><i class="bi bi-exclamation-triangle-fill"></i> {{ e }}</span>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="pwd-hint">
+            <i class="bi bi-info-circle-fill"></i>
+            Minimum 8 characters — mix letters, numbers, and symbols for best security.
+          </div>
+
+          <button type="submit" class="btn-auth">
+            <i class="bi bi-person-plus-fill"></i> Create Account
+          </button>
+        </form>
+
+        <div class="auth-footer">
+          Already have an account? <a href="{% url 'login' %}">Login here</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

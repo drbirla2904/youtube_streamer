@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - YouTube Streamer{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="display-5 fw-bold text-white mb-2">Dashboard</h1>
+            <p class="text-white mb-0" style="opacity: 0.9;">Welcome back, {{ user.username }}!</p>
+        </div>
+        <div>
+            <a href="{% url 'stream_create' %}" class="btn btn-primary btn-lg">
+                <i class="bi bi-plus-circle"></i> Create Stream
+            </a>
+        </div>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                 <h5 class="card-title"><i class="fas fa-broadcast-tower text-primary"></i> Active Streams</h5>
+                 <h2 class="display-4">{{ active_streams.count }}</h2>
+                 <a href="{% url 'stream_list' %}" class="btn btn-outline-primary btn-sm">View All Streams</a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <i class="bi bi-collection-play"></i>
+                <h2 class="display-4">{{ total_media.count }}</h2>
+                <p>Media Files</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <i class="bi bi-youtube"></i>
+                <h2 class="display-4">{{ youtube_accounts.channel_title }}</h2>
+                <p>YouTube Accounts</p>
+            </div>  
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                <i class="bi bi-clock-history"></i>
+                <h3>{{ scheduled_streams }}</h3>
+                <p>Scheduled</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-youtube" style="font-size: 3rem; color: #FF0000; margin-bottom: 1rem;"></i>
+                     <h5 class="card-title"><i class="fab fa-youtube text-danger"></i> YouTube Accounts</h5>
+                    {% if youtube_accounts %}
+                        <ul class="list-unstyled">
+                            {% for account in youtube_accounts %}
+                                <li><i class="fas fa-check-circle text-success"></i> {{ account.channel_title }}</li>
+                                <a href="{% url 'disconnect_youtube' account.id %}" onclick="return confirm('Disconnect from YouTube?');" class="btn btn-outline-danger btn-sm">
+                                <i class="bi bi-unlink"></i> Disconnect
+                                </a>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="card-text text-muted">No connected accounts</p>
+                        <a href="{% url 'connect_youtube' %}" class="btn btn-danger">
+                            <i class="fab fa-youtube"></i> Connect YouTube
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-upload" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+                    <h5 class="card-title">Upload Media</h5>
+                    <p class="text-muted mb-3">Add videos or audio files</p>
+                    <a href="{% url 'media_upload' %}" class="btn btn-primary">
+                        <i class="bi bi-cloud-upload"></i> Upload Files
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="bi bi-calendar-check" style="font-size: 3rem; color: var(--success-color); margin-bottom: 1rem;"></i>
+                    <h5 class="card-title">Schedule Stream</h5>
+                    <p class="text-muted mb-3">Plan future broadcasts</p>
+                    <a href="{% url 'stream_create' %}" class="btn btn-success">
+                        <i class="bi bi-calendar-plus"></i> Schedule Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Streams -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-broadcast"></i> Recent Streams
+                </h5>
+                <a href="{% url 'stream_list' %}" class="btn btn-sm btn-outline-light">
+                    View All
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if recent_streams %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Status</th>
+                                <th>Started</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stream in recent_streams %}
+                            <tr>
+                                <td>
+                                    <strong>{{ stream.title }}</strong>
+                                </td>
+                                <td>
+                                    {% if stream.status == 'running' %}
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-broadcast"></i> Live
+                                        </span>
+                                    {% elif stream.status == 'scheduled' %}
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="bi bi-clock"></i> Scheduled
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">
+                                            <i class="bi bi-stop-circle"></i> Stopped
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if stream.started_at %}
+                                        {{ stream.started_at|date:"M d, Y H:i" }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'stream_detail' stream.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                    {% if stream.status == 'running' %}
+                                        <a href="{% url 'stream_stop' stream.id %}" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-stop-circle"></i> Stop
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-broadcast" style="font-size: 4rem; color: var(--text-secondary); opacity: 0.3;"></i>
+                    <p class="text-muted mt-3 mb-0">No streams yet. Create your first stream!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Subscription Info (if applicable) -->
+    {% if subscription %}
+    <div class="card">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="mb-2">
+                        <i class="bi bi-star-fill text-warning"></i> {{ subscription.plan_type|title }} Plan
+                    </h5>
+                    <p class="text-muted mb-0">
+                        <strong>Max Streams:</strong> {{ subscription.max_streams }} | 
+                        <strong>Expires:</strong> {{ subscription.end_date|date:"M d, Y" }}
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="{% url 'subscribe' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-up-circle"></i> Upgrade Plan
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

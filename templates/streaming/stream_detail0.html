@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ stream.title }} - YouTube Streamer{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{{ stream.title }}</h1>
+        <div class="btn-group" role="group">
+            {% if stream.status == 'idle' or stream.status == 'stopped' %}
+                <a href="{% url 'stream_start' stream.id %}" class="btn btn-success">
+                    <i class="fas fa-play"></i> Start Stream
+                </a>
+            {% endif %}
+            {% if stream.status == 'running' or stream.status == 'starting' %}
+                <a href="{% url 'stream_stop' stream.id %}" class="btn btn-danger">
+                    <i class="fas fa-stop"></i> Stop Stream
+                </a>
+            {% endif %}
+            <a href="{% url 'stream_list' %}" class="btn btn-outline-secondary">Back to List</a>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Stream Info -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Stream Information</h5>
+                    <table class="table">
+                        <tr>
+                            <th width="30%">Status:</th>
+                            <td>
+                                {% if stream.status == 'running' %}
+                                    <span class="badge bg-success fs-6">Running</span>
+                                {% elif stream.status == 'starting' %}
+                                    <span class="badge bg-info fs-6">Starting</span>
+                                {% elif stream.status == 'error' %}
+                                    <span class="badge bg-danger fs-6">Error</span>
+                                {% else %}
+                                    <span class="badge bg-secondary fs-6">{{ stream.status|upper }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>YouTube Channel:</th>
+                            <td>{{ stream.youtube_account.channel_title }}</td>
+                        </tr>
+                        <tr>
+                            <th>Description:</th>
+                            <td>{{ stream.description|default:"No description" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Loop Enabled:</th>
+                            <td>
+                                {% if stream.loop_enabled %}
+                                    <i class="fas fa-check-circle text-success"></i> Yes
+                                {% else %}
+                                    <i class="fas fa-times-circle text-danger"></i> No
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Started At:</th>
+                            <td>{{ stream.started_at|date:"M d, Y H:i:s"|default:"Not started" }}</td>
+                        </tr>
+                        <tr>
+                            <th>Created:</th>
+                            <td>{{ stream.created_at|date:"M d, Y H:i:s" }}</td>
+                        </tr>
+                    </table>
+                    
+                    {% if stream.error_message %}
+                        <div class="alert alert-danger">
+                            <strong>Error:</strong> {{ stream.error_message }}
+                        </div>
+                    {% endif %}
+                    
+                    {% if stream.stream_url %}
+                        <div class="alert alert-info">
+                            <strong>Stream URL:</strong> <code>{{ stream.stream_url }}</code>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Media Files -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Media Files ({{ stream.media_files.count }})</h5>
+                    <div class="list-group">
+                        {% for media in stream.media_files.all %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">
+                                        <i class="fas fa-{{ media.media_type }}"></i> {{ media.title }}
+                                    </h6>
+                                    <small class="badge bg-primary">{{ media.media_type|upper }}</small>
+                                </div>
+                                <small class="text-muted">{{ media.file_size|filesizeformat }}</small>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stream Logs -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Stream Logs</h5>
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Level</th>
+                                    <th>Message</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in logs %}
+                                    <tr>
+                                        <td>{{ log.created_at|date:"H:i:s" }}</td>
+                                        <td>
+                                            {% if log.level == 'ERROR' %}
+                                                <span class="badge bg-danger">{{ log.level }}</span>
+                                            {% elif log.level == 'WARNING' %}
+                                                <span class="badge bg-warning">{{ log.level }}</span>
+                                            {% else %}
+                                                <span class="badge bg-info">{{ log.level }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ log.message }}</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted">No logs yet</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <!-- Quick Stats -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Quick Stats</h5>
+                    <div class="mb-3">
+                        <small class="text-muted">Stream ID</small>
+                        <p class="mb-0"><code>{{ stream.id }}</code></p>
+                    </div>
+                    {% if stream.broadcast_id %}
+                        <div class="mb-3">
+                            <small class="text-muted">Broadcast ID</small>
+                            <p class="mb-0"><code>{{ stream.broadcast_id }}</code></p>
+                        </div>
+                    {% endif %}
+                    {% if stream.process_id %}
+                        <div class="mb-3">
+                            <small class="text-muted">Process ID</small>
+                            <p class="mb-0"><code>{{ stream.process_id }}</code></p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Actions</h5>
+                    <div class="d-grid gap-2">
+                        {% if stream.status == 'stopped' or stream.status == 'error' %}
+                            <a href="{% url 'stream_delete' stream.id %}" class="btn btn-danger"
+                               onclick="return confirm('Are you sure you want to delete this stream?')">
+                                <i class="fas fa-trash"></i> Delete Stream
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if stream.status == 'running' or stream.status == 'starting' %}
+<script>
+    // Auto-refresh status every 10 seconds
+    setInterval(function() {
+        fetch('{% url "stream_status_api" stream.id %}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status !== '{{ stream.status }}') {
+                    location.reload();
+                }
+            });
+    }, 10000);
+</script>
+{% endif %}
+{% endblock %}

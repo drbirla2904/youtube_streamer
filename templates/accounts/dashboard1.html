@@ -1,0 +1,1138 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - YouTube Streamer{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Streamloop </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --primary-light: #764ba2;
+            --primary-dark: #5568d3;
+            --success-color: #43e97b;
+            --warning-color: #f5576c;
+            --info-color: #00f2fe;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-light: #ffffff;
+            --border-color: #e8e8e8;
+            --bg-light: #f8f9fa;
+            --bg-lighter: #ffffff;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        body {
+            padding: 40px 20px;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header Section */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-content {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .header-content h1 {
+            color: white;
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -1px;
+            line-height: 1.2;
+        }
+
+        .header-content p {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 1.05rem;
+            margin: 12px 0 0 0;
+            font-weight: 400;
+        }
+
+        .btn-create {
+            background: white;
+            color: var(--primary-color);
+            padding: 14px 28px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            white-space: nowrap;
+        }
+
+        .btn-create:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            color: var(--primary-color);
+        }
+
+        .btn-create:active {
+            transform: translateY(-1px);
+        }
+
+        /* Stats Section */
+        .stats-section {
+            margin-bottom: 50px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg-lighter);
+            border-radius: 14px;
+            padding: 28px;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:nth-child(2)::before {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+
+        .stat-card:nth-child(3)::before {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+        }
+
+        .stat-card:nth-child(4)::before {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .stat-card-icon {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            opacity: 0.85;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover .stat-card-icon {
+            transform: scale(1.1);
+        }
+
+        .stat-card h5 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.3px;
+        }
+
+        .stat-card h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 12px 0;
+            line-height: 1;
+        }
+
+        .stat-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .stat-card .btn-link {
+            margin-top: 16px;
+            font-size: 0.85rem;
+            padding: 0;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .stat-card .btn-link:hover {
+            gap: 8px;
+            color: var(--primary-dark);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            margin-bottom: 50px;
+        }
+
+        .section-title {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .section-title i {
+            font-size: 1.8rem;
+            opacity: 0.9;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .action-card {
+            background: var(--bg-lighter);
+            border-radius: 14px;
+            padding: 32px;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+            transition: all 0.3s ease;
+        }
+
+        .action-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .action-card-icon {
+            font-size: 3.5rem;
+            margin-bottom: 18px;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .action-card:hover .action-card-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .action-card h5 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .action-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .action-card .btn {
+            padding: 12px 24px;
+            font-weight: 600;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary-action {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+            color: white;
+        }
+
+        .btn-danger-action {
+            background: linear-gradient(135deg, #f44336, #e53935);
+            color: white;
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
+        }
+
+        .btn-danger-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(244, 67, 54, 0.5);
+            color: white;
+        }
+
+        .btn-success-action {
+            background: linear-gradient(135deg, var(--success-color), #38d66a);
+            color: white;
+            box-shadow: 0 4px 15px rgba(67, 233, 123, 0.4);
+        }
+
+        .btn-success-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 233, 123, 0.5);
+            color: white;
+        }
+
+        /* Recent Streams Card */
+        .recent-streams {
+            margin-bottom: 50px;
+        }
+
+        .card {
+            background: var(--bg-lighter);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            padding: 24px 28px;
+            border: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .card-header h5 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .card-header .btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .card-header .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: white;
+        }
+
+        .card-body {
+            padding: 28px;
+        }
+
+        .table-responsive {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .table thead th {
+            border: none;
+            background: var(--bg-light);
+            color: var(--text-primary);
+            font-weight: 700;
+            padding: 16px;
+            font-size: 0.9rem;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        .table tbody td {
+            border: none;
+            padding: 16px;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .table tbody tr:hover {
+            background: var(--bg-light);
+        }
+
+        .table strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .badge {
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-success {
+            background: rgba(67, 233, 123, 0.2);
+            color: #2e7d32;
+        }
+
+        .badge-warning {
+            background: rgba(255, 193, 7, 0.2);
+            color: #f57f17;
+        }
+
+        .badge-secondary {
+            background: rgba(117, 117, 117, 0.2);
+            color: #616161;
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            background: transparent;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-danger {
+            color: #f44336;
+            border: 1px solid #f44336;
+            background: transparent;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-outline-danger:hover {
+            background: #f44336;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state i {
+            font-size: 4.5rem;
+            color: var(--text-secondary);
+            opacity: 0.2;
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        .empty-state p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            margin: 0;
+        }
+
+        /* Subscription Card */
+        .subscription-card {
+            background: var(--bg-lighter);
+            border-radius: 14px;
+            padding: 28px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .subscription-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .subscription-card h5 {
+            color: var(--text-primary);
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1rem;
+        }
+
+        .subscription-card p {
+            color: var(--text-secondary);
+            margin-bottom: 0;
+            font-weight: 500;
+        }
+
+        .subscription-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .btn-outline-primary-sub {
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            background: transparent;
+            padding: 12px 24px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-primary-sub:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            body {
+                padding: 30px 15px;
+            }
+
+            .dashboard-container {
+                max-width: 100%;
+            }
+
+            .header-content h1 {
+                font-size: 2.2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 18px;
+            }
+
+            .stat-card {
+                padding: 24px;
+            }
+
+            .stat-card h2 {
+                font-size: 2.2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 12px;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                align-items: stretch;
+                margin-bottom: 35px;
+                gap: 15px;
+            }
+
+            .header-content h1 {
+                font-size: 1.8rem;
+            }
+
+            .header-content p {
+                font-size: 0.95rem;
+            }
+
+            .btn-create {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .stat-card {
+                padding: 20px;
+            }
+
+            .stat-card h2 {
+                font-size: 2rem;
+            }
+
+            .actions-grid {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+
+            .action-card {
+                padding: 24px;
+            }
+
+            .card-header {
+                padding: 20px;
+            }
+
+            .card-body {
+                padding: 20px;
+            }
+
+            .subscription-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn-outline-primary-sub {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px 10px;
+            }
+
+            .dashboard-container {
+                max-width: 100%;
+            }
+
+            .header-content h1 {
+                font-size: 1.4rem;
+            }
+
+            .header-content p {
+                font-size: 0.9rem;
+            }
+
+            .section-title {
+                font-size: 1.2rem;
+                margin-bottom: 18px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .stat-card {
+                padding: 16px;
+            }
+
+            .stat-card h5 {
+                font-size: 0.8rem;
+            }
+
+            .stat-card h2 {
+                font-size: 1.8rem;
+                margin-bottom: 8px;
+            }
+
+            .stat-card-icon {
+                font-size: 2.2rem;
+                margin-bottom: 10px;
+            }
+
+            .action-card {
+                padding: 20px;
+            }
+
+            .action-card-icon {
+                font-size: 2.8rem;
+                margin-bottom: 12px;
+            }
+
+            .action-card h5 {
+                font-size: 1rem;
+                margin-bottom: 8px;
+            }
+
+            .action-card p {
+                font-size: 0.9rem;
+                margin-bottom: 16px;
+            }
+
+            .action-card .btn {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+                gap: 6px;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 16px;
+            }
+
+            .card-header h5 {
+                font-size: 1rem;
+            }
+
+            .card-header .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .card-body {
+                padding: 16px;
+            }
+
+            .table {
+                font-size: 0.9rem;
+            }
+
+            .table thead {
+                display: none;
+            }
+
+            .table tbody,
+            .table tr,
+            .table td {
+                display: block;
+                width: 100%;
+            }
+
+            .table tbody tr {
+                margin-bottom: 12px;
+                border: 1px solid var(--border-color);
+                border-radius: 10px;
+                overflow: hidden;
+                background: var(--bg-light);
+            }
+
+            .table tbody td {
+                padding: 12px;
+                border: none;
+                border-bottom: 1px solid var(--border-color);
+                position: relative;
+                padding-left: 90px;
+                text-align: left;
+            }
+
+            .table tbody td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 12px;
+                font-weight: 700;
+                color: var(--text-secondary);
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .table tbody td:last-child {
+                border-bottom: none;
+                padding-left: 12px;
+            }
+
+            .table tbody td:last-child::before {
+                display: none;
+            }
+
+            .subscription-card {
+                padding: 20px;
+            }
+
+            .subscription-card h5 {
+                font-size: 1rem;
+            }
+
+            .subscription-card p {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card,
+        .action-card {
+            animation: slideIn 0.6s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="header-content">
+                <h1>Dashboard</h1>
+                <p>Welcome back! {{ user.username }}!</p>
+            </div>
+            <a href="{% url 'stream_create' %}" class="btn btn-primary btn-lg">
+                <i class="bi bi-plus-circle"></i> Create Stream
+            </a>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <i class="bi bi-broadcast-tower stat-card-icon"></i>
+                    <h5><i class="bi bi-lightning-fill"></i> Active Streams</h5>
+                    <h2 class="display-4">{{ active_streams.count }}</h2>
+                    <p>Currently running</p>
+                    <a href="{% url 'stream_list' %}" class="btn-link">View All Streams →</a>
+                </div>
+
+                <div class="stat-card">
+                    <i class="bi bi-collection-play stat-card-icon"></i>
+                    <h5><i class="bi bi-film"></i> Media Files</h5>
+                    <h2 class="display-4">{{ total_media.count }}</h2>
+                    <p>Videos & Audio</p>
+                </div>
+
+                <div class="stat-card">
+                    <i class="bi bi-youtube stat-card-icon"></i>
+                    <h5><i class="bi bi-link-45deg"></i> YouTube Accounts</h5>
+                    <h2>2</h2>
+                    <p>Connected channels</p>
+                </div>
+
+                <div class="stat-card">
+                    <i class="bi bi-calendar-check stat-card-icon"></i>
+                    <h5><i class="bi bi-clock-history"></i> Scheduled</h5>
+                    <h2 class="display-4">{{ youtube_accounts.channel_title }}</h2>
+                    <p>Upcoming streams</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <h3 class="section-title"><i class="bi bi-lightning"></i> Quick Actions</h3>
+            <div class="actions-grid">
+                <div class="action-card">
+                    <i class="bi bi-youtube action-card-icon" style="color: #FF0000;"></i>
+                    <h5>YouTube Accounts</h5>
+                    {% if youtube_accounts %}
+                        <ul class="list-unstyled">
+                            {% for account in youtube_accounts %}
+                                <li><i class="fas fa-check-circle text-success"></i> {{ account.channel_title }}</li>
+                                <a href="{% url 'disconnect_youtube' account.id %}" onclick="return confirm('Disconnect from YouTube?');" class="btn btn-outline-danger btn-sm">
+                                <i class="bi bi-unlink"></i> Disconnect
+                                </a>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="card-text text-muted">No connected accounts</p>
+                        <a href="{% url 'connect_youtube' %}" class="btn btn-danger">
+                            <i class="fab fa-youtube"></i> Connect YouTube
+                        </a>
+                    {% endif %}
+                </div>
+
+                <div class="action-card">
+                    <i class="bi bi-cloud-upload action-card-icon" style="color: var(--primary-color);"></i>
+                    <h5>Upload Media</h5>
+                    <p>Add videos or audio files to build your streaming library</p>
+                    <a href="{% url 'media_upload' %}" class="btn btn-primary-action">
+                        <i class="bi bi-cloud-upload"></i> Upload Files
+                    </a>
+                </div>
+
+                <div class="action-card">
+                    <i class="bi bi-calendar-plus action-card-icon" style="color: var(--success-color);"></i>
+                    <h5>Schedule Stream</h5>
+                    <p>Plan and schedule your broadcasts for maximum reach</p>
+                    <a href="{% url 'stream_create' %}" class="btn btn-success-action">
+                        <i class="bi bi-calendar-plus"></i> Schedule Now
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Streams -->
+        <div class="recent-streams">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="bi bi-broadcast"></i> Recent Streams</h5>
+                    <a href="{% url 'stream_list' %}" class="btn">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_streams %}
+                     <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Status</th>
+                                    <th>Started</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                 {% for stream in recent_streams %}
+                                <tr>
+                                    <td>
+                                    <strong>{{ stream.title }}</strong>
+                                </td>
+                                <td>
+                                    {% if stream.status == 'running' %}
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-broadcast"></i> Live
+                                        </span>
+                                    {% elif stream.status == 'scheduled' %}
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="bi bi-clock"></i> Scheduled
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">
+                                            <i class="bi bi-stop-circle"></i> Stopped
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if stream.started_at %}
+                                        {{ stream.started_at|date:"M d, Y H:i" }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'stream_detail' stream.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                    {% if stream.status == 'running' %}
+                                        <a href="{% url 'stream_stop' stream.id %}" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-stop-circle"></i> Stop
+                                        </a>
+                                    {% endif %}
+                                </td>
+                                </tr>
+                              {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-broadcast" style="font-size: 4rem; color: var(--text-secondary); opacity: 0.3;"></i>
+                    <p class="text-muted mt-3 mb-0">No streams yet. Create your first stream!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+        <!-- Subscription Info -->
+       {% if subscription %}
+    <div class="card">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="mb-2">
+                        <i class="bi bi-star-fill text-warning"></i> {{ subscription.plan_type|title }} Plan
+                    </h5>
+                    <p class="text-muted mb-0">
+                        <strong>Max Streams:</strong> {{ subscription.max_streams }} | 
+                        <strong>Expires:</strong> {{ subscription.end_date|date:"M d, Y" }}
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="{% url 'subscribe' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-up-circle"></i> Upgrade Plan
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <script>
+        // Smooth animations and interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate cards on load
+            const cards = document.querySelectorAll('.stat-card, .action-card, .card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.08}s`;
+            });
+
+            // Mobile table enhancement
+            setupMobileTable();
+
+            // Add interactive hover effects
+            addInteractiveEffects();
+        });
+
+        function setupMobileTable() {
+            const tables = document.querySelectorAll('.table');
+            tables.forEach(table => {
+                const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
+                table.querySelectorAll('tbody td').forEach((td, index) => {
+                    const headerIndex = index % headers.length;
+                    if (headers[headerIndex]) {
+                        td.setAttribute('data-label', headers[headerIndex]);
+                    }
+                });
+            });
+        }
+
+        function addInteractiveEffects() {
+            // Button ripple effect
+            const buttons = document.querySelectorAll('.btn, .btn-link, [class*="btn-"]');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    ripple.style.position = 'absolute';
+                    ripple.style.borderRadius = '50%';
+                    ripple.style.background = 'rgba(255,255,255,0.6)';
+                    ripple.style.width = '20px';
+                    ripple.style.height = '20px';
+                    ripple.style.animation = 'ripple 0.6s ease-out';
+                    
+                    // Optional: Add ripple animation
+                    if (this.style.position === 'static') {
+                        this.style.position = 'relative';
+                    }
+                });
+            });
+        }
+
+        // Add ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
+{% endblock %}   

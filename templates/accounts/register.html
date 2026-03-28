@@ -1,0 +1,540 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Register - YouTube Streamer{% endblock %}
+
+{% block content %}
+<style>
+  /* ==================== Register Page Styles ==================== */
+  .register-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 200px);
+    padding: 2rem 0;
+  }
+
+  .register-card-wrapper {
+    width: 100%;
+    max-width: 550px;
+  }
+
+  .register-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(99, 102, 241, 0.2);
+    transition: var(--transition-smooth);
+  }
+
+  .register-card:hover {
+    box-shadow: 0 25px 80px rgba(99, 102, 241, 0.3);
+  }
+
+  .register-header {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(236, 72, 153, 0.1) 100%);
+    border-bottom: 1px solid var(--border-color);
+    padding: 2.5rem 2rem;
+    text-align: center;
+  }
+
+  .register-icon {
+    font-size: 3rem;
+    background: linear-gradient(135deg, #6366f1, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+    display: inline-block;
+  }
+
+  .register-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .register-body {
+    padding: 2.5rem;
+  }
+
+  .register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  /* ==================== Form Sections ==================== */
+  .form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .form-row-register {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .form-group-register {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .form-label-register {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .form-label-register i {
+    font-size: 1rem;
+    color: var(--primary-light);
+  }
+
+  .form-label-register .required {
+    color: var(--danger-color);
+    font-weight: 800;
+  }
+
+  .form-input-register {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1.5px solid var(--border-color);
+    border-radius: 12px;
+    padding: 0.9rem 1.2rem;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: var(--transition-smooth);
+    font-family: 'Inter', sans-serif;
+  }
+
+  .form-input-register::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.6;
+  }
+
+  .form-input-register:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  }
+
+  .form-input-register.is-invalid {
+    border-color: var(--danger-color);
+    background: rgba(239, 68, 68, 0.05);
+  }
+
+  .form-input-register.is-invalid:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  }
+
+  /* ==================== Error Messages ==================== */
+  .invalid-feedback {
+    background: rgba(239, 68, 68, 0.1);
+    border-left: 3px solid var(--danger-color);
+    border-radius: 6px;
+    padding: 0.6rem 0.9rem;
+    color: #fca5a5;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-top: 0.5rem;
+    display: block;
+    animation: fadeInUp 0.3s ease-out;
+  }
+
+  .non-field-errors {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 10px;
+    padding: 1rem;
+    color: #fca5a5;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    animation: slideInDown 0.3s ease-out;
+  }
+
+  .non-field-errors i {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  /* ==================== Buttons ==================== */
+  .btn-register {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+  }
+
+  .btn-register:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(99, 102, 241, 0.4);
+    color: white;
+    text-decoration: none;
+  }
+
+  .btn-register:active {
+    transform: translateY(0);
+  }
+
+  .btn-register i {
+    font-size: 1.1rem;
+  }
+
+  /* ==================== Footer Text ==================== */
+  .register-footer {
+    text-align: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    margin-top: 1.5rem;
+  }
+
+  .register-footer p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0;
+    font-weight: 500;
+  }
+
+  .register-footer a {
+    color: var(--primary-light);
+    text-decoration: none;
+    font-weight: 700;
+    transition: var(--transition-smooth);
+  }
+
+  .register-footer a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+  }
+
+  /* ==================== Info Text ==================== */
+  .password-info {
+    background: rgba(59, 130, 246, 0.05);
+    border-left: 3px solid var(--info-color);
+    border-radius: 6px;
+    padding: 0.9rem;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+  }
+
+  .password-info i {
+    color: var(--info-color);
+    margin-right: 0.5rem;
+  }
+
+  /* ==================== Animations ==================== */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ==================== Responsive Design ==================== */
+  @media (max-width: 768px) {
+    .register-container {
+      min-height: auto;
+      padding: 1rem 0;
+    }
+
+    .register-card-wrapper {
+      margin: 0 1rem;
+    }
+
+    .register-header {
+      padding: 2rem 1.5rem;
+    }
+
+    .register-icon {
+      font-size: 2.5rem;
+    }
+
+    .register-title {
+      font-size: 1.25rem;
+    }
+
+    .register-body {
+      padding: 2rem;
+    }
+
+    .form-input-register {
+      padding: 0.8rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .form-row-register {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+
+    .btn-register {
+      padding: 0.9rem;
+      font-size: 0.95rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .register-header {
+      padding: 1.5rem 1rem;
+    }
+
+    .register-icon {
+      font-size: 2rem;
+    }
+
+    .register-title {
+      font-size: 1.1rem;
+    }
+
+    .register-body {
+      padding: 1.5rem;
+    }
+
+    .register-form {
+      gap: 1.25rem;
+    }
+
+    .form-input-register {
+      padding: 0.75rem 0.9rem;
+      font-size: 0.85rem;
+    }
+
+    .btn-register {
+      padding: 0.85rem;
+      font-size: 0.9rem;
+    }
+
+    .register-footer p {
+      font-size: 0.85rem;
+    }
+
+    .form-row-register {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="register-container fade-in">
+  <div class="register-card-wrapper">
+    <div class="register-card">
+      <!-- Header -->
+      <div class="register-header">
+        <i class="register-icon bi bi-person-plus"></i>
+        <h1 class="register-title">Create Your Account</h1>
+      </div>
+
+      <!-- Body -->
+      <div class="register-body">
+        <form method="post" class="register-form" novalidate>
+          {% csrf_token %}
+
+          <!-- Non-field Errors -->
+          {% if form.non_field_errors %}
+            <div class="non-field-errors">
+              <i class="bi bi-exclamation-circle-fill"></i>
+              <div>
+                {% for error in form.non_field_errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+          <!-- Form Section 1: Username & Email -->
+          <div class="form-section">
+            <div class="form-row-register">
+              <!-- Username Field -->
+              <div class="form-group-register">
+                <label for="{{ form.username.id_for_label }}" class="form-label-register">
+                  <i class="bi bi-person-fill"></i>
+                  Username
+                  <span class="required">*</span>
+                </label>
+                <input 
+                  type="text" 
+                  class="form-input-register {% if form.username.errors %}is-invalid{% endif %}" 
+                  id="{{ form.username.id_for_label }}" 
+                  name="username" 
+                  placeholder="Choose a username"
+                  value="{{ form.username.value|default:'' }}"
+                  required
+                  autocomplete="username">
+                {% if form.username.errors %}
+                  {% for error in form.username.errors %}
+                    <span class="invalid-feedback">
+                      <i class="bi bi-exclamation-triangle-fill"></i> {{ error }}
+                    </span>
+                  {% endfor %}
+                {% endif %}
+              </div>
+
+              <!-- Email Field -->
+              <div class="form-group-register">
+                <label for="{{ form.email.id_for_label }}" class="form-label-register">
+                  <i class="bi bi-envelope-fill"></i>
+                  Email Address
+                  <span class="required">*</span>
+                </label>
+                <input 
+                  type="email" 
+                  class="form-input-register {% if form.email.errors %}is-invalid{% endif %}" 
+                  id="{{ form.email.id_for_label }}" 
+                  name="email" 
+                  placeholder="your@email.com"
+                  value="{{ form.email.value|default:'' }}"
+                  required
+                  autocomplete="email">
+                {% if form.email.errors %}
+                  {% for error in form.email.errors %}
+                    <span class="invalid-feedback">
+                      <i class="bi bi-exclamation-triangle-fill"></i> {{ error }}
+                    </span>
+                  {% endfor %}
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Phone Field (Optional) -->
+            <div class="form-group-register">
+              <label for="{{ form.phone.id_for_label }}" class="form-label-register">
+                <i class="bi bi-telephone-fill"></i>
+                Phone Number
+                <span style="color: var(--text-secondary); font-weight: 400;">(Optional)</span>
+              </label>
+              <input 
+                type="tel" 
+                class="form-input-register {% if form.phone.errors %}is-invalid{% endif %}" 
+                id="{{ form.phone.id_for_label }}" 
+                name="phone" 
+                placeholder="+1234567890"
+                value="{{ form.phone.value|default:'' }}"
+                autocomplete="tel">
+              {% if form.phone.errors %}
+                {% for error in form.phone.errors %}
+                  <span class="invalid-feedback">
+                    <i class="bi bi-exclamation-triangle-fill"></i> {{ error }}
+                  </span>
+                {% endfor %}
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Form Section 2: Passwords -->
+          <div class="form-section">
+            <div class="form-row-register">
+              <!-- Password Field -->
+              <div class="form-group-register">
+                <label for="{{ form.password1.id_for_label }}" class="form-label-register">
+                  <i class="bi bi-lock-fill"></i>
+                  Password
+                  <span class="required">*</span>
+                </label>
+                <input 
+                  type="password" 
+                  class="form-input-register {% if form.password1.errors %}is-invalid{% endif %}" 
+                  id="{{ form.password1.id_for_label }}" 
+                  name="password1" 
+                  placeholder="Enter a strong password"
+                  required
+                  autocomplete="new-password">
+                {% if form.password1.errors %}
+                  {% for error in form.password1.errors %}
+                    <span class="invalid-feedback">
+                      <i class="bi bi-exclamation-triangle-fill"></i> {{ error }}
+                    </span>
+                  {% endfor %}
+                {% endif %}
+              </div>
+
+              <!-- Confirm Password Field -->
+              <div class="form-group-register">
+                <label for="{{ form.password2.id_for_label }}" class="form-label-register">
+                  <i class="bi bi-shield-lock-fill"></i>
+                  Confirm Password
+                  <span class="required">*</span>
+                </label>
+                <input 
+                  type="password" 
+                  class="form-input-register {% if form.password2.errors %}is-invalid{% endif %}" 
+                  id="{{ form.password2.id_for_label }}" 
+                  name="password2" 
+                  placeholder="Re-enter your password"
+                  required
+                  autocomplete="new-password">
+                {% if form.password2.errors %}
+                  {% for error in form.password2.errors %}
+                    <span class="invalid-feedback">
+                      <i class="bi bi-exclamation-triangle-fill"></i> {{ error }}
+                    </span>
+                  {% endfor %}
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Password Info -->
+            <div class="password-info">
+              <i class="bi bi-info-circle-fill"></i>
+              <strong>Password Requirements:</strong> Use at least 8 characters with a mix of letters, numbers, and symbols for better security.
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn-register">
+            <i class="bi bi-person-plus"></i>
+            Create Account
+          </button>
+
+          <!-- Footer Text -->
+          <div class="register-footer">
+            <p>
+              Already have an account? 
+              <a href="{% url 'login' %}">Login here</a>
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Support - Streamloop {% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Support - Streamloop </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin:0; font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:#0f172a; color:#e2e8f0; }
+    .hero { padding:3.5rem 1.5rem; text-align:center; background:linear-gradient(135deg,#4f46e5,#0ea5e9); color:white; }
+    .hero h1 { margin:0 0 0.75rem; font-size:2.2rem; font-weight:800; }
+    .hero p { margin:0; opacity:0.95; }
+    .container { max-width:960px; margin:0 auto; padding:3rem 1.5rem 4rem; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:2rem; }
+    .card { background:#020617; border-radius:16px; padding:2rem; border:1px solid #1f2937; box-shadow:0 18px 45px rgba(15,23,42,0.7); }
+    h2 { font-size:1.4rem; margin:0 0 1rem; color:#e5e7eb; }
+    p { line-height:1.7; color:#cbd5f5; margin:0 0 0.9rem; }
+    ul { padding-left:1.1rem; margin:0 0 0.9rem; color:#cbd5f5; }
+    li { margin-bottom:0.4rem; }
+    a { color:#38bdf8; text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    label { display:block; font-size:0.9rem; font-weight:600; margin-bottom:0.3rem; color:#e5e7eb; }
+    input, textarea { width:100%; padding:0.75rem; border-radius:8px; border:1px solid #1f2937; background:#020617; color:#e2e8f0; font-family:inherit; font-size:0.95rem; }
+    textarea { resize:vertical; min-height:120px; }
+    button { margin-top:0.75rem; width:100%; padding:0.85rem; border-radius:8px; border:none; font-weight:700; background:linear-gradient(135deg,#4f46e5,#0ea5e9); color:white; cursor:pointer; box-shadow:0 10px 30px rgba(59,130,246,0.4); }
+    button:hover { transform:translateY(-1px); box-shadow:0 14px 34px rgba(59,130,246,0.55); }
+    @media (max-width:600px){ .hero h1{font-size:1.8rem;} .container{padding:2.5rem 1.25rem 3rem;} }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <h1>Support</h1>
+    <p>Need help with your streams or subscription? Reach out anytime.</p>
+  </header>
+
+  <main class="container">
+    <div class="grid">
+      <section class="card">
+        <h2>Contact us</h2>
+        <form>
+          <label for="name">Your name</label>
+          <input id="name" type="text" placeholder="Enter your name">
+
+          <label for="email">Email address</label>
+          <input id="email" type="email" placeholder="you@example.com">
+
+          <label for="subject">Subject</label>
+          <input id="subject" type="text" placeholder="Billing, streaming issue, setup help...">
+
+          <label for="message">Message</label>
+          <textarea id="message" placeholder="Describe your question or issue in detail..."></textarea>
+
+          <button type="submit">Send message</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Other ways to reach us</h2>
+        <p>You can also contact the YouTube Streamer team using these channels:</p>
+        <ul>
+          <li>Email: <a href="mailto:support@streamloop.in">support@streamloop.in</a></li>
+          <li>Phone: <a href="tel:+9198xxxxxx">+91 98xxxxxx</a></li>
+          <li>Support hours: Monday–Friday, 9 AM – 6 PM IST</li>
+        </ul>
+
+        <h2>Common topics</h2>
+        <ul>
+          <li>Stream not going live or disconnecting.</li>
+          <li>Issues with YouTube key or authorization.</li>
+          <li>Questions about one‑day, monthly, or annual plans.</li>
+          <li>Billing and payment failures.</li>
+        </ul>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
+{% endblock %}

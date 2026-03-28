@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout - YouTube Streamer{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-body p-5">
+                    <h2 class="card-title text-center mb-4">Complete Your Purchase</h2>
+                    
+                    <div class="alert alert-info">
+                        <h5>{{ plan_name }}</h5>
+                        <h3>₹{{ amount|floatformat:0|slice:":-2" }}</h3>
+                    </div>
+                    
+                    <form id="payment-form">
+                        <input type="hidden" id="razorpay_order_id" value="{{ razorpay_order_id }}">
+                        <input type="hidden" id="razorpay_key_id" value="{{ razorpay_key_id }}">
+                        <input type="hidden" id="amount" value="{{ amount }}">
+                        <input type="hidden" id="subscription_id" value="{{ subscription_id }}">
+                        
+                        <div class="d-grid">
+                            <button type="button" id="pay-button" class="btn btn-primary btn-lg">
+                                <i class="fas fa-lock"></i> Pay Securely with Razorpay
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center mt-3">
+                        <small class="text-muted">Secured by Razorpay</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+document.getElementById('pay-button').onclick = function(e) {
+    e.preventDefault();
+    
+    var options = {
+        "key": document.getElementById('razorpay_key_id').value,
+        "amount": document.getElementById('amount').value,
+        "currency": "{{ currency }}",
+        "name": "YouTube Streamer",
+        "description": "{{ plan_name }}",
+        "order_id": document.getElementById('razorpay_order_id').value,
+        "handler": function (response) {
+            // Create form and submit
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{% url "payment_callback" %}';
+            
+            var csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = 'csrfmiddlewaretoken';
+            csrfToken.value = '{{ csrf_token }}';
+            form.appendChild(csrfToken);
+            
+            var paymentId = document.createElement('input');
+            paymentId.type = 'hidden';
+            paymentId.name = 'razorpay_payment_id';
+            paymentId.value = response.razorpay_payment_id;
+            form.appendChild(paymentId);
+            
+            var orderId = document.createElement('input');
+            orderId.type = 'hidden';
+            orderId.name = 'razorpay_order_id';
+            orderId.value = response.razorpay_order_id;
+            form.appendChild(orderId);
+            
+            var signature = document.createElement('input');
+            signature.type = 'hidden';
+            signature.name = 'razorpay_signature';
+            signature.value = response.razorpay_signature;
+            form.appendChild(signature);
+            
+            document.body.appendChild(form);
+            form.submit();
+        },
+        "prefill": {
+            "name": "{{ request.user.get_full_name }}",
+            "email": "{{ request.user.email }}"
+        },
+        "theme": {
+            "color": "#0d6efd"
+        }
+    };
+    
+    var rzp = new Razorpay(options);
+    rzp.open();
+};
+</script>
+{% endblock %}

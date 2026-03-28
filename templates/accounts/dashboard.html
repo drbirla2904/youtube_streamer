@@ -1,0 +1,810 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - YouTube Streamer{% endblock %}
+
+{% block content %}
+<style>
+  /* ==================== Color Scheme & Tokens ==================== */
+  :root {
+    --primary-color: #6366f1;
+    --primary-dark: #4f46e5;
+    --primary-light: #818cf8;
+    --secondary-color: #ec4899;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --info-color: #3b82f6;
+    --dark-bg: #0f172a;
+    --card-bg: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --border-color: #334155;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* ==================== Global Styles ==================== */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    background: linear-gradient(135deg, var(--dark-bg) 0%, #1a1f35 100%);
+    color: var(--text-primary);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ==================== Animations ==================== */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  .fade-in {
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  .slide-in {
+    animation: slideInRight 0.5s ease-out;
+  }
+
+  /* ==================== Header Section ==================== */
+  .dashboard-header {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(236, 72, 153, 0.05) 100%);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-color);
+    padding: 2.5rem 2rem;
+    margin-bottom: 2rem;
+    border-radius: 16px;
+    margin: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-md);
+  }
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .header-title h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #6366f1, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .header-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  .btn-create-stream {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    padding: 0.75rem 1.75rem;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+  }
+
+  .btn-create-stream:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(99, 102, 241, 0.4);
+  }
+
+  /* ==================== Stats Cards ==================== */
+  .stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  }
+
+  .stat-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--primary-color);
+    box-shadow: 0 15px 35px rgba(99, 102, 241, 0.2);
+  }
+
+  .stat-card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    display: inline-block;
+  }
+
+  .stat-card-title {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+
+  .stat-card-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+  }
+
+  .stat-card-action {
+    font-size: 0.85rem;
+    color: var(--primary-color);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .stat-card-action:hover {
+    color: var(--primary-light);
+    transform: translateX(4px);
+  }
+
+  /* Gradient backgrounds for stat cards */
+  .stat-card-gradient-1 {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0.05) 100%);
+    --accent: #6366f1;
+  }
+
+  .stat-card-gradient-2 {
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.15) 0%, rgba(236, 72, 153, 0.05) 100%);
+    --accent: #ec4899;
+  }
+
+  .stat-card-gradient-3 {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%);
+    --accent: #10b981;
+  }
+
+  .stat-card-gradient-4 {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.05) 100%);
+    --accent: #f59e0b;
+  }
+
+  .stat-card-gradient-1::before,
+  .stat-card-gradient-2::before,
+  .stat-card-gradient-3::before,
+  .stat-card-gradient-4::before {
+    background: linear-gradient(90deg, var(--accent), var(--accent));
+  }
+
+  /* ==================== Quick Actions ==================== */
+  .quick-actions-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .action-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    transition: var(--transition-smooth);
+    box-shadow: var(--shadow-md);
+  }
+
+  .action-card:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(99, 102, 241, 0.15);
+  }
+
+  .action-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: inline-block;
+  }
+
+  .action-card h5 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: var(--text-primary);
+  }
+
+  .action-card p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .btn-action {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    border: none;
+    padding: 0.65rem 1.5rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btn-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
+  }
+
+  .btn-action-secondary {
+    background: linear-gradient(135deg, var(--success-color), #059669);
+  }
+
+  .btn-action-danger {
+    background: linear-gradient(135deg, var(--danger-color), #dc2626);
+  }
+
+  /* ==================== Recent Streams Table ==================== */
+  .streams-section {
+    margin: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .card-modern {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+  }
+
+  .card-header-modern {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .card-header-modern h5 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-primary);
+  }
+
+  .btn-view-all {
+    color: var(--primary-color);
+    background: transparent;
+    border: 1px solid var(--primary-color);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+  }
+
+  .btn-view-all:hover {
+    background: var(--primary-color);
+    color: white;
+  }
+
+  .table-responsive-modern {
+    overflow-x: auto;
+  }
+
+  .table-modern {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+  }
+
+  .table-modern thead {
+    background: rgba(99, 102, 241, 0.05);
+    border-bottom: 2px solid var(--border-color);
+  }
+
+  .table-modern th {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .table-modern td {
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+  }
+
+  .table-modern tbody tr {
+    transition: var(--transition-smooth);
+  }
+
+  .table-modern tbody tr:hover {
+    background: rgba(99, 102, 241, 0.05);
+  }
+
+  .badge-modern {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .badge-live {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+
+  .badge-scheduled {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+
+  .badge-stopped {
+    background: rgba(107, 114, 128, 0.2);
+    color: #9ca3af;
+    border: 1px solid rgba(107, 114, 128, 0.3);
+  }
+
+  .btn-table {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    margin-right: 0.4rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .btn-table:hover {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+  }
+
+  .btn-table-danger:hover {
+    background: var(--danger-color);
+    border-color: var(--danger-color);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+  }
+
+  .empty-state-icon {
+    font-size: 3rem;
+    color: var(--text-secondary);
+    opacity: 0.3;
+    margin-bottom: 1rem;
+  }
+
+  .empty-state p {
+    color: var(--text-secondary);
+    margin: 1rem 0;
+  }
+
+  /* ==================== Subscription Card ==================== */
+  .subscription-card {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(236, 72, 153, 0.1) 100%);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin: 2rem;
+    box-shadow: var(--shadow-md);
+  }
+
+  .subscription-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .subscription-info h5 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: var(--text-primary);
+  }
+
+  .subscription-info p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  .btn-upgrade {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btn-upgrade:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
+  }
+
+  /* ==================== Responsive Design ==================== */
+  @media (max-width: 768px) {
+    .dashboard-header {
+      margin: 1.5rem;
+      padding: 1.5rem 1rem;
+    }
+
+    .header-content {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .header-title h1 {
+      font-size: 1.75rem;
+    }
+
+    .stats-container,
+    .quick-actions-container,
+    .streams-section,
+    .subscription-card {
+      margin: 1.5rem;
+    }
+
+    .table-modern th,
+    .table-modern td {
+      padding: 0.8rem 1rem;
+      font-size: 0.85rem;
+    }
+
+    .card-header-modern {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .subscription-content {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .btn-table {
+      display: block;
+      width: 100%;
+      margin-bottom: 0.4rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .header-title h1 {
+      font-size: 1.5rem;
+    }
+
+    .stat-card-value {
+      font-size: 1.5rem;
+    }
+
+    .stats-container {
+      grid-template-columns: 1fr;
+    }
+
+    .quick-actions-container {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="fade-in">
+  <!-- Page Header -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <div class="header-title">
+        <h1>Dashboard</h1>
+        <p class="header-subtitle">Welcome back, <strong>{{ user.username }}!</strong></p>
+      </div>
+      <a href="{% url 'stream_create' %}" class="btn-create-stream">
+        <i class="bi bi-plus-circle"></i> Create Stream
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-container">
+    <div class="stat-card stat-card-gradient-1 slide-in">
+      <div class="stat-card-icon">
+        <i class="bi bi-broadcast-tower" style="color: var(--accent);"></i>
+      </div>
+      <div class="stat-card-title">Active Streams</div>
+      <div class="stat-card-value">{{ active_streams.count }}</div>
+      <a href="{% url 'stream_list' %}" class="stat-card-action">
+        View All <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+    <!--
+    <div class="stat-card stat-card-gradient-2 slide-in" style="animation-delay: 0.1s;">
+      <div class="stat-card-icon">
+        <i class="bi bi-collection-play" style="color: var(--accent);"></i>
+      </div>
+      <div class="stat-card-title">Media Files</div>
+      <div class="stat-card-value">{{media_list.count }}</div>
+      <a href="{% url 'media_list' %}" class="stat-card-action">
+        Manage <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+    -->
+    <div class="stat-card stat-card-gradient-3 slide-in" style="animation-delay: 0.2s;">
+      <div class="stat-card-icon">
+        <i class="bi bi-youtube" style="color: var(--accent);"></i>
+      </div>
+      <div class="stat-card-title">YouTube Accounts</div>
+      <div class="stat-card-value">{{ youtube_accounts.count|default:"0" }}</div>
+    </div>
+
+    <div class="stat-card stat-card-gradient-4 slide-in" style="animation-delay: 0.3s;">
+      <div class="stat-card-icon">
+        <i class="bi bi-calendar-check" style="color: var(--accent);"></i>
+      </div>
+      <div class="stat-card-title">Scheduled</div>
+      <div class="stat-card-value">{{ scheduled_streams }}</div>
+      <a href="{% url 'stream_list' %}" class="stat-card-action">
+        View <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions-container">
+    <div class="action-card">
+      <div class="action-icon">
+        <i class="bi bi-youtube" style="color: #FF0000;"></i>
+      </div>
+      <h5>YouTube Accounts</h5>
+          {% if youtube_accounts %}
+                        <ul class="list-unstyled">
+                            {% for account in youtube_accounts %}
+                                <li><i class="fas fa-check-circle text-success"></i> {{ account.channel_title }}</li>
+                                <a href="{% url 'disconnect_youtube' account.id %}" onclick="return confirm('Disconnect from YouTube?');" class="btn btn-outline-danger btn-sm">
+                                <i class="bi bi-unlink"></i> Disconnect
+                                </a>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="card-text text-muted">No connected accounts</p>
+                        <a href="{% url 'connect_youtube' %}" class="btn btn-danger">
+                            <i class="fab fa-youtube"></i> Connect YouTube
+                        </a>
+                    {% endif %}
+    </div>
+    <!--
+    <div class="action-card">
+      <div class="action-icon">
+        <i class="bi bi-cloud-upload" style="color: #6366f1;"></i>
+      </div>
+      <h5>Upload Media</h5>
+      <p>Add videos or audio files to your library</p>
+      <a href="{% url 'media_upload' %}" class="btn-action btn-action-secondary">
+        <i class="bi bi-upload"></i> Upload Files
+      </a>
+    </div>
+    -->
+
+    <div class="action-card">
+      <div class="action-icon">
+        <i class="bi bi-calendar-plus" style="color: #10b981;"></i>
+      </div>
+      <h5>Schedule Stream</h5>
+      <p>Plan and schedule your upcoming broadcasts</p>
+      <a href="{% url 'stream_create' %}" class="btn-action btn-action-secondary">
+        <i class="bi bi-calendar-check"></i> Schedule Now
+      </a>
+    </div>
+  </div>
+
+  <!-- Recent Streams -->
+  <div class="streams-section">
+    <div class="card-modern">
+      <div class="card-header-modern">
+        <h5>
+          <i class="bi bi-broadcast"></i> Recent Streams
+        </h5>
+        <a href="{% url 'stream_list' %}" class="btn-view-all">
+          View All Streams
+        </a>
+      </div>
+      <div>
+        {% if recent_streams %}
+          <div class="table-responsive-modern">
+            <table class="table-modern">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Status</th>
+                  <th>Started</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for stream in recent_streams %}
+                <tr>
+                  <td>
+                    <strong>{{ stream.title }}</strong>
+                  </td>
+                  <td>
+                    {% if stream.status == 'running' %}
+                      <span class="badge-modern badge-live">
+                        <i class="bi bi-broadcast"></i> Live
+                      </span>
+                    {% elif stream.status == 'scheduled' %}
+                      <span class="badge-modern badge-scheduled">
+                        <i class="bi bi-clock"></i> Scheduled
+                      </span>
+                    {% else %}
+                      <span class="badge-modern badge-stopped">
+                        <i class="bi bi-stop-circle"></i> Stopped
+                      </span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if stream.started_at %}
+                      {{ stream.started_at|date:"M d, Y H:i" }}
+                    {% else %}
+                      <span style="opacity: 0.6;">-</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <a href="{% url 'stream_detail' stream.id %}" class="btn-table">
+                      <i class="bi bi-eye"></i> View
+                    </a>
+                    {% if stream.status == 'running' %}
+                      <a href="{% url 'stream_stop' stream.id %}" class="btn-table btn-table-danger" onclick="return confirm('Stop this stream?');">
+                        <i class="bi bi-stop-circle"></i> Stop
+                      </a>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-state-icon">
+              <i class="bi bi-broadcast"></i>
+            </div>
+            <p>No streams yet. Create your first stream to get started!</p>
+            <a href="{% url 'stream_create' %}" class="btn-action" style="margin-top: 1rem;">
+              <i class="bi bi-plus-circle"></i> Create Stream
+            </a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Subscription Info -->
+  {% if subscription %}
+  <div class="subscription-card">
+    <div class="subscription-content">
+      <div class="subscription-info">
+        <h5>
+          <i class="bi bi-star-fill" style="color: #f59e0b;"></i> {{ subscription.plan_type|title }} Plan
+        </h5>
+        <p>
+          <strong>Max Streams:</strong> {{ subscription.max_streams }} | 
+          <strong>Expires:</strong> {{ subscription.end_date|date:"M d, Y" }}
+        </p>
+      </div>
+      <a href="{% url 'subscribe' %}" class="btn-upgrade">
+        <i class="bi bi-arrow-up-circle"></i> Upgrade Plan
+      </a>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Connect YouTube - YouTube Streamer{% endblock %}
+
+{% block content %}
+<div class="container text-center mt-5">
+    <div class="card shadow-lg mx-auto" style="max-width: 600px;">
+        <div class="card-body p-5">
+            <i class="fab fa-youtube text-danger" style="font-size: 5rem;"></i>
+            <h2 class="card-title mt-3 mb-4">Connect Your YouTube Account</h2>
+            <p class="lead text-muted mb-4">
+                Authorize this app to access your YouTube channel and start automated streaming.
+                You’ll be redirected to Google’s secure login page.
+            </p>
+
+            <a href="{% url 'connect_youtube' %}" class="btn btn-danger btn-lg">
+                <i class="fab fa-youtube"></i> Connect with YouTube
+            </a>
+
+            <div class="mt-4">
+                <small class="text-muted">
+                    Permissions requested:
+                    <ul class="list-unstyled mt-2 text-start d-inline-block">
+                        <li><i class="fas fa-check text-success"></i> Manage YouTube broadcasts</li>
+                        <li><i class="fas fa-check text-success"></i> Start and stop live streams</li>
+                        <li><i class="fas fa-check text-success"></i> View channel details</li>
+                    </ul>
+                </small>
+            </div>
+
+            <div class="mt-4">
+                <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

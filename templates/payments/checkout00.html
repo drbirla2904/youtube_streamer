@@ -1,0 +1,564 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout - YouTube Streamer{% endblock %}
+
+{% block content %}
+<style>
+  /* ==================== Checkout Container ==================== */
+  .checkout-container {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    min-height: 100vh;
+    padding: 3rem 1.5rem;
+    animation: fadeInDown 0.6s ease-out;
+  }
+
+  /* ==================== Checkout Card ==================== */
+  .checkout-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(99, 102, 241, 0.3);
+    max-width: 500px;
+    margin: 0 auto;
+    transition: var(--transition-smooth);
+  }
+
+  .checkout-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 25px 70px rgba(99, 102, 241, 0.4);
+  }
+
+  /* ==================== Checkout Header ==================== */
+  .checkout-header {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(236, 72, 153, 0.1) 100%);
+    border-bottom: 2px solid var(--border-color);
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .checkout-title {
+    font-size: 1.75rem;
+    font-weight: 900;
+    color: var(--text-primary);
+    margin: 0;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .checkout-icon {
+    font-size: 1.5rem;
+  }
+
+  /* ==================== Checkout Body ==================== */
+  .checkout-body {
+    padding: 2.5rem;
+  }
+
+  /* ==================== Plan Summary ==================== */
+  .plan-summary {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(236, 72, 153, 0.05) 100%);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.75rem;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  .summary-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+  }
+
+  .summary-plan-name {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .summary-price {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--primary-color);
+    letter-spacing: -1px;
+    margin-bottom: 0.5rem;
+  }
+
+  .summary-period {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  /* ==================== Order Details ==================== */
+  .order-details {
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border-left: 4px solid var(--primary-color);
+  }
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .detail-row:last-child {
+    margin-bottom: 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    font-weight: 700;
+  }
+
+  .detail-label {
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+
+  .detail-value {
+    color: var(--text-primary);
+    font-weight: 700;
+  }
+
+  .detail-row:last-child .detail-value {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+  }
+
+  /* ==================== Payment Button ==================== */
+  .payment-section {
+    margin-bottom: 2rem;
+  }
+
+  .btn-pay {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+  }
+
+  .btn-pay:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(99, 102, 241, 0.4);
+    color: white;
+  }
+
+  .btn-pay:active {
+    transform: translateY(0);
+  }
+
+  .btn-pay i {
+    font-size: 1.1rem;
+  }
+
+  /* ==================== Security Info ==================== */
+  .security-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: rgba(16, 185, 129, 0.05);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 10px;
+    text-align: center;
+    margin-top: 1.5rem;
+  }
+
+  .security-icon {
+    color: var(--success-color);
+    font-size: 1.25rem;
+  }
+
+  .security-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .security-provider {
+    color: var(--primary-color);
+    font-weight: 700;
+  }
+
+  /* ==================== Features List ==================== */
+  .features-list {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0 0 0;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+  }
+
+  .features-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+  }
+
+  .features-list li:last-child {
+    margin-bottom: 0;
+  }
+
+  .features-list i {
+    color: var(--success-color);
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  /* ==================== Help Text ==================== */
+  .help-text {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .help-text a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .help-text a:hover {
+    text-decoration: underline;
+  }
+
+  /* ==================== Loading State ==================== */
+  .btn-pay:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* ==================== Animations ==================== */
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ==================== Responsive Design ==================== */
+  @media (max-width: 768px) {
+    .checkout-container {
+      padding: 2rem 1rem;
+    }
+
+    .checkout-body {
+      padding: 1.75rem;
+    }
+
+    .checkout-title {
+      font-size: 1.5rem;
+    }
+
+    .summary-price {
+      font-size: 2rem;
+    }
+
+    .btn-pay {
+      padding: 0.9rem;
+      font-size: 0.95rem;
+    }
+
+    .plan-summary {
+      padding: 1.5rem;
+    }
+
+    .order-details {
+      padding: 1.25rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .checkout-container {
+      padding: 1.5rem 0.75rem;
+    }
+
+    .checkout-header {
+      padding: 1.5rem;
+    }
+
+    .checkout-body {
+      padding: 1.5rem;
+    }
+
+    .checkout-title {
+      font-size: 1.25rem;
+    }
+
+    .summary-plan-name {
+      font-size: 1.1rem;
+    }
+
+    .summary-price {
+      font-size: 1.75rem;
+    }
+
+    .detail-row {
+      font-size: 0.9rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .btn-pay {
+      padding: 0.85rem;
+      font-size: 0.9rem;
+    }
+
+    .features-list li {
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .security-info {
+      padding: 0.75rem;
+    }
+
+    .security-text {
+      font-size: 0.8rem;
+    }
+  }
+</style>
+
+<div class="checkout-container">
+  <div class="checkout-card">
+    <!-- Header -->
+    <div class="checkout-header">
+      <h1 class="checkout-title">
+        <span class="checkout-icon">💳</span>
+        Checkout
+      </h1>
+    </div>
+
+    <!-- Body -->
+    <div class="checkout-body">
+      <!-- Plan Summary -->
+      <div class="plan-summary">
+        <div class="summary-label">
+          <i class="bi bi-box"></i> Order Summary
+        </div>
+        <div class="summary-plan-name">
+          <i class="bi bi-star-fill"></i>
+          {{ plan_name }}
+        </div>
+        <div class="summary-price">
+          ₹{{ amount|floatformat:0|slice:":-2" }}
+        </div>
+        <div class="summary-period">
+          One-time payment
+        </div>
+      </div>
+
+      <!-- Order Details -->
+      <div class="order-details">
+        <div class="detail-row">
+          <span class="detail-label">
+            <i class="bi bi-box-seam"></i> Plan
+          </span>
+          <span class="detail-value">{{ plan_name }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">
+            <i class="bi bi-tag"></i> Billing Amount
+          </span>
+          <span class="detail-value">₹{{ amount|floatformat:0|slice:":-2" }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">
+            <i class="bi bi-receipt"></i> Tax
+          </span>
+          <span class="detail-value">Included</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">
+            <i class="bi bi-currency-rupee"></i> Total Amount
+          </span>
+          <span class="detail-value">₹{{ amount|floatformat:0|slice:":-2" }}</span>
+        </div>
+      </div>
+
+      <!-- Payment Form -->
+      <div class="payment-section">
+        <form id="payment-form">
+          <input type="hidden" id="razorpay_order_id" value="{{ razorpay_order_id }}">
+          <input type="hidden" id="razorpay_key_id" value="{{ razorpay_key_id }}">
+          <input type="hidden" id="amount" value="{{ amount }}">
+          <input type="hidden" id="subscription_id" value="{{ subscription_id }}">
+
+          <button type="button" id="pay-button" class="btn-pay">
+            <i class="bi bi-lock-fill"></i>
+            <span>Pay Securely with Razorpay</span>
+          </button>
+        </form>
+
+        <!-- Security Info -->
+        <div class="security-info">
+          <i class="bi bi-shield-check security-icon"></i>
+          <div class="security-text">
+            Secured by <span class="security-provider">Razorpay</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Features -->
+      <ul class="features-list">
+        <li>
+          <i class="bi bi-check-circle"></i>
+          <span>Encrypted secure payment processing</span>
+        </li>
+        <li>
+          <i class="bi bi-check-circle"></i>
+          <span>PCI DSS Level 1 compliant</span>
+        </li>
+        <li>
+          <i class="bi bi-check-circle"></i>
+          <span>Multiple payment methods supported</span>
+        </li>
+        <li>
+          <i class="bi bi-check-circle"></i>
+          <span>Instant activation after payment</span>
+        </li>
+      </ul>
+
+      <!-- Help Text -->
+      <div class="help-text">
+        <p>
+          Having issues? <a href="{% url 'support' %}">Contact Support</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Razorpay Checkout Script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<!-- Payment Handler Script -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const payButton = document.getElementById('pay-button');
+    
+    payButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      const options = {
+        key: document.getElementById('razorpay_key_id').value,
+        amount: document.getElementById('amount').value,
+        currency: '{{ currency|default:"INR" }}',
+        name: 'YouTube Streamer',
+        description: document.getElementById('razorpay_order_id').value,
+        order_id: document.getElementById('razorpay_order_id').value,
+        
+        handler: function(response) {
+          // Disable button and show loading
+          payButton.disabled = true;
+          payButton.innerHTML = '<span class="spinner"></span> Processing...';
+          
+          // Create and submit form
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = '{% url "payment_callback" %}';
+          
+          const fields = {
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_signature: response.razorpay_signature
+          };
+          
+          Object.keys(fields).forEach(key => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = fields[key];
+            form.appendChild(input);
+          });
+          
+          document.body.appendChild(form);
+          form.submit();
+        },
+        
+        modal: {
+          ondismiss: function() {
+            payButton.disabled = false;
+            payButton.innerHTML = '<i class="bi bi-lock-fill"></i> <span>Pay Securely with Razorpay</span>';
+          }
+        },
+        
+        prefill: {
+          name: '{{ request.user.get_full_name|default:request.user.username }}',
+          email: '{{ request.user.email }}',
+          contact: '{{ request.user.profile.phone_number|default:"" }}'
+        },
+        
+        theme: {
+          color: '#6366f1'
+        },
+        
+        retry: {
+          enabled: true,
+          max_count: 3
+        }
+      };
+      
+      try {
+        const rzp = new Razorpay(options);
+        rzp.open();
+      } catch (error) {
+        console.error('Razorpay Error:', error);
+        alert('Unable to initiate payment. Please try again.');
+        payButton.disabled = false;
+      }
+    });
+  });
+</script>
+{% endblock %}

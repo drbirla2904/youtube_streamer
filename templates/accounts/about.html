@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}About Us - YouTube Streamer{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>About Us - YouTube Streamer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin:0; font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:#0f172a; color:#e2e8f0; }
+    .hero { padding:4rem 1.5rem; text-align:center; background:linear-gradient(135deg,#4f46e5,#0ea5e9); color:white; }
+    .hero h1 { margin:0 0 1rem; font-size:2.5rem; font-weight:800; }
+    .hero p { margin:0; font-size:1.1rem; opacity:0.95; }
+    .container { max-width:960px; margin:0 auto; padding:3rem 1.5rem 4rem; }
+    h2 { font-size:1.6rem; margin-bottom:0.75rem; color:#e5e7eb; }
+    p { line-height:1.7; color:#cbd5f5; margin:0 0 1rem; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1.5rem; margin-top:2rem; }
+    .card { background:#020617; border-radius:16px; padding:1.75rem; border:1px solid #1f2937; box-shadow:0 18px 45px rgba(15,23,42,0.7); }
+    .tag { display:inline-block; padding:0.15rem 0.6rem; border-radius:999px; font-size:0.75rem; text-transform:uppercase; letter-spacing:.06em; background:rgba(56,189,248,0.1); color:#7dd3fc; margin-bottom:0.75rem; }
+    ul { padding-left:1.1rem; margin:0 0 1rem; color:#cbd5f5; }
+    li { margin-bottom:0.4rem; }
+    .stats { display:flex; flex-wrap:wrap; gap:1.5rem; margin-top:1.5rem; }
+    .stat { flex:1 1 140px; }
+    .stat strong { font-size:1.4rem; display:block; color:#a5b4fc; }
+    .stat span { font-size:0.85rem; color:#94a3b8; text-transform:uppercase; letter-spacing:.08em; }
+    @media (max-width:600px){ .hero h1{font-size:2rem;} .container{padding:2.5rem 1.25rem 3rem;} }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <h1>About - StreamLoop</h1>
+    <p>Automating 24/7 YouTube streaming so creators can focus on content, not infrastructure.</p>
+  </header>
+
+  <main class="container">
+    <section>
+      <h2>Who we are</h2>
+      <p>
+        streamloop is a streaming automation platform built for creators, educators, and brands
+        who want reliable, always‑on YouTube streams without managing complex servers, encoders, or
+        command‑line tools.
+      </p>
+      <p>
+        The platform combines a modern Django backend, queue‑based processing, and cloud‑native video
+        workflows to turn your pre‑recorded content into professional live streams.
+      </p>
+
+      <div class="stats">
+        <div class="stat">
+          <strong>24/7</strong>
+          <span>Continuous streaming</span>
+        </div>
+        <div class="stat">
+          <strong>3+</strong>
+          <span>Streams per account</span>
+        </div>
+        <div class="stat">
+          <strong>Minutes</strong>
+          <span>to go live</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <div class="tag">Our mission</div>
+        <h2>Make streaming infrastructure invisible</h2>
+        <p>
+          Streaming should feel like uploading a video, not configuring a broadcast studio. Our goal
+          is to hide complexity behind a clean dashboard so you can create schedules, upload content,
+          and go live with a few clicks.
+        </p>
+        <p>
+          From handling RTMP output to managing encoders and retries, the platform is designed to be
+          reliable even when you are offline.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="tag">What you can do</div>
+        <h2>Built for busy creators</h2>
+        <ul>
+          <li>Upload videos and loop them into 24/7 streams.</li>
+          <li>Create one‑day, monthly, or annual streaming plans.</li>
+          <li>Monitor stream status from a unified dashboard.</li>
+          <li>Scale to multiple simultaneous streams per account.</li>
+        </ul>
+        <p>
+          Whether you are streaming music, lectures, or devotional content, streamloop helps
+          keep your channel active and your audience engaged.
+        </p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
+{% endblock %}

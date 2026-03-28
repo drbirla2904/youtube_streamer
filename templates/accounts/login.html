@@ -1,0 +1,395 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - YouTube Streamer{% endblock %}
+
+{% block content %}
+<style>
+  /* ==================== Login Page Styles ==================== */
+  .login-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 200px);
+    padding: 2rem 0;
+  }
+
+  .login-card-wrapper {
+    width: 100%;
+    max-width: 450px;
+  }
+
+  .login-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(99, 102, 241, 0.2);
+    transition: var(--transition-smooth);
+  }
+
+  .login-card:hover {
+    box-shadow: 0 25px 80px rgba(99, 102, 241, 0.3);
+  }
+
+  .login-header {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(236, 72, 153, 0.1) 100%);
+    border-bottom: 1px solid var(--border-color);
+    padding: 2.5rem 2rem;
+    text-align: center;
+  }
+
+  .login-icon {
+    font-size: 3rem;
+    background: linear-gradient(135deg, #6366f1, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+    display: inline-block;
+  }
+
+  .login-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .login-body {
+    padding: 2.5rem;
+  }
+
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  /* ==================== Form Groups ==================== */
+  .form-group-login {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .form-label-login {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .form-label-login i {
+    font-size: 1.1rem;
+    color: var(--primary-light);
+  }
+
+  .form-input-login {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1.5px solid var(--border-color);
+    border-radius: 12px;
+    padding: 0.9rem 1.2rem;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: var(--transition-smooth);
+    font-family: 'Inter', sans-serif;
+  }
+
+  .form-input-login::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.6;
+  }
+
+  .form-input-login:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  }
+
+  .form-input-login.is-invalid {
+    border-color: var(--danger-color);
+    background: rgba(239, 68, 68, 0.05);
+  }
+
+  .form-input-login.is-invalid:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  }
+
+  /* ==================== Error Messages ==================== */
+  .error-message {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 10px;
+    padding: 1rem;
+    color: #fca5a5;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    animation: slideInDown 0.3s ease-out;
+  }
+
+  .error-message i {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  .invalid-feedback {
+    background: rgba(239, 68, 68, 0.1);
+    border-left: 3px solid var(--danger-color);
+    border-radius: 6px;
+    padding: 0.6rem 0.9rem;
+    color: #fca5a5;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-top: 0.5rem;
+    display: block;
+    animation: fadeInUp 0.3s ease-out;
+  }
+
+  /* ==================== Buttons ==================== */
+  .btn-login {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+  }
+
+  .btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(99, 102, 241, 0.4);
+    color: white;
+    text-decoration: none;
+  }
+
+  .btn-login:active {
+    transform: translateY(0);
+  }
+
+  .btn-login i {
+    font-size: 1.1rem;
+  }
+
+  /* ==================== Footer Text ==================== */
+  .login-footer {
+    text-align: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    margin-top: 1.5rem;
+  }
+
+  .login-footer p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin: 0;
+    font-weight: 500;
+  }
+
+  .login-footer a {
+    color: var(--primary-light);
+    text-decoration: none;
+    font-weight: 700;
+    transition: var(--transition-smooth);
+  }
+
+  .login-footer a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+  }
+
+  /* ==================== Animations ==================== */
+  @keyframes slideInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ==================== Responsive Design ==================== */
+  @media (max-width: 768px) {
+    .login-container {
+      min-height: auto;
+      padding: 1rem 0;
+    }
+
+    .login-card-wrapper {
+      margin: 0 1rem;
+    }
+
+    .login-header {
+      padding: 2rem 1.5rem;
+    }
+
+    .login-icon {
+      font-size: 2.5rem;
+    }
+
+    .login-title {
+      font-size: 1.25rem;
+    }
+
+    .login-body {
+      padding: 2rem;
+    }
+
+    .form-input-login {
+      padding: 0.8rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .btn-login {
+      padding: 0.9rem;
+      font-size: 0.95rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .login-header {
+      padding: 1.5rem 1rem;
+    }
+
+    .login-icon {
+      font-size: 2rem;
+    }
+
+    .login-title {
+      font-size: 1.1rem;
+    }
+
+    .login-body {
+      padding: 1.5rem;
+    }
+
+    .login-form {
+      gap: 1.25rem;
+    }
+
+    .form-input-login {
+      padding: 0.75rem 0.9rem;
+      font-size: 0.85rem;
+    }
+
+    .btn-login {
+      padding: 0.85rem;
+      font-size: 0.9rem;
+    }
+
+    .login-footer p {
+      font-size: 0.85rem;
+    }
+  }
+</style>
+
+<div class="login-container fade-in">
+  <div class="login-card-wrapper">
+    <div class="login-card">
+      <!-- Header -->
+      <div class="login-header">
+        <i class="login-icon bi bi-box-arrow-in-right"></i>
+        <h1 class="login-title">Welcome Back</h1>
+      </div>
+
+      <!-- Body -->
+      <div class="login-body">
+        <form method="post" class="login-form" novalidate>
+          {% csrf_token %}
+
+          <!-- Non-field Errors -->
+          {% if form.non_field_errors %}
+            <div class="error-message">
+              <i class="bi bi-exclamation-circle-fill"></i>
+              <div>
+                {% for error in form.non_field_errors %}
+                  {{ error }}
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+          <!-- Username Field -->
+          <div class="form-group-login">
+            <label for="{{ form.username.id_for_label }}" class="form-label-login">
+              <i class="bi bi-person-fill"></i>
+              Username
+            </label>
+            <input 
+              type="text" 
+              class="form-input-login {% if form.username.errors %}is-invalid{% endif %}" 
+              id="{{ form.username.id_for_label }}" 
+              name="username" 
+              placeholder="Enter your username"
+              value="{{ form.username.value|default:'' }}"
+              required
+              autocomplete="username">
+            {% if form.username.errors %}
+              {% for error in form.username.errors %}
+                <span class="invalid-feedback">
+                  <i class="bi bi-exclamation-triangle-fill"></i> {{ error }}
+                </span>
+              {% endfor %}
+            {% endif %}
+          </div>
+
+          <!-- Password Field -->
+          <div class="form-group-login">
+            <label for="{{ form.password.id_for_label }}" class="form-label-login">
+              <i class="bi bi-lock-fill"></i>
+              Password
+            </label>
+            <input 
+              type="password" 
+              class="form-input-login {% if form.password.errors %}is-invalid{% endif %}" 
+              id="{{ form.password.id_for_label }}" 
+              name="password" 
+              placeholder="Enter your password"
+              required
+              autocomplete="current-password">
+            {% if form.password.errors %}
+              {% for error in form.password.errors %}
+                <span class="invalid-feedback">
+                  <i class="bi bi-exclamation-triangle-fill"></i> {{ error }}
+                </span>
+              {% endfor %}
+            {% endif %}
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn-login">
+            <i class="bi bi-box-arrow-in-right"></i>
+            Login to Your Account
+          </button>
+
+          <!-- Footer Text -->
+          <div class="login-footer">
+            <p>
+              Don't have an account? 
+              <a href="{% url 'register' %}">Sign up here</a>
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

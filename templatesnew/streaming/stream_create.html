@@ -1,0 +1,881 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Stream — StreamLoop{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Page ── */
+.sc-page { animation: fadeUp 0.5s var(--ease) both; }
+
+/* ── Layout ── */
+.sc-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 1.75rem;
+  align-items: start;
+}
+@media (max-width: 900px) { .sc-layout { grid-template-columns: 1fr; } }
+
+/* ── Page header ── */
+.sc-header {
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.sc-header-icon {
+  width: 48px; height: 48px;
+  background: var(--c-brand-dim);
+  border-radius: var(--radius-md);
+  display: grid;
+  place-items: center;
+  font-size: 1.4rem;
+  color: var(--c-brand);
+  flex-shrink: 0;
+}
+.sc-header h1 {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--c-text-1);
+  margin: 0 0 4px;
+}
+.sc-header p { font-size: 0.88rem; color: var(--c-text-2); margin: 0; }
+
+/* ── Form card ── */
+.sc-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.sc-card-header {
+  background: var(--c-surface-2);
+  border-bottom: 1px solid var(--c-border);
+  padding: 1.1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--c-text-1);
+}
+.sc-card-header i { color: var(--c-brand); font-size: 1.05rem; }
+.sc-card-body { padding: 1.75rem; }
+
+/* ── Section ── */
+.sc-section { margin-bottom: 1.75rem; }
+.sc-section:last-of-type { margin-bottom: 0; }
+
+.sc-label {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--c-text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+.sc-label .req { color: var(--c-brand); font-size: 0.9em; }
+.sc-label .opt { color: var(--c-text-3); font-weight: 500; text-transform: none; font-size: 0.85em; }
+.sc-hint {
+  font-size: 0.8rem;
+  color: var(--c-text-3);
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ── Inputs ── */
+.sc-input, .sc-textarea, .sc-select {
+  width: 100%;
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border-hi);
+  border-radius: var(--radius-sm);
+  color: var(--c-text-1);
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  padding: 0.7rem 1rem;
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  outline: none;
+}
+.sc-input::placeholder, .sc-textarea::placeholder { color: var(--c-text-3); }
+.sc-input:focus, .sc-textarea:focus, .sc-select:focus {
+  border-color: var(--c-brand);
+  box-shadow: 0 0 0 3px rgba(230,57,70,0.15);
+  background: var(--c-surface-2);
+}
+.sc-input.is-valid   { border-color: rgba(16,185,129,0.5); }
+.sc-input.is-invalid { border-color: rgba(230,57,70,0.7); box-shadow: 0 0 0 3px rgba(230,57,70,0.12); }
+
+.sc-textarea { resize: vertical; min-height: 110px; }
+
+.sc-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='%238b909e'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.9rem center;
+  padding-right: 2.5rem;
+  cursor: pointer;
+}
+.sc-select option { background: var(--c-surface-2); color: var(--c-text-1); }
+
+/* char counter */
+.sc-counter-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 5px;
+}
+.sc-counter {
+  font-size: 0.78rem;
+  color: var(--c-text-3);
+  font-variant-numeric: tabular-nums;
+  transition: color 0.2s;
+}
+.sc-counter.warn  { color: var(--c-gold); }
+.sc-counter.limit { color: var(--c-brand); font-weight: 700; }
+
+/* ── Input group (with button) ── */
+.sc-input-group {
+  display: flex;
+  gap: 0.6rem;
+  align-items: stretch;
+}
+.sc-input-group .sc-select { flex: 1; }
+
+/* ── Preview button ── */
+.sc-btn-preview {
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border-hi);
+  color: var(--c-text-2);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 1rem;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: all 0.18s var(--ease);
+  margin-top: 0.6rem;
+}
+.sc-btn-preview:hover:not(:disabled) { border-color: var(--c-brand); color: var(--c-text-1); }
+.sc-btn-preview:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Playlist preview panel ── */
+.sc-preview-panel {
+  margin-top: 0.85rem;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: none;
+}
+.sc-preview-list {
+  max-height: 360px;
+  overflow-y: auto;
+}
+.sc-preview-list::-webkit-scrollbar { width: 4px; }
+.sc-preview-list::-webkit-scrollbar-thumb { background: var(--c-brand); border-radius: 99px; }
+.sc-vid-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--c-border);
+  transition: background 0.15s;
+}
+.sc-vid-item:last-child { border-bottom: none; }
+.sc-vid-item:hover { background: rgba(255,255,255,0.025); }
+.sc-vid-thumb {
+  width: 72px; height: 50px;
+  border-radius: 5px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+}
+.sc-vid-info { flex: 1; min-width: 0; }
+.sc-vid-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--c-text-1);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sc-vid-id { font-size: 0.75rem; color: var(--c-text-3); font-family: monospace; }
+.sc-vid-num {
+  font-size: 0.75rem;
+  color: var(--c-text-3);
+  font-weight: 700;
+  min-width: 2rem;
+  text-align: right;
+}
+.sc-preview-footer {
+  background: var(--c-surface-2);
+  border-top: 1px solid var(--c-border);
+  padding: 0.7rem 1rem;
+  font-size: 0.82rem;
+  color: var(--c-text-2);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.sc-preview-footer strong { color: var(--c-text-1); }
+.sc-preview-footer .stream-note {
+  margin-left: auto;
+  color: var(--c-brand);
+  display: flex; align-items: center; gap: 5px;
+  font-weight: 600;
+}
+
+/* ── Drop zone ── */
+.sc-dropzone {
+  border: 2px dashed var(--c-border-hi);
+  border-radius: var(--radius-sm);
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+  background: rgba(255,255,255,0.015);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+}
+.sc-dropzone:hover { border-color: var(--c-brand); background: rgba(230,57,70,0.04); }
+.sc-dropzone.active { border-color: var(--c-brand); background: rgba(230,57,70,0.07); box-shadow: 0 0 0 3px rgba(230,57,70,0.1); }
+.sc-dropzone i { font-size: 1.8rem; color: var(--c-text-3); display: block; margin-bottom: 0.5rem; transition: color 0.2s, transform 0.2s var(--ease-spring); }
+.sc-dropzone:hover i { color: var(--c-brand); transform: scale(1.1); }
+.sc-dropzone p { font-size: 0.88rem; color: var(--c-text-2); margin: 0; }
+.sc-dropzone span { color: var(--c-brand); font-weight: 700; }
+
+/* Thumb preview */
+.sc-thumb-preview {
+  display: none;
+  margin-top: 1rem;
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  display: none;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+}
+.sc-thumb-img { max-width: 180px; max-height: 110px; border-radius: 5px; border: 1px solid var(--c-border); object-fit: cover; }
+.sc-thumb-info { flex: 1; }
+.sc-thumb-info p { font-size: 0.82rem; color: var(--c-text-2); margin: 0 0 6px; }
+.sc-thumb-remove {
+  background: rgba(230,57,70,0.1);
+  border: 1px solid rgba(230,57,70,0.2);
+  color: #f87171;
+  border-radius: 7px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-body);
+  transition: all 0.18s var(--ease);
+}
+.sc-thumb-remove:hover { background: rgba(230,57,70,0.18); }
+
+/* ── Toggle ── */
+.sc-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease);
+}
+.sc-toggle-row:hover { border-color: var(--c-border-hi); }
+.sc-toggle {
+  position: relative;
+  width: 44px; height: 24px;
+  flex-shrink: 0;
+}
+.sc-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+.sc-toggle-track {
+  position: absolute; inset: 0;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border-hi);
+  border-radius: 99px;
+  transition: background 0.2s, border-color 0.2s;
+  cursor: pointer;
+}
+.sc-toggle input:checked + .sc-toggle-track { background: var(--c-brand); border-color: var(--c-brand); }
+.sc-toggle-track::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s var(--ease-spring);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+.sc-toggle input:checked + .sc-toggle-track::after { transform: translateX(20px); }
+.sc-toggle-label { flex: 1; }
+.sc-toggle-label strong { font-size: 0.9rem; color: var(--c-text-1); display: block; margin-bottom: 2px; }
+.sc-toggle-label span  { font-size: 0.8rem; color: var(--c-text-3); }
+
+/* ── No playlists state ── */
+.sc-no-playlists {
+  border: 1px dashed var(--c-border-hi);
+  border-radius: var(--radius-sm);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  margin-top: 0.75rem;
+}
+.sc-no-playlists i { font-size: 2rem; color: var(--c-text-3); display: block; margin-bottom: 0.6rem; }
+.sc-no-playlists p { font-size: 0.88rem; color: var(--c-text-3); margin-bottom: 1rem; }
+
+/* ── Actions ── */
+.sc-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 2rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--c-border);
+}
+.sc-btn-cancel {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--c-border-hi);
+  color: var(--c-text-2);
+  padding: 0.7rem 1.4rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  transition: all 0.18s var(--ease);
+}
+.sc-btn-cancel:hover { background: rgba(255,255,255,0.08); color: var(--c-text-1); }
+.sc-btn-submit {
+  flex: 1;
+  background: var(--c-brand);
+  border: none;
+  color: #fff;
+  padding: 0.75rem 1.4rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px var(--c-brand-glow);
+  transition: all 0.22s var(--ease);
+}
+.sc-btn-submit:hover:not(:disabled) {
+  background: #cf2f3b;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--c-brand-glow);
+}
+.sc-btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ── Sidebar info ── */
+.sc-info-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-left: 3px solid var(--c-brand);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  position: sticky;
+  top: calc(var(--nav-h) + 1.5rem);
+}
+.sc-info-card h5 {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--c-text-1);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.sc-info-card h5 i { color: var(--c-brand); }
+.sc-info-step {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.1rem;
+}
+.sc-info-step:last-child { margin-bottom: 0; }
+.sc-step-num {
+  width: 22px; height: 22px;
+  background: var(--c-brand-dim);
+  color: var(--c-brand);
+  border-radius: 50%;
+  font-size: 0.72rem;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.sc-step-text { font-size: 0.83rem; color: var(--c-text-2); line-height: 1.55; }
+.sc-step-text strong { color: var(--c-text-1); }
+
+/* form status chip */
+.sc-status-chip {
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  padding: 0.9rem 1rem;
+  margin-top: 1.5rem;
+  font-size: 0.82rem;
+}
+.sc-status-chip .step-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0;
+  color: var(--c-text-3);
+  transition: color 0.2s;
+}
+.sc-status-chip .step-row.done   { color: #34d399; }
+.sc-status-chip .step-row.active { color: var(--c-text-1); font-weight: 600; }
+.sc-status-chip .step-row i { font-size: 0.85rem; width: 14px; text-align: center; }
+
+/* ── Alert ── */
+.sc-alert {
+  border-radius: var(--radius-sm);
+  border-left: 3px solid transparent;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.88rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  animation: fadeUp 0.3s var(--ease) both;
+}
+.sc-alert-error   { background: rgba(230,57,70,0.08);  border-color: var(--c-brand);  color: #f87171; }
+.sc-alert-success { background: rgba(16,185,129,0.08); border-color: #10b981;          color: #34d399; }
+.sc-alert-warn    { background: rgba(244,185,66,0.08); border-color: var(--c-gold);    color: var(--c-gold); }
+
+/* ── Spinner ── */
+.spin {
+  display: inline-block;
+  width: 1rem; height: 1rem;
+  border: 2px solid rgba(255,255,255,0.25);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sc-page">
+
+  <!-- Page Header -->
+  <div class="sc-header animate-up">
+    <div class="sc-header-icon"><i class="bi bi-broadcast"></i></div>
+    <div>
+      <h1>Create Stream</h1>
+      <p>Select a YouTube playlist and go live — no file uploads needed</p>
+    </div>
+  </div>
+
+  <div class="sc-layout">
+    <!-- ── Main Form Column ── -->
+    <div>
+      <div class="sc-card animate-up delay-1">
+        <div class="sc-card-header">
+          <i class="bi bi-sliders"></i> Stream Configuration
+        </div>
+        <div class="sc-card-body">
+
+          <!-- Django messages -->
+          {% if messages %}
+            {% for message in messages %}
+              <div class="sc-alert sc-alert-{{ message.tags }}">
+                <i class="bi bi-{% if message.tags == 'error' %}x-circle-fill{% elif message.tags == 'success' %}check-circle-fill{% else %}info-circle-fill{% endif %}"></i>
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+
+          <form method="post" enctype="multipart/form-data" novalidate id="createStreamForm">
+            {% csrf_token %}
+
+            <div id="jsFormError"></div>
+
+            <!-- ── Title ── -->
+            <div class="sc-section">
+              <label for="title" class="sc-label">
+                <i class="bi bi-pencil-square" style="color:var(--c-brand);"></i>
+                Stream Title <span class="req">*</span>
+              </label>
+              <input
+                type="text"
+                name="title"
+                id="title"
+                class="sc-input"
+                placeholder="e.g. Lofi Beats 24/7 — Study &amp; Chill"
+                maxlength="255"
+                required
+                autocomplete="off"
+              >
+              <div class="sc-counter-row">
+                <span class="sc-hint"><i class="bi bi-info-circle"></i> Visible on YouTube</span>
+                <span class="sc-counter" id="titleCounter">0 / 255</span>
+              </div>
+            </div>
+
+            <!-- ── Description ── -->
+            <div class="sc-section">
+              <label for="description" class="sc-label">
+                <i class="bi bi-textarea-t" style="color:var(--c-brand);"></i>
+                Description <span class="opt">(optional)</span>
+              </label>
+              <textarea
+                name="description"
+                id="description"
+                class="sc-textarea"
+                placeholder="Include hashtags, links, timestamps…"
+                maxlength="5000"
+              ></textarea>
+              <div class="sc-counter-row">
+                <span class="sc-hint"><i class="bi bi-info-circle"></i> Up to 5000 characters</span>
+                <span class="sc-counter" id="descCounter">0 / 5000</span>
+              </div>
+            </div>
+
+            <!-- ── Thumbnail ── -->
+            <div class="sc-section">
+              <label class="sc-label">
+                <i class="bi bi-image" style="color:var(--c-brand);"></i>
+                Thumbnail <span class="opt">(optional)</span>
+              </label>
+              <div class="sc-dropzone" id="scDropZone">
+                <i class="bi bi-cloud-arrow-up"></i>
+                <p><span>Click to upload</span> or drag and drop</p>
+                <p style="font-size:0.78rem; color:var(--c-text-3); margin-top:4px;">JPG, PNG · max 2 MB · 1280×720 recommended</p>
+              </div>
+              <input type="file" name="thumbnail" id="thumbnail" style="display:none;" accept="image/jpeg,image/png">
+
+              <div class="sc-thumb-preview" id="scThumbPreview">
+                <img id="scThumbImg" src="" alt="Preview" class="sc-thumb-img">
+                <div class="sc-thumb-info">
+                  <p id="scThumbName">—</p>
+                  <button type="button" class="sc-thumb-remove" onclick="removeThumbnail()">
+                    <i class="bi bi-x-circle"></i> Remove
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── YouTube Account ── -->
+            <div class="sc-section">
+              <label for="youtube_account" class="sc-label">
+                <i class="bi bi-youtube" style="color:var(--c-brand);"></i>
+                YouTube Account <span class="req">*</span>
+              </label>
+              <select name="youtube_account" id="youtube_account" class="sc-select" required>
+                <option value="">Select an account…</option>
+                {% for account in youtube_accounts %}
+                  <option value="{{ account.id }}">📺 {{ account.channel_title }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <!-- ── YouTube Playlist ── -->
+            <div class="sc-section">
+              <label class="sc-label">
+                <i class="bi bi-collection-play" style="color:var(--c-brand);"></i>
+                YouTube Playlist <span class="req">*</span>
+              </label>
+
+              <div class="sc-input-group">
+                <select name="playlist_id" id="playlistSelect" class="sc-select" required>
+                  {% if playlists %}
+                    <option value="">Choose a playlist…</option>
+                    {% for pl in playlists %}
+                      <option value="{{ pl.id }}">{{ pl.title }} ({{ pl.video_count }} videos)</option>
+                    {% endfor %}
+                  {% else %}
+                    <option value="">No playlists found</option>
+                  {% endif %}
+                </select>
+              </div>
+
+              <button type="button" id="loadVideosBtn" class="sc-btn-preview"
+                      {% if not playlists %}disabled{% endif %}>
+                <i class="bi bi-eye"></i> Preview Videos
+              </button>
+
+              <div id="playlistPreview" class="sc-preview-panel">
+                <div class="sc-preview-list" id="videoList"></div>
+                <div class="sc-preview-footer" id="playlistStats" style="display:none;">
+                  <span><strong id="totalVideos">0</strong> videos</span>
+                  <span class="stream-note"><i class="bi bi-lightning-charge"></i> Streams directly — no storage used</span>
+                </div>
+              </div>
+
+              {% if not playlists %}
+              <div class="sc-no-playlists">
+                <i class="bi bi-collection-play"></i>
+                <p>No playlists found on your YouTube account</p>
+                <a href="{% url 'connect_youtube' %}" class="sc-btn-submit" style="display:inline-flex; max-width:220px;">
+                  <i class="bi bi-youtube"></i> Connect YouTube
+                </a>
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- ── Loop toggle ── -->
+            <div class="sc-section">
+              <label class="sc-toggle-row" for="loop_enabled">
+                <div class="sc-toggle">
+                  <input type="checkbox" name="loop_enabled" id="loop_enabled" checked>
+                  <div class="sc-toggle-track"></div>
+                </div>
+                <div class="sc-toggle-label">
+                  <strong><i class="bi bi-arrow-repeat"></i> Enable Loop</strong>
+                  <span>Playlist repeats continuously until you stop the stream</span>
+                </div>
+              </label>
+            </div>
+
+            <!-- ── Actions ── -->
+            <div class="sc-actions">
+              <a href="{% url 'stream_list' %}" class="sc-btn-cancel">
+                <i class="bi bi-arrow-left"></i> Cancel
+              </a>
+              <button type="submit" class="sc-btn-submit" id="submitBtn">
+                <i class="bi bi-broadcast"></i> <span id="submitLabel">Create Stream</span>
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Sidebar ── -->
+    <div class="animate-up delay-2">
+      <div class="sc-info-card">
+        <h5><i class="bi bi-lightbulb"></i> How it works</h5>
+
+        <div class="sc-info-step">
+          <div class="sc-step-num">1</div>
+          <div class="sc-step-text">Connect a <strong>YouTube account</strong> and select it above</div>
+        </div>
+        <div class="sc-info-step">
+          <div class="sc-step-num">2</div>
+          <div class="sc-step-text">Choose a <strong>playlist</strong> — videos stream live via yt-dlp, no downloads needed</div>
+        </div>
+        <div class="sc-info-step">
+          <div class="sc-step-num">3</div>
+          <div class="sc-step-text">Click <strong>Create Stream</strong>, then open the stream and press <strong>Start</strong></div>
+        </div>
+        <div class="sc-info-step">
+          <div class="sc-step-num">4</div>
+          <div class="sc-step-text">Enable <strong>Loop</strong> to repeat the playlist 24/7 automatically</div>
+        </div>
+
+        <!-- Live form status -->
+        <div class="sc-status-chip" id="scStatusChip">
+          <div class="step-row" id="chk-title"><i class="bi bi-circle"></i> Stream title</div>
+          <div class="step-row" id="chk-account"><i class="bi bi-circle"></i> YouTube account</div>
+          <div class="step-row" id="chk-playlist"><i class="bi bi-circle"></i> Playlist selected</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── CSRF ────────────────────────────────────────────────────────────────────
+function getCookie(n) {
+  let v = null;
+  document.cookie.split(';').forEach(c => {
+    const [k, val] = c.trim().split('=');
+    if (k === n) v = decodeURIComponent(val);
+  });
+  return v;
+}
+const CSRF = getCookie('csrftoken');
+
+// ── Char counters ───────────────────────────────────────────────────────────
+function makeCounter(inputId, counterId, max) {
+  const inp = document.getElementById(inputId);
+  const ctr = document.getElementById(counterId);
+  if (!inp || !ctr) return;
+  function update() {
+    const len = inp.value.length;
+    ctr.textContent = `${len} / ${max}`;
+    ctr.className = 'sc-counter' + (len >= max ? ' limit' : len >= max * 0.85 ? ' warn' : '');
+  }
+  inp.addEventListener('input', update);
+  update();
+}
+makeCounter('title', 'titleCounter', 255);
+makeCounter('description', 'descCounter', 5000);
+
+// ── Live form status chip ───────────────────────────────────────────────────
+function updateStatus() {
+  function setStep(id, done, active) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.className = 'step-row' + (done ? ' done' : active ? ' active' : '');
+    el.querySelector('i').className = done ? 'bi bi-check-circle-fill' : active ? 'bi bi-arrow-right-circle' : 'bi bi-circle';
+  }
+  const titleOk   = document.getElementById('title').value.trim().length > 0;
+  const accountOk = document.getElementById('youtube_account').value !== '';
+  const playlistOk = document.getElementById('playlistSelect').value !== '';
+
+  setStep('chk-title',    titleOk,    !titleOk);
+  setStep('chk-account',  accountOk,  titleOk && !accountOk);
+  setStep('chk-playlist', playlistOk, titleOk && accountOk && !playlistOk);
+
+  // input validation classes
+  const titleInput = document.getElementById('title');
+  if (titleInput.value.length > 0)
+    titleInput.classList.toggle('is-valid', titleOk);
+}
+document.getElementById('title').addEventListener('input', updateStatus);
+document.getElementById('youtube_account').addEventListener('change', updateStatus);
+document.getElementById('playlistSelect').addEventListener('change', updateStatus);
+updateStatus();
+
+// ── Thumbnail drag-and-drop ─────────────────────────────────────────────────
+const dropZone  = document.getElementById('scDropZone');
+const thumbInput = document.getElementById('thumbnail');
+const thumbPrev  = document.getElementById('scThumbPreview');
+const thumbImg   = document.getElementById('scThumbImg');
+const thumbName  = document.getElementById('scThumbName');
+
+dropZone.addEventListener('click', () => thumbInput.click());
+['dragenter','dragover','dragleave','drop'].forEach(ev =>
+  dropZone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); })
+);
+['dragenter','dragover'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.add('active')));
+['dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.remove('active')));
+dropZone.addEventListener('drop', e => {
+  const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+  if (files.length) { assignThumb(files[0]); }
+});
+thumbInput.addEventListener('change', () => { if (thumbInput.files[0]) assignThumb(thumbInput.files[0]); });
+
+function assignThumb(file) {
+  if (file.size > 2 * 1024 * 1024) { showError('Thumbnail must be under 2 MB'); return; }
+  const dt = new DataTransfer(); dt.items.add(file); thumbInput.files = dt.files;
+  const reader = new FileReader();
+  reader.onload = e => {
+    thumbImg.src = e.target.result;
+    thumbName.textContent = file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)';
+    thumbPrev.style.display = 'flex';
+  };
+  reader.readAsDataURL(file);
+}
+function removeThumbnail() {
+  thumbInput.value = '';
+  thumbPrev.style.display = 'none';
+}
+
+// ── Preview playlist ────────────────────────────────────────────────────────
+const previewBtn   = document.getElementById('loadVideosBtn');
+const previewPanel = document.getElementById('playlistPreview');
+const videoList    = document.getElementById('videoList');
+const statsBar     = document.getElementById('playlistStats');
+const totalVideosEl = document.getElementById('totalVideos');
+
+previewBtn.addEventListener('click', async () => {
+  const pid = document.getElementById('playlistSelect').value;
+  if (!pid) { showError('Please select a playlist first'); return; }
+
+  previewBtn.disabled = true;
+  previewBtn.innerHTML = '<span class="spin"></span> Loading…';
+  videoList.innerHTML = '';
+  statsBar.style.display = 'none';
+  previewPanel.style.display = 'block';
+  videoList.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--c-text-3);"><span class="spin" style="border-color:rgba(230,57,70,0.2);border-top-color:var(--c-brand);width:1.5rem;height:1.5rem;"></span></div>';
+
+  try {
+    const res  = await fetch(`/streaming/streams/api/playlist/${pid}/videos/`, {
+      headers: { 'Accept': 'application/json', 'X-CSRFToken': CSRF },
+      credentials: 'same-origin',
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    const videos = data.videos || [];
+    if (videos.length === 0) {
+      videoList.innerHTML = `<div style="padding:2rem;text-align:center;color:var(--c-text-3);"><i class="bi bi-inbox" style="font-size:1.8rem;display:block;margin-bottom:0.5rem;opacity:0.4;"></i>No videos in this playlist</div>`;
+    } else {
+      videoList.innerHTML = videos.map((v, i) => `
+        <div class="sc-vid-item">
+          ${v.thumbnail ? `<img src="${esc(v.thumbnail)}" alt="" class="sc-vid-thumb" loading="lazy">` : `<div class="sc-vid-thumb"></div>`}
+          <div class="sc-vid-info">
+            <div class="sc-vid-title" title="${esc(v.title)}">${esc(v.title)}</div>
+            <div class="sc-vid-id">${esc(v.video_id)}</div>
+          </div>
+          <div class="sc-vid-num">#${i + 1}</div>
+        </div>
+      `).join('');
+      totalVideosEl.textContent = videos.length;
+      statsBar.style.display = 'flex';
+    }
+  } catch (err) {
+    videoList.innerHTML = `<div style="padding:1.5rem;text-align:center;color:#f87171;"><i class="bi bi-exclamation-triangle"></i> ${esc(err.message || 'Failed to load')}</div>`;
+  } finally {
+    previewBtn.disabled = false;
+    previewBtn.innerHTML = '<i class="bi bi-eye"></i> Preview Videos';
+  }
+});
+
+// ── Form submit ─────────────────────────────────────────────────────────────
+document.getElementById('createStreamForm').addEventListener('submit', e => {
+  const title    = document.getElementById('title').value.trim();
+  const account  = document.getElementById('youtube_account').value;
+  const playlist = document.getElementById('playlistSelect').value;
+  let err = '';
+  if (!title)    err = 'Please enter a stream title';
+  else if (!account)  err = 'Please select a YouTube account';
+  else if (!playlist) err = 'Please select a YouTube playlist';
+
+  if (err) { e.preventDefault(); showError(err); return; }
+
+  const btn = document.getElementById('submitBtn');
+  const lbl = document.getElementById('submitLabel');
+  btn.disabled = true;
+  lbl.textContent = 'Creating…';
+  btn.insertBefore(Object.assign(document.createElement('span'), { className: 'spin' }), lbl);
+});
+
+// ── Error helper ────────────────────────────────────────────────────────────
+function showError(msg) {
+  const wrap = document.getElementById('jsFormError');
+  wrap.innerHTML = `<div class="sc-alert sc-alert-error"><i class="bi bi-exclamation-circle-fill"></i><span>${esc(msg)}</span></div>`;
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,922 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ stream.title }} — StreamLoop{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Page ── */
+.sd-page { animation: fadeUp 0.5s var(--ease) both; }
+
+/* ── Page Header ── */
+.sd-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--c-border);
+}
+.sd-header-left { flex: 1; min-width: 0; }
+.sd-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  color: var(--c-text-3);
+  text-decoration: none;
+  margin-bottom: 0.5rem;
+  transition: color 0.18s;
+}
+.sd-back-link:hover { color: var(--c-brand); }
+.sd-title {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--c-text-1);
+  margin: 0 0 6px;
+  line-height: 1.25;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.sd-title-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0.28rem 0.75rem;
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.tbd-running  { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+.tbd-starting { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+.tbd-stopping { background: rgba(244,185,66,0.15); color: var(--c-gold); border: 1px solid rgba(244,185,66,0.3); }
+.tbd-error    { background: rgba(230,57,70,0.12); color: #f87171; border: 1px solid rgba(230,57,70,0.25); }
+.tbd-stopped, .tbd-idle { background: rgba(255,255,255,0.05); color: var(--c-text-3); border: 1px solid var(--c-border); }
+.live-dot {
+  width: 7px; height: 7px;
+  background: #10b981;
+  border-radius: 50%;
+  animation: livePulse 1.8s infinite;
+  display: inline-block;
+}
+
+.sd-channel-tag {
+  font-size: 0.82rem;
+  color: var(--c-text-3);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+}
+.sd-channel-tag i { color: var(--c-brand); }
+
+.sd-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+.sd-btn {
+  padding: 0.6rem 1.1rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  border: none;
+  transition: all 0.2s var(--ease);
+  white-space: nowrap;
+}
+.sd-btn-start {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(16,185,129,0.3);
+}
+.sd-btn-start:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(16,185,129,0.4); color: #fff; }
+.sd-btn-start:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.sd-btn-stop {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(239,68,68,0.28);
+}
+.sd-btn-stop:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(239,68,68,0.38); color: #fff; }
+.sd-btn-back {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--c-border-hi);
+  color: var(--c-text-2);
+}
+.sd-btn-back:hover { background: rgba(255,255,255,0.09); color: var(--c-text-1); }
+
+/* ── Live notice banner ── */
+.sd-notice {
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.88rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  animation: fadeUp 0.35s var(--ease) both;
+}
+.sd-notice i { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+.sd-notice-info    { background: rgba(59,130,246,0.08);  border-color: rgba(59,130,246,0.25);  color: #93c5fd; }
+.sd-notice-success { background: rgba(16,185,129,0.08);  border-color: rgba(16,185,129,0.25);  color: #6ee7b7; }
+.sd-notice-error   { background: rgba(230,57,70,0.08);   border-color: rgba(230,57,70,0.25);   color: #f87171; }
+.sd-notice-warn    { background: rgba(244,185,66,0.08);  border-color: rgba(244,185,66,0.25);  color: var(--c-gold); }
+
+/* ── Uptime hero ── */
+.sd-uptime-hero {
+  background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.04));
+  border: 1px solid rgba(16,185,129,0.2);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+.sd-uptime-icon {
+  width: 44px; height: 44px;
+  background: rgba(16,185,129,0.15);
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+  color: #34d399;
+  flex-shrink: 0;
+}
+.sd-uptime-val {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #34d399;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.sd-uptime-label { font-size: 0.78rem; color: #6ee7b7; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; }
+
+/* ── Section card ── */
+.sd-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  transition: border-color 0.25s var(--ease);
+}
+.sd-card:hover { border-color: var(--c-border-hi); }
+.sd-card-head {
+  background: var(--c-surface-2);
+  border-bottom: 1px solid var(--c-border);
+  padding: 1rem 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+}
+.sd-card-head h5 {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--c-text-1);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.sd-card-head h5 i { color: var(--c-brand); }
+.sd-collapse-icon {
+  color: var(--c-text-3);
+  font-size: 0.85rem;
+  transition: transform 0.25s var(--ease);
+}
+.sd-card.collapsed .sd-collapse-icon { transform: rotate(-90deg); }
+.sd-card-body {
+  padding: 1.4rem;
+  overflow: hidden;
+  transition: max-height 0.35s var(--ease), padding 0.25s var(--ease), opacity 0.25s;
+}
+.sd-card.collapsed .sd-card-body { max-height: 0 !important; padding-top: 0; padding-bottom: 0; opacity: 0; }
+
+/* ── Info table ── */
+.sd-info-table { width: 100%; border-collapse: collapse; }
+.sd-info-table tr { border-bottom: 1px solid var(--c-border); }
+.sd-info-table tr:last-child { border-bottom: none; }
+.sd-info-table th {
+  width: 32%;
+  padding: 0.85rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--c-text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: left;
+  background: rgba(255,255,255,0.015);
+  vertical-align: middle;
+}
+.sd-info-table td {
+  padding: 0.85rem 1rem;
+  color: var(--c-text-2);
+  font-size: 0.88rem;
+  vertical-align: middle;
+}
+.sd-info-table td strong { color: var(--c-text-1); }
+
+/* status mini badges */
+.sdb { display:inline-flex; align-items:center; gap:5px; padding:0.25rem 0.65rem; border-radius:5px; font-size:0.75rem; font-weight:700; }
+.sdb-run { background:rgba(16,185,129,0.15); color:#34d399; }
+.sdb-start { background:rgba(59,130,246,0.15); color:#60a5fa; }
+.sdb-stop { background:rgba(107,114,128,0.15); color:#9ca3af; }
+.sdb-err { background:rgba(230,57,70,0.12); color:#f87171; }
+
+/* ── Code / RTMP block ── */
+.sd-code-block {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--c-border);
+  border-radius: 7px;
+  padding: 0.7rem 1rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  color: #a78bfa;
+  word-break: break-all;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.sd-code-block code { flex: 1; }
+.sd-copy-btn {
+  background: transparent;
+  border: 1px solid var(--c-border-hi);
+  color: var(--c-text-3);
+  border-radius: 5px;
+  padding: 0.3rem 0.55rem;
+  font-size: 0.78rem;
+  cursor: pointer;
+  font-family: var(--font-body);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  transition: all 0.18s;
+}
+.sd-copy-btn:hover { border-color: var(--c-brand); color: var(--c-brand); }
+.sd-copy-btn.copied { color: #34d399; border-color: rgba(16,185,129,0.4); }
+
+/* ── Video list ── */
+.sd-vid-list { max-height: 380px; overflow-y: auto; }
+.sd-vid-list::-webkit-scrollbar { width: 4px; }
+.sd-vid-list::-webkit-scrollbar-thumb { background: var(--c-brand); border-radius: 99px; }
+.sd-vid-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--c-border);
+  transition: background 0.15s;
+}
+.sd-vid-item:last-child { border-bottom: none; }
+.sd-vid-item:hover { background: rgba(255,255,255,0.025); }
+.sd-vid-num { font-size: 0.75rem; color: var(--c-text-3); font-weight: 700; min-width: 1.8rem; }
+.sd-vid-info { flex: 1; min-width: 0; }
+.sd-vid-title { font-size: 0.85rem; font-weight: 600; color: var(--c-text-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sd-vid-id { font-size: 0.75rem; color: var(--c-text-3); font-family: monospace; }
+.sd-vid-ext { color: var(--c-text-3); font-size: 0.82rem; flex-shrink: 0; text-decoration: none; transition: color 0.15s; }
+.sd-vid-ext:hover { color: var(--c-brand); }
+
+/* ── Logs ── */
+.sd-logs-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+.sd-logs-filter {
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border-hi);
+  color: var(--c-text-2);
+  border-radius: 6px;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.8rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.sd-logs-filter:hover, .sd-logs-filter.active { border-color: var(--c-brand); color: var(--c-brand); }
+.sd-logs-auto {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  color: var(--c-text-3);
+}
+.sd-pulse-dot {
+  width: 6px; height: 6px;
+  background: #10b981;
+  border-radius: 50%;
+  animation: livePulse 1.8s infinite;
+}
+.sd-logs-wrap {
+  max-height: 380px;
+  overflow-y: auto;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  background: rgba(0,0,0,0.15);
+}
+.sd-logs-wrap::-webkit-scrollbar { width: 4px; }
+.sd-logs-wrap::-webkit-scrollbar-thumb { background: var(--c-brand); border-radius: 99px; }
+.sd-log-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.sd-log-table thead { position: sticky; top: 0; background: rgba(14,16,24,0.95); border-bottom: 1px solid var(--c-border); }
+.sd-log-table th { padding: 0.6rem 0.8rem; font-weight: 700; color: var(--c-text-3); text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.sd-log-table td { padding: 0.55rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.03); color: var(--c-text-2); vertical-align: top; }
+.sd-log-table tr:last-child td { border-bottom: none; }
+.sd-log-table tr:hover td { background: rgba(255,255,255,0.02); }
+.lv { display:inline-flex; align-items:center; padding:0.18rem 0.5rem; border-radius:4px; font-weight:700; font-size:0.72rem; }
+.lv-err  { background:rgba(239,68,68,0.18); color:#fca5a5; }
+.lv-warn { background:rgba(245,158,11,0.18); color:#fcd34d; }
+.lv-info { background:rgba(59,130,246,0.18); color:#93c5fd; }
+.sd-logs-empty {
+  text-align: center;
+  padding: 2.5rem;
+  color: var(--c-text-3);
+  font-size: 0.88rem;
+}
+.sd-logs-empty i { font-size: 1.8rem; display: block; margin-bottom: 0.5rem; opacity: 0.3; }
+
+/* ── Sidebar ── */
+.sd-sidebar-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+.sd-sidebar-card-head {
+  background: var(--c-surface-2);
+  border-bottom: 1px solid var(--c-border);
+  padding: 0.9rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--c-text-1);
+}
+.sd-sidebar-card-head i { color: var(--c-brand); }
+.sd-sidebar-card-body { padding: 1.25rem; }
+
+.sd-stat-row { margin-bottom: 1.1rem; }
+.sd-stat-row:last-child { margin-bottom: 0; }
+.sd-stat-label { font-size: 0.72rem; color: var(--c-text-3); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-bottom: 3px; }
+.sd-stat-val { font-size: 0.85rem; color: var(--c-text-1); font-family: monospace; word-break: break-all; }
+.sd-stat-val a { color: var(--c-text-2); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: color 0.15s; }
+.sd-stat-val a:hover { color: var(--c-brand); }
+
+/* Delete btn */
+.sd-btn-delete {
+  width: 100%;
+  background: rgba(230,57,70,0.1);
+  border: 1px solid rgba(230,57,70,0.2);
+  color: #f87171;
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 1rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  transition: all 0.2s var(--ease);
+}
+.sd-btn-delete:hover { background: rgba(230,57,70,0.18); border-color: rgba(230,57,70,0.4); color: #f87171; transform: translateY(-1px); }
+
+/* Actions card sticky */
+.sd-sidebar-sticky { position: sticky; top: calc(var(--nav-h) + 1.25rem); }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .sd-title { font-size: 1.25rem; }
+  .sd-header { flex-direction: column; }
+  .sd-actions { width: 100%; }
+  .sd-btn { flex: 1; justify-content: center; font-size: 0.8rem; }
+  .sd-info-table th { display: none; }
+  .sd-info-table td { display: block; padding: 0.6rem 1rem; }
+  .sd-info-table tr { padding: 0.4rem 0; display: block; }
+  .sd-info-table tr td:first-of-type { padding-top: 1rem; }
+  .sd-uptime-val { font-size: 1.25rem; }
+}
+@media (max-width: 480px) {
+  .sd-btn { padding: 0.55rem 0.75rem; font-size: 0.75rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sd-page">
+
+  <!-- ── Header ── -->
+  <div class="sd-header animate-up">
+    <div class="sd-header-left">
+      <a href="{% url 'stream_list' %}" class="sd-back-link"><i class="bi bi-arrow-left"></i> All Streams</a>
+      <div class="sd-title">
+        {% if stream.status == 'running' %}<span class="live-dot"></span>{% endif %}
+        {{ stream.title }}
+        {% if stream.status == 'running' %}
+          <span class="sd-title-badge tbd-running"><span class="live-dot"></span> Live</span>
+        {% elif stream.status == 'starting' %}
+          <span class="sd-title-badge tbd-starting"><i class="bi bi-hourglass-split"></i> Starting</span>
+        {% elif stream.status == 'stopping' %}
+          <span class="sd-title-badge tbd-stopping"><i class="bi bi-hourglass"></i> Stopping</span>
+        {% elif stream.status == 'error' %}
+          <span class="sd-title-badge tbd-error"><i class="bi bi-exclamation-triangle"></i> Error</span>
+        {% else %}
+          <span class="sd-title-badge tbd-stopped"><i class="bi bi-stop-circle"></i> {{ stream.status|capfirst }}</span>
+        {% endif %}
+      </div>
+      {% if stream.youtube_account %}
+      <p class="sd-channel-tag"><i class="bi bi-youtube"></i> {{ stream.youtube_account.channel_title }}</p>
+      {% endif %}
+    </div>
+
+    <div class="sd-actions">
+      {% if stream.status == 'idle' or stream.status == 'stopped' or stream.status == 'error' %}
+        <form method="post" action="{% url 'stream_start' stream.id %}" style="margin:0;" id="startForm">
+          {% csrf_token %}
+          <button type="submit" class="sd-btn sd-btn-start" id="startBtn">
+            <i class="bi bi-play-circle"></i> Start Stream
+          </button>
+        </form>
+      {% endif %}
+
+      {% if stream.status == 'running' or stream.status == 'starting' %}
+        <form method="post" action="{% url 'stream_stop' stream.id %}" style="margin:0;" id="stopForm">
+          {% csrf_token %}
+          <button type="submit" class="sd-btn sd-btn-stop" id="stopBtn">
+            <i class="bi bi-stop-circle"></i> Stop Stream
+          </button>
+        </form>
+      {% endif %}
+
+      <a href="{% url 'stream_list' %}" class="sd-btn sd-btn-back">
+        <i class="bi bi-arrow-left"></i> Back
+      </a>
+    </div>
+  </div>
+
+  <!-- ── Notices ── -->
+  {% if stream.status == 'starting' %}
+  <div class="sd-notice sd-notice-info animate-up delay-1">
+    <i class="bi bi-hourglass-split"></i>
+    <div><strong>Stream is starting…</strong> The worker is setting up your playlist. This page will refresh automatically.</div>
+  </div>
+  {% endif %}
+
+  {% if stream.status == 'running' %}
+  <div class="sd-uptime-hero animate-up delay-1">
+    <div class="sd-uptime-icon"><i class="bi bi-activity"></i></div>
+    <div>
+      <div class="sd-uptime-val" id="sdUptimeHero">{{ stream.uptime_seconds }}s</div>
+      <div class="sd-uptime-label">Stream uptime</div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ── Two-col layout ── -->
+  <div class="row g-3">
+    <div class="col-lg-8">
+
+      <!-- ── Stream Info Card ── -->
+      <div class="sd-card animate-up delay-2" id="cardInfo">
+        <div class="sd-card-head" onclick="toggleCard('cardInfo')">
+          <h5><i class="bi bi-info-circle"></i> Stream Information</h5>
+          <i class="bi bi-chevron-down sd-collapse-icon"></i>
+        </div>
+        <div class="sd-card-body">
+          <table class="sd-info-table">
+            <tr>
+              <th>Status</th>
+              <td>
+                {% if stream.status == 'running' %}
+                  <span class="sdb sdb-run"><span class="live-dot"></span> Live</span>
+                {% elif stream.status == 'starting' %}
+                  <span class="sdb sdb-start"><i class="bi bi-hourglass-split"></i> Starting</span>
+                {% elif stream.status == 'stopping' %}
+                  <span class="sdb sdb-start"><i class="bi bi-hourglass"></i> Stopping</span>
+                {% elif stream.status == 'error' %}
+                  <span class="sdb sdb-err"><i class="bi bi-exclamation-triangle"></i> Error</span>
+                {% else %}
+                  <span class="sdb sdb-stop"><i class="bi bi-stop-circle"></i> {{ stream.status|capfirst }}</span>
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th>YouTube Channel</th>
+              <td><strong>{{ stream.youtube_account.channel_title }}</strong></td>
+            </tr>
+            <tr>
+              <th>Description</th>
+              <td>{{ stream.description|default:"No description provided" }}</td>
+            </tr>
+            <tr>
+              <th>Loop</th>
+              <td>
+                {% if stream.loop_enabled %}
+                  <i class="bi bi-check-circle-fill" style="color:#10b981;"></i>
+                  <span style="color:#34d399; font-weight:600;"> Enabled</span>
+                {% else %}
+                  <i class="bi bi-x-circle-fill" style="color:#ef4444;"></i>
+                  <span style="color:#f87171; font-weight:600;"> Disabled</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% if stream.scheduled_start_time %}
+            <tr>
+              <th>Scheduled Start</th>
+              <td>{{ stream.scheduled_start_time|date:"M d, Y · H:i:s" }}</td>
+            </tr>
+            {% endif %}
+            <tr>
+              <th>Started At</th>
+              <td>{{ stream.started_at|date:"M d, Y · H:i:s"|default:"Not started yet" }}</td>
+            </tr>
+            <tr>
+              <th>Created</th>
+              <td>{{ stream.created_at|date:"M d, Y · H:i:s" }}</td>
+            </tr>
+            <tr>
+              <th>Source</th>
+              <td>
+                {% if stream.media_files.exists %}
+                  <i class="bi bi-hdd" style="color:var(--c-brand);"></i> Stored media files
+                {% elif stream.playlist_videos %}
+                  <i class="bi bi-collection-play" style="color:var(--c-brand);"></i> YouTube playlist (direct stream)
+                {% else %}
+                  <span style="color:var(--c-text-3);">No source configured</span>
+                {% endif %}
+              </td>
+            </tr>
+          </table>
+
+          {% if stream.error_message %}
+          <div class="sd-notice sd-notice-error" style="margin-top:1rem;">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            <div><strong>Error:</strong> {{ stream.error_message }}</div>
+          </div>
+          {% endif %}
+
+          {% if stream.stream_url %}
+          <div style="margin-top:1rem;">
+            <div class="sd-stat-label" style="margin-bottom:6px;">RTMP Ingest URL</div>
+            <div class="sd-code-block">
+              <code id="rtmpUrl">{{ stream.stream_url }}</code>
+              <button class="sd-copy-btn" onclick="copyRtmp()" id="copyBtn">
+                <i class="bi bi-clipboard"></i> Copy
+              </button>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- ── Playlist Card ── -->
+      {% if stream.playlist_videos %}
+      <div class="sd-card animate-up delay-3" id="cardPlaylist">
+        <div class="sd-card-head" onclick="toggleCard('cardPlaylist')">
+          <h5>
+            <i class="bi bi-collection-play"></i> YouTube Playlist
+            {% with info=stream.playlist_videos.0 %}
+              {% if info.total_videos %}
+                <span style="font-family:var(--font-body); font-weight:400; font-size:0.82rem; color:var(--c-text-3); margin-left:4px;">— {{ info.total_videos }} videos</span>
+              {% endif %}
+            {% endwith %}
+          </h5>
+          <i class="bi bi-chevron-down sd-collapse-icon"></i>
+        </div>
+        <div class="sd-card-body">
+          {% with info=stream.playlist_videos.0 %}
+          <p style="font-size:0.83rem; color:var(--c-text-3); margin-bottom:1rem; display:flex; align-items:center; gap:5px;">
+            <i class="bi bi-lightning-charge" style="color:var(--c-brand);"></i>
+            Playlist ID: <code style="color:#a78bfa;">{{ info.youtube_playlist_id }}</code>
+            &nbsp;·&nbsp; Streams directly via yt-dlp — no storage used
+          </p>
+
+          {% if info.videos %}
+          <div class="sd-vid-list">
+            {% for video in info.videos|slice:":30" %}
+            <div class="sd-vid-item">
+              <span class="sd-vid-num">{{ forloop.counter }}</span>
+              <div class="sd-vid-info">
+                <div class="sd-vid-title" title="{{ video.title }}">{{ video.title }}</div>
+                <div class="sd-vid-id">{{ video.video_id }}</div>
+              </div>
+              <a href="https://www.youtube.com/watch?v={{ video.video_id }}"
+                 target="_blank" rel="noopener" class="sd-vid-ext" title="Open on YouTube">
+                <i class="bi bi-box-arrow-up-right"></i>
+              </a>
+            </div>
+            {% endfor %}
+            {% if info.videos|length > 30 %}
+            <div style="padding:0.7rem 1rem; text-align:center; color:var(--c-text-3); font-size:0.82rem; border-top:1px solid var(--c-border);">
+              … and {{ info.videos|length|add:"-30" }} more videos
+            </div>
+            {% endif %}
+          </div>
+          {% else %}
+          <p style="color:var(--c-text-3); font-size:0.88rem; margin:0;">Video list will load when the stream starts for the first time.</p>
+          {% endif %}
+          {% endwith %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- ── Stored Media ── -->
+      {% if stream.media_files.exists %}
+      <div class="sd-card animate-up delay-3" id="cardMedia">
+        <div class="sd-card-head" onclick="toggleCard('cardMedia')">
+          <h5><i class="bi bi-hdd"></i> Stored Media Files <span style="font-weight:400; font-size:0.82rem; color:var(--c-text-3);">({{ stream.media_files.count }})</span></h5>
+          <i class="bi bi-chevron-down sd-collapse-icon"></i>
+        </div>
+        <div class="sd-card-body" style="padding:0;">
+          {% for media in stream.media_files.all %}
+          <div class="sd-vid-item">
+            <div class="sd-vid-info">
+              <div class="sd-vid-title"><i class="bi bi-file-earmark-play" style="color:var(--c-brand);"></i> {{ media.title }}</div>
+              <div class="sd-vid-id">{{ media.file_size|filesizeformat }}</div>
+            </div>
+            <span style="background:var(--c-brand-dim); color:var(--c-brand); border-radius:5px; padding:0.2rem 0.55rem; font-size:0.72rem; font-weight:700;">{{ media.media_type|upper }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- ── Logs Card ── -->
+      <div class="sd-card animate-up delay-4" id="cardLogs">
+        <div class="sd-card-head" onclick="toggleCard('cardLogs')">
+          <h5><i class="bi bi-terminal"></i> Stream Logs</h5>
+          <div style="display:flex; align-items:center; gap:0.75rem;" onclick="event.stopPropagation()">
+            {% if stream.status == 'running' or stream.status == 'starting' %}
+            <div class="sd-logs-auto">
+              <div class="sd-pulse-dot"></div> Live
+            </div>
+            {% endif %}
+            <i class="bi bi-chevron-down sd-collapse-icon"></i>
+          </div>
+        </div>
+        <div class="sd-card-body">
+          <div class="sd-logs-toolbar">
+            <button class="sd-logs-filter active" data-level="all" onclick="filterLogs(this,'all')">All</button>
+            <button class="sd-logs-filter" data-level="INFO" onclick="filterLogs(this,'INFO')">Info</button>
+            <button class="sd-logs-filter" data-level="WARNING" onclick="filterLogs(this,'WARNING')">Warn</button>
+            <button class="sd-logs-filter" data-level="ERROR" onclick="filterLogs(this,'ERROR')">Error</button>
+            <button class="sd-logs-filter" style="margin-left:auto;" onclick="clearLogFilter(this)">
+              <i class="bi bi-arrow-repeat"></i> Reset
+            </button>
+          </div>
+
+          <div class="sd-logs-wrap" id="logsWrap">
+            {% if logs %}
+            <table class="sd-log-table">
+              <thead>
+                <tr>
+                  <th width="14%">Time</th>
+                  <th width="12%">Level</th>
+                  <th>Message</th>
+                </tr>
+              </thead>
+              <tbody id="logsBody">
+                {% for log in logs %}
+                <tr data-level="{{ log.level }}">
+                  <td style="font-family:monospace; color:var(--c-text-3);">{{ log.created_at|date:"H:i:s" }}</td>
+                  <td>
+                    {% if log.level == 'ERROR' %}
+                      <span class="lv lv-err">ERROR</span>
+                    {% elif log.level == 'WARNING' %}
+                      <span class="lv lv-warn">WARN</span>
+                    {% else %}
+                      <span class="lv lv-info">INFO</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ log.message }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% else %}
+            <div class="sd-logs-empty" id="emptyLogs">
+              <i class="bi bi-inbox"></i>
+              No logs yet — start the stream to see activity
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /col-lg-8 -->
+
+    <!-- ── Sidebar ── -->
+    <div class="col-lg-4 animate-up delay-3">
+      <div class="sd-sidebar-sticky">
+
+        <!-- Quick Stats -->
+        <div class="sd-sidebar-card">
+          <div class="sd-sidebar-card-head"><i class="bi bi-speedometer2"></i> Quick Stats</div>
+          <div class="sd-sidebar-card-body">
+            <div class="sd-stat-row">
+              <div class="sd-stat-label">Stream ID</div>
+              <div class="sd-stat-val">{{ stream.id }}</div>
+            </div>
+
+            {% if stream.broadcast_id %}
+            <div class="sd-stat-row">
+              <div class="sd-stat-label">YouTube Broadcast</div>
+              <div class="sd-stat-val">
+                <a href="https://studio.youtube.com/video/{{ stream.broadcast_id }}/livestreaming" target="_blank" rel="noopener">
+                  {{ stream.broadcast_id }} <i class="bi bi-box-arrow-up-right"></i>
+                </a>
+              </div>
+            </div>
+            {% endif %}
+
+            {% if stream.process_id %}
+            <div class="sd-stat-row">
+              <div class="sd-stat-label">FFmpeg PID</div>
+              <div class="sd-stat-val">{{ stream.process_id }}</div>
+            </div>
+            {% endif %}
+
+            {% if stream.status == 'running' %}
+            <div class="sd-stat-row">
+              <div class="sd-stat-label">Uptime</div>
+              <div class="sd-stat-val" id="sdUptimeStat" style="color:#34d399; font-weight:700; font-size:1rem;">
+                {{ stream.uptime_seconds }}s
+              </div>
+            </div>
+            {% endif %}
+
+            {% if stream.last_heartbeat %}
+            <div class="sd-stat-row">
+              <div class="sd-stat-label">Last Heartbeat</div>
+              <div class="sd-stat-val">{{ stream.last_heartbeat|date:"H:i:s" }}</div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="sd-sidebar-card">
+          <div class="sd-sidebar-card-head"><i class="bi bi-lightning"></i> Actions</div>
+          <div class="sd-sidebar-card-body">
+            {% if stream.status == 'stopped' or stream.status == 'error' or stream.status == 'idle' %}
+              <a href="{% url 'stream_delete' stream.id %}"
+                 class="sd-btn-delete"
+                 onclick="return confirm('Delete this stream permanently? This cannot be undone.')">
+                <i class="bi bi-trash3"></i> Delete Stream
+              </a>
+            {% else %}
+              <p style="text-align:center; color:var(--c-text-3); font-size:0.85rem; margin:0;">
+                <i class="bi bi-info-circle"></i> Stop the stream before deleting
+              </p>
+            {% endif %}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div><!-- /row -->
+</div><!-- /sd-page -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ── Collapsible cards ───────────────────────────────────────────────────────
+function toggleCard(id) {
+  const card = document.getElementById(id);
+  if (!card) return;
+  const body = card.querySelector('.sd-card-body');
+  if (!body) return;
+  if (!card.classList.contains('collapsed')) {
+    body.style.maxHeight = body.scrollHeight + 'px';
+    requestAnimationFrame(() => {
+      card.classList.add('collapsed');
+      body.style.maxHeight = '0';
+    });
+  } else {
+    card.classList.remove('collapsed');
+    body.style.maxHeight = body.scrollHeight + 'px';
+    body.addEventListener('transitionend', () => { body.style.maxHeight = ''; }, { once: true });
+  }
+}
+// Set initial maxHeight for all non-collapsed cards
+document.querySelectorAll('.sd-card:not(.collapsed) .sd-card-body').forEach(b => {
+  b.style.maxHeight = '';
+});
+
+// ── Copy RTMP URL ───────────────────────────────────────────────────────────
+function copyRtmp() {
+  const url = document.getElementById('rtmpUrl').textContent.trim();
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.innerHTML = '<i class="bi bi-check-lg"></i> Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.innerHTML = '<i class="bi bi-clipboard"></i> Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+// ── Log filter ──────────────────────────────────────────────────────────────
+function filterLogs(btn, level) {
+  document.querySelectorAll('.sd-logs-filter').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#logsBody tr').forEach(tr => {
+    tr.style.display = (level === 'all' || tr.dataset.level === level) ? '' : 'none';
+  });
+}
+function clearLogFilter(btn) {
+  document.querySelectorAll('.sd-logs-filter').forEach(b => b.classList.remove('active'));
+  document.querySelector('.sd-logs-filter[data-level="all"]').classList.add('active');
+  document.querySelectorAll('#logsBody tr').forEach(tr => tr.style.display = '');
+}
+
+// ── Start button guard ──────────────────────────────────────────────────────
+(function () {
+  const form = document.getElementById('startForm');
+  const btn  = document.getElementById('startBtn');
+  if (form && btn) {
+    form.addEventListener('submit', () => {
+      btn.disabled = true;
+      btn.innerHTML = '<span style="width:0.85rem;height:0.85rem;border:2px solid rgba(255,255,255,0.25);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;"></span> Starting…';
+    });
+  }
+  const stopForm = document.getElementById('stopForm');
+  const stopBtn  = document.getElementById('stopBtn');
+  if (stopForm && stopBtn) {
+    stopForm.addEventListener('submit', e => {
+      if (!confirm('Stop the stream?')) { e.preventDefault(); return; }
+      stopBtn.disabled = true;
+      stopBtn.innerHTML = '<span style="width:0.85rem;height:0.85rem;border:2px solid rgba(255,255,255,0.25);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;"></span> Stopping…';
+    });
+  }
+})();
+
+// ── Uptime counter ──────────────────────────────────────────────────────────
+{% if stream.status == 'running' %}
+(function () {
+  let s = {{ stream.uptime_seconds }};
+  function fmt(sec) {
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const ss = sec % 60;
+    return `${h ? h+'h ' : ''}${m}m ${ss.toString().padStart(2,'0')}s`;
+  }
+  const hero = document.getElementById('sdUptimeHero');
+  const stat = document.getElementById('sdUptimeStat');
+  setInterval(() => {
+    s++;
+    const f = fmt(s);
+    if (hero) hero.textContent = f;
+    if (stat) stat.textContent = f;
+  }, 1000);
+})();
+{% endif %}
+
+// ── Status polling ──────────────────────────────────────────────────────────
+{% if stream.status == 'running' or stream.status == 'starting' or stream.status == 'stopping' %}
+(function () {
+  const STATUS_URL = '{% url "stream_status_api" stream.id %}';
+  const CURRENT    = '{{ stream.status }}';
+  setInterval(async () => {
+    try {
+      const r = await fetch(STATUS_URL, { credentials: 'same-origin' });
+      const d = await r.json();
+      if (d.status !== CURRENT) location.reload();
+    } catch {}
+  }, 8000);
+})();
+{% endif %}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+</script>
+{% endblock %}
