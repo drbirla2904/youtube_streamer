@@ -874,6 +874,7 @@ class StreamManager:
             resolve_ffmpeg_binary(),
             '-v', 'warning',       # Less noise; errors still visible
             '-re',                  # Real-time playback rate
+            '-thread_queue_size', '1024',
             '-i', 'pipe:0',
             *self._encoding_args(),
         ]
@@ -886,7 +887,7 @@ class StreamManager:
             '-b:v', '2500k', '-maxrate', '3000k', '-bufsize', '6000k',
             '-g', '60', '-keyint_min', '60',
             '-pix_fmt', 'yuv420p', '-r', '30',
-            '-thread_queue_size', '1024',
+            
             # Audio
             '-c:a', 'aac', '-b:a', '128k', '-ar', '44100', '-ac', '2',
             # Output
