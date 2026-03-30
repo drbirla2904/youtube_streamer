@@ -1,0 +1,83 @@
+
+<style>
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(.85)} }
+  @keyframes flowDown { 0%{stroke-dashoffset:40} 100%{stroke-dashoffset:0} }
+  @keyframes fadeSlide { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes ping { 0%{transform:scale(1);opacity:1} 100%{transform:scale(2.2);opacity:0} }
+  .step-card { animation: fadeSlide .5s ease both; }
+  .step-card:nth-child(1){animation-delay:.05s}
+  .step-card:nth-child(2){animation-delay:.18s}
+  .step-card:nth-child(3){animation-delay:.31s}
+  .step-card:nth-child(4){animation-delay:.44s}
+  .flow-line { stroke-dasharray:6 4; animation: flowDown 1.2s linear infinite; }
+  .dot-ping { animation: ping 1.4s ease-out infinite; }
+  .live-dot { animation: pulse 1.1s ease-in-out infinite; }
+</style>
+
+<div style="padding:1.5rem 1rem 1rem; max-width:540px; margin:0 auto;">
+
+  <p style="font-size:11px;font-weight:500;letter-spacing:.08em;color:var(--color-text-tertiary);text-transform:uppercase;margin:0 0 1.25rem 0;">How it works</p>
+
+  <div style="display:flex;flex-direction:column;gap:0;">
+
+    <!-- Step 1 -->
+    <div class="step-card" style="display:flex;gap:16px;align-items:flex-start;">
+      <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:36px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--color-background-info);border:0.5px solid var(--color-border-secondary);display:flex;align-items:center;justify-content:center;position:relative;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2a6 6 0 100 12A6 6 0 008 2zm0 1.5a4.5 4.5 0 110 9 4.5 4.5 0 010-9zm0 1.5a.75.75 0 00-.75.75v2.5l1.75 1.05a.75.75 0 10.75-1.3L9 8.35V5.75A.75.75 0 008 5z" fill="var(--color-text-info)"/></svg>
+        </div>
+        <svg width="2" height="44" viewBox="0 0 2 44"><line class="flow-line" x1="1" y1="0" x2="1" y2="44" stroke="var(--color-border-secondary)" stroke-width="1.5"/></svg>
+      </div>
+      <div style="padding-top:6px;padding-bottom:24px;">
+        <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin:0 0 4px 0;">Connect your YouTube account</p>
+        <p style="font-size:12px;color:var(--color-text-secondary);margin:0;line-height:1.6;">Link your channel and select it from the account picker above.</p>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step-card" style="display:flex;gap:16px;align-items:flex-start;">
+      <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:36px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--color-background-warning);border:0.5px solid var(--color-border-secondary);display:flex;align-items:center;justify-content:center;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4a1 1 0 011-1h10a1 1 0 011 1v1a1 1 0 01-1 1H3a1 1 0 01-1-1V4zm0 5a1 1 0 011-1h6a1 1 0 110 2H3a1 1 0 01-1-1zm0 4a1 1 0 011-1h4a1 1 0 110 2H3a1 1 0 01-1-1z" fill="var(--color-text-warning)"/></svg>
+        </div>
+        <svg width="2" height="44" viewBox="0 0 2 44"><line class="flow-line" x1="1" y1="0" x2="1" y2="44" stroke="var(--color-border-secondary)" stroke-width="1.5"/></svg>
+      </div>
+      <div style="padding-top:6px;padding-bottom:24px;">
+        <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin:0 0 4px 0;">Choose a playlist</p>
+        <p style="font-size:12px;color:var(--color-text-secondary);margin:0;line-height:1.6;">Videos stream live via <code style="font-size:11px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary)">yt-dlp</code> — no downloads needed.</p>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step-card" style="display:flex;gap:16px;align-items:flex-start;">
+      <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:36px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--color-background-success);border:0.5px solid var(--color-border-secondary);display:flex;align-items:center;justify-content:center;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><polygon points="5,3 13,8 5,13" fill="var(--color-text-success)"/></svg>
+        </div>
+        <svg width="2" height="44" viewBox="0 0 2 44"><line class="flow-line" x1="1" y1="0" x2="1" y2="44" stroke="var(--color-border-secondary)" stroke-width="1.5"/></svg>
+      </div>
+      <div style="padding-top:6px;padding-bottom:24px;">
+        <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin:0 0 4px 0;">Create stream, then press Start</p>
+        <p style="font-size:12px;color:var(--color-text-secondary);margin:0;line-height:1.6;">Click <strong style="font-weight:500;color:var(--color-text-primary)">Create Stream</strong>, open it, and hit the Start button to go live.</p>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step-card" style="display:flex;gap:16px;align-items:flex-start;">
+      <div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:36px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--color-background-danger);border:0.5px solid var(--color-border-secondary);display:flex;align-items:center;justify-content:center;position:relative;">
+          <div class="dot-ping" style="position:absolute;inset:0;border-radius:50%;border:1.5px solid var(--color-border-danger);pointer-events:none;"></div>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2C4.69 2 2 4.69 2 8s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 2.5a.75.75 0 01.75.75v3a.75.75 0 01-1.5 0v-3A.75.75 0 018 4.5zm0 6.25a.875.875 0 110-1.75.875.875 0 010 1.75z" fill="var(--color-text-danger)"/></svg>
+        </div>
+      </div>
+      <div style="padding-top:6px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin:0;">Enable Loop for 24/7 streaming</p>
+          <span class="live-dot" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--color-text-danger);flex-shrink:0;"></span>
+        </div>
+        <p style="font-size:12px;color:var(--color-text-secondary);margin:0;line-height:1.6;">Toggle Loop on to repeat the playlist automatically, forever.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
