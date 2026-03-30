@@ -128,7 +128,7 @@ class Stream(BaseModel):
     stream_url = models.URLField(blank=True)
     loop_enabled = models.BooleanField(default=True)
 
-    process_id = models.IntegerField(null=True, blank=True)
+    process_id = models.BigIntegerField(null=True, blank=True)
     process_started_at = models.DateTimeField(null=True, blank=True)
     last_heartbeat = models.DateTimeField(null=True, blank=True)
     error_message = models.TextField(blank=True, max_length=1000)
