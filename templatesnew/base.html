@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>{% block title %}StreamLoop — 24/7 YouTube Streaming{% endblock %}</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' rx='4' fill='%23e63946'/><polygon points='6,3 13,8 6,13' fill='white'/></svg>">
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -167,7 +168,9 @@
         }
 
         .navbar-collapse.show, .navbar-collapse.collapsing {
-            background: var(--c-surface-2);
+            background: rgba(14,16,24,0.5);
+            backdrop-filter: blur(18px) saturate(160%);
+            -webkit-backdrop-filter: blur(18px) saturate(160%);
             border: 1px solid var(--c-border-hi);
             border-radius: var(--radius-md);
             margin-top: 8px;
@@ -222,7 +225,7 @@
         ============================================================ */
         .main-content {
             min-height: calc(100vh - var(--nav-h) - 80px);
-            padding: 2.5rem 0;
+            padding: 0.75rem 0 2.5rem;
         }
 
         /* ============================================================
