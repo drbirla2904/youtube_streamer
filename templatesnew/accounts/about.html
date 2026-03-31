@@ -1,100 +1,385 @@
 {% extends 'base.html' %}
 
-{% block title %}About Us - YouTube Streamer{% endblock %}
+{% block title %}About — StreamLoop{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ---- ABOUT PAGE ---- */
+.about-hero {
+    text-align: center;
+    padding: 3.5rem 1rem 3rem;
+    position: relative;
+    overflow: hidden;
+}
+.about-hero::before {
+    content: '';
+    position: absolute;
+    top: -100px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 400px;
+    background: radial-gradient(circle, rgba(230,57,70,0.09) 0%, transparent 70%);
+    pointer-events: none;
+}
+.about-hero-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--c-brand-dim);
+    border: 1px solid rgba(230,57,70,0.25);
+    color: var(--c-brand);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 99px;
+    margin-bottom: 1.25rem;
+}
+.about-hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: var(--c-text-1);
+    margin-bottom: 1rem;
+    line-height: 1.1;
+}
+.about-hero p {
+    font-size: 1rem;
+    color: var(--c-text-2);
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+/* Stats strip */
+.about-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin: 2.5rem 0;
+}
+.about-stat {
+    padding: 1.75rem 1rem;
+    text-align: center;
+    border-right: 1px solid var(--c-border);
+    background: var(--c-surface);
+    transition: background 0.2s var(--ease);
+}
+.about-stat:last-child { border-right: none; }
+.about-stat:hover { background: var(--c-surface-2); }
+.about-stat-num {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--c-brand);
+    line-height: 1;
+    margin-bottom: 6px;
+}
+.about-stat-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--c-text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+}
+
+/* Content sections */
+.about-section {
+    margin-top: 4rem;
+}
+.about-prose {
+    font-size: 0.95rem;
+    color: var(--c-text-2);
+    line-height: 1.8;
+    max-width: 720px;
+}
+.about-prose + .about-prose { margin-top: 1rem; }
+
+/* Cards grid */
+.about-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--c-border);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-top: 2.5rem;
+}
+.about-card {
+    background: var(--c-surface);
+    padding: 2rem 1.75rem;
+    transition: background 0.2s var(--ease);
+    position: relative;
+    overflow: hidden;
+}
+.about-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--c-brand);
+    opacity: 0;
+    transition: opacity 0.25s var(--ease);
+}
+.about-card:hover { background: var(--c-surface-2); }
+.about-card:hover::before { opacity: 1; }
+
+.about-card-icon {
+    width: 44px; height: 44px;
+    border-radius: var(--radius-sm);
+    background: var(--c-brand-dim);
+    color: var(--c-brand);
+    display: grid;
+    place-items: center;
+    font-size: 1.2rem;
+    margin-bottom: 1.25rem;
+    transition: transform 0.25s var(--ease-spring);
+}
+.about-card:hover .about-card-icon { transform: scale(1.1) rotate(-5deg); }
+
+.about-card h3 {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--c-text-1);
+    margin-bottom: 0.6rem;
+    letter-spacing: -0.2px;
+}
+.about-card p {
+    font-size: 0.875rem;
+    color: var(--c-text-2);
+    line-height: 1.65;
+    margin: 0 0 0.75rem;
+}
+.about-card ul {
+    font-size: 0.875rem;
+    color: var(--c-text-2);
+    line-height: 1.65;
+    padding-left: 1.1rem;
+    margin: 0;
+}
+.about-card ul li { margin-bottom: 0.35rem; }
+
+/* Team / values row */
+.about-values {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-top: 2.5rem;
+}
+.value-item {
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-md);
+    padding: 1.5rem 1.25rem;
+    transition: border-color 0.2s var(--ease);
+}
+.value-item:hover { border-color: var(--c-border-hi); }
+.value-icon {
+    font-size: 1.5rem;
+    color: var(--c-brand);
+    margin-bottom: 0.75rem;
+}
+.value-title {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--c-text-1);
+    margin-bottom: 0.4rem;
+}
+.value-desc {
+    font-size: 0.82rem;
+    color: var(--c-text-3);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* CTA */
+.about-cta {
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-xl);
+    padding: 3rem 2rem;
+    text-align: center;
+    margin-top: 4rem;
+    position: relative;
+    overflow: hidden;
+}
+.about-cta::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: 50%;
+    transform: translateX(-50%);
+    width: 500px; height: 300px;
+    background: radial-gradient(circle, rgba(230,57,70,0.07) 0%, transparent 70%);
+    pointer-events: none;
+}
+.about-cta h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 800;
+    color: var(--c-text-1);
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.5px;
+}
+.about-cta p {
+    font-size: 0.95rem;
+    color: var(--c-text-2);
+    margin-bottom: 1.75rem;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.7;
+}
+.btn-about {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.8rem 1.75rem;
+    background: var(--c-brand);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: #fff;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.22s var(--ease-spring);
+    box-shadow: 0 6px 20px var(--c-brand-glow);
+}
+.btn-about:hover {
+    background: #cf2f3b;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px var(--c-brand-glow);
+    color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .about-grid    { grid-template-columns: 1fr; }
+    .about-values  { grid-template-columns: 1fr; }
+    .about-stats   { grid-template-columns: repeat(3, 1fr); }
+    .about-cta     { padding: 2rem 1.25rem; }
+}
+@media (max-width: 480px) {
+    .about-stats { grid-template-columns: 1fr; }
+    .about-stat  { border-right: none; border-bottom: 1px solid var(--c-border); }
+    .about-stat:last-child { border-bottom: none; }
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>About Us - YouTube Streamer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body { margin:0; font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:#0f172a; color:#e2e8f0; }
-    .hero { padding:4rem 1.5rem; text-align:center; background:linear-gradient(135deg,#4f46e5,#0ea5e9); color:white; }
-    .hero h1 { margin:0 0 1rem; font-size:2.5rem; font-weight:800; }
-    .hero p { margin:0; font-size:1.1rem; opacity:0.95; }
-    .container { max-width:960px; margin:0 auto; padding:3rem 1.5rem 4rem; }
-    h2 { font-size:1.6rem; margin-bottom:0.75rem; color:#e5e7eb; }
-    p { line-height:1.7; color:#cbd5f5; margin:0 0 1rem; }
-    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1.5rem; margin-top:2rem; }
-    .card { background:#020617; border-radius:16px; padding:1.75rem; border:1px solid #1f2937; box-shadow:0 18px 45px rgba(15,23,42,0.7); }
-    .tag { display:inline-block; padding:0.15rem 0.6rem; border-radius:999px; font-size:0.75rem; text-transform:uppercase; letter-spacing:.06em; background:rgba(56,189,248,0.1); color:#7dd3fc; margin-bottom:0.75rem; }
-    ul { padding-left:1.1rem; margin:0 0 1rem; color:#cbd5f5; }
-    li { margin-bottom:0.4rem; }
-    .stats { display:flex; flex-wrap:wrap; gap:1.5rem; margin-top:1.5rem; }
-    .stat { flex:1 1 140px; }
-    .stat strong { font-size:1.4rem; display:block; color:#a5b4fc; }
-    .stat span { font-size:0.85rem; color:#94a3b8; text-transform:uppercase; letter-spacing:.08em; }
-    @media (max-width:600px){ .hero h1{font-size:2rem;} .container{padding:2.5rem 1.25rem 3rem;} }
-  </style>
-</head>
-<body>
-  <header class="hero">
-    <h1>About - StreamLoop</h1>
-    <p>Automating 24/7 YouTube streaming so creators can focus on content, not infrastructure.</p>
-  </header>
+<div class="animate-up">
 
-  <main class="container">
-    <section>
-      <h2>Who we are</h2>
-      <p>
-        streamloop is a streaming automation platform built for creators, educators, and brands
-        who want reliable, always‑on YouTube streams without managing complex servers, encoders, or
-        command‑line tools.
-      </p>
-      <p>
-        The platform combines a modern Django backend, queue‑based processing, and cloud‑native video
-        workflows to turn your pre‑recorded content into professional live streams.
-      </p>
+    <!-- Hero -->
+    <div class="about-hero">
+        <div class="about-hero-label"><i class="bi bi-broadcast-pin"></i> About StreamLoop</div>
+        <h1>Built for creators who<br>stream without limits</h1>
+        <p>Automating 24/7 YouTube playlist streaming so you focus on content, not infrastructure.</p>
+    </div>
 
-      <div class="stats">
-        <div class="stat">
-          <strong>24/7</strong>
-          <span>Continuous streaming</span>
+    <!-- Stats -->
+    <div class="about-stats animate-up delay-1">
+        <div class="about-stat">
+            <div class="about-stat-num">24/7</div>
+            <div class="about-stat-label">Continuous streaming</div>
         </div>
-        <div class="stat">
-          <strong>3+</strong>
-          <span>Streams per account</span>
+        <div class="about-stat">
+            <div class="about-stat-num">0</div>
+            <div class="about-stat-label">Downloads needed</div>
         </div>
-        <div class="stat">
-          <strong>Minutes</strong>
-          <span>to go live</span>
+        <div class="about-stat">
+            <div class="about-stat-num">∞</div>
+            <div class="about-stat-label">Playlist loops</div>
         </div>
-      </div>
-    </section>
+    </div>
 
-    <section class="grid">
-      <div class="card">
-        <div class="tag">Our mission</div>
-        <h2>Make streaming infrastructure invisible</h2>
-        <p>
-          Streaming should feel like uploading a video, not configuring a broadcast studio. Our goal
-          is to hide complexity behind a clean dashboard so you can create schedules, upload content,
-          and go live with a few clicks.
+    <!-- Who we are -->
+    <div class="about-section animate-up delay-2">
+        <div class="section-label">Who we are</div>
+        <h2 style="font-family:var(--font-display);font-size:clamp(1.4rem,3vw,2rem);font-weight:800;color:var(--c-text-1);letter-spacing:-0.5px;margin-bottom:1rem;">
+            A platform built around your YouTube channel
+        </h2>
+        <p class="about-prose">
+            StreamLoop is a YouTube playlist streaming automation platform built for creators,
+            educators, musicians, and brands who want their channel live around the clock — without
+            managing servers, encoders, or command-line tools.
         </p>
-        <p>
-          From handling RTMP output to managing encoders and retries, the platform is designed to be
-          reliable even when you are offline.
+        <p class="about-prose">
+            We connect directly to your YouTube account via OAuth, pull your playlist videos on the
+            fly using <strong style="color:var(--c-text-1);">yt-dlp</strong> (no downloads or storage
+            required), and broadcast them as a live stream to your channel in a seamless loop.
         </p>
-      </div>
+    </div>
 
-      <div class="card">
-        <div class="tag">What you can do</div>
-        <h2>Built for busy creators</h2>
-        <ul>
-          <li>Upload videos and loop them into 24/7 streams.</li>
-          <li>Create one‑day, monthly, or annual streaming plans.</li>
-          <li>Monitor stream status from a unified dashboard.</li>
-          <li>Scale to multiple simultaneous streams per account.</li>
-        </ul>
-        <p>
-          Whether you are streaming music, lectures, or devotional content, streamloop helps
-          keep your channel active and your audience engaged.
-        </p>
-      </div>
-    </section>
-  </main>
-</body>
-</html>
+    <!-- Cards -->
+    <div class="about-grid animate-up delay-3">
+        <div class="about-card">
+            <div class="about-card-icon"><i class="bi bi-rocket-takeoff-fill"></i></div>
+            <h3>Our mission</h3>
+            <p>
+                Streaming infrastructure should be invisible. Our goal is to hide all complexity
+                behind a clean dashboard so you can go live in minutes — not hours.
+            </p>
+            <p>
+                From handling live RTMP output to managing retries and playlist loops, StreamLoop
+                keeps running reliably even when you are offline.
+            </p>
+        </div>
+        <div class="about-card">
+            <div class="about-card-icon"><i class="bi bi-collection-play-fill"></i></div>
+            <h3>What you can do</h3>
+            <ul>
+                <li>Connect your YouTube channel securely via Google OAuth.</li>
+                <li>Pick any YouTube playlist and stream it live instantly.</li>
+                <li>Loop the playlist 24/7 with a single toggle.</li>
+                <li>Monitor all your active streams from one dashboard.</li>
+                <li>Start, stop, and manage multiple streams per account.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Values -->
+    <div class="about-section animate-up delay-4">
+        <div class="section-label">What we stand for</div>
+        <div class="about-values">
+            <div class="value-item">
+                <div class="value-icon"><i class="bi bi-shield-lock-fill"></i></div>
+                <div class="value-title">Secure by default</div>
+                <p class="value-desc">YouTube OAuth 2.0 — we never store your Google password. Your channel stays in your control.</p>
+            </div>
+            <div class="value-item">
+                <div class="value-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+                <div class="value-title">Zero friction</div>
+                <p class="value-desc">No encoding software, no downloads, no server setup. Connect, pick a playlist, press Start.</p>
+            </div>
+            <div class="value-item">
+                <div class="value-icon"><i class="bi bi-arrow-repeat"></i></div>
+                <div class="value-title">Always on</div>
+                <p class="value-desc">Loop mode keeps your playlist repeating indefinitely — perfect for lo-fi, devotional, and ambient streams.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="about-cta animate-up delay-5">
+        <h2>Ready to keep your channel live?</h2>
+        <p>Join creators who trust StreamLoop to broadcast their playlists 24/7 — automatically.</p>
+        {% if user.is_authenticated %}
+            <a href="{% url 'dashboard' %}" class="btn-about">
+                <i class="bi bi-grid-1x2-fill"></i> Open Dashboard
+            </a>
+        {% else %}
+            <a href="{% url 'register' %}" class="btn-about">
+                <i class="bi bi-rocket-takeoff-fill"></i> Start for Free
+            </a>
+        {% endif %}
+    </div>
+
+</div>
 {% endblock %}
