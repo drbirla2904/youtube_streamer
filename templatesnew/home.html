@@ -5,101 +5,101 @@
 {% block extra_css %}
 <style>
 /* ============================================================
-   HOME PAGE STYLES
+   HOME PAGE — warm cream theme
 ============================================================ */
 
 /* ---- HERO ---- */
 .hero {
-    padding: 5rem 0 4rem;
+    padding: 3.5rem 0 2.5rem;
     position: relative;
     overflow: hidden;
 }
 
-/* Ambient glow orbs */
+/* Ambient warm orbs */
 .hero::before {
     content: '';
     position: absolute;
-    top: -120px; right: -180px;
-    width: 640px; height: 640px;
-    background: radial-gradient(circle, rgba(230,57,70,0.12) 0%, transparent 68%);
+    top: -100px; right: -160px;
+    width: 560px; height: 560px;
+    background: radial-gradient(circle, rgba(200,56,26,0.09) 0%, transparent 68%);
     pointer-events: none;
 }
 .hero::after {
     content: '';
     position: absolute;
-    bottom: -120px; left: -180px;
-    width: 500px; height: 500px;
-    background: radial-gradient(circle, rgba(244,185,66,0.07) 0%, transparent 68%);
+    bottom: -100px; left: -160px;
+    width: 420px; height: 420px;
+    background: radial-gradient(circle, rgba(201,155,42,0.07) 0%, transparent 68%);
     pointer-events: none;
 }
 
 .hero-eyebrow {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    background: rgba(230,57,70,0.1);
-    border: 1px solid rgba(230,57,70,0.25);
+    gap: 7px;
+    background: var(--c-brand-dim);
+    border: 1px solid rgba(200,56,26,0.2);
     color: var(--c-brand);
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    padding: 5px 14px;
+    padding: 4px 13px;
     border-radius: 99px;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
 }
-.hero-eyebrow i { font-size: 0.7rem; }
+.hero-eyebrow i { font-size: 0.68rem; }
 
 .hero-title {
     font-family: var(--font-display);
-    font-size: clamp(2.4rem, 6vw, 4.2rem);
-    font-weight: 800;
-    line-height: 1.1;
+    font-size: clamp(2.2rem, 5.5vw, 3.8rem);
+    font-weight: 900;
+    line-height: 1.08;
     letter-spacing: -1.5px;
     color: var(--c-text-1);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
 }
 
 .hero-title-accent {
     color: var(--c-brand);
     position: relative;
+    font-style: italic;
 }
-/* Underline decoration */
 .hero-title-accent::after {
     content: '';
     position: absolute;
-    bottom: -4px; left: 0; right: 0;
+    bottom: -3px; left: 0; right: 0;
     height: 3px;
     background: var(--c-brand);
     border-radius: 99px;
-    opacity: 0.5;
+    opacity: 0.4;
 }
 
 .hero-desc {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     line-height: 1.75;
     color: var(--c-text-2);
-    max-width: 540px;
-    margin-bottom: 2.25rem;
+    max-width: 500px;
+    margin-bottom: 2rem;
     font-weight: 400;
 }
 
 .hero-cta {
     display: flex;
-    gap: 12px;
+    gap: 10px;
     flex-wrap: wrap;
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
 }
 
 .btn-hero {
     font-family: var(--font-body);
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     font-weight: 700;
-    padding: 0.85rem 1.85rem;
+    padding: 0.78rem 1.65rem;
     border-radius: var(--radius-md);
     display: inline-flex;
     align-items: center;
-    gap: 9px;
+    gap: 8px;
     transition: all 0.22s var(--ease-spring);
     text-decoration: none;
     cursor: pointer;
@@ -108,197 +108,121 @@
 .btn-hero-solid {
     background: var(--c-brand);
     color: #fff;
-    box-shadow: 0 8px 28px var(--c-brand-glow);
+    box-shadow: 0 6px 22px var(--c-brand-glow);
 }
 .btn-hero-solid:hover {
-    background: #cf2f3b;
-    transform: translateY(-3px);
-    box-shadow: 0 14px 36px var(--c-brand-glow);
+    background: var(--c-brand-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px var(--c-brand-glow);
     color: #fff;
 }
 .btn-hero-ghost {
-    background: rgba(255,255,255,0.04);
+    background: var(--c-surface-2);
     color: var(--c-text-1);
     border: 1px solid var(--c-border-hi);
 }
 .btn-hero-ghost:hover {
-    background: rgba(255,255,255,0.08);
-    border-color: rgba(255,255,255,0.2);
+    background: var(--c-bg-2);
+    border-color: rgba(120,100,60,0.28);
     color: var(--c-text-1);
-    transform: translateY(-2px);
+    transform: translateY(-1px);
 }
 
 /* Social proof strip */
 .social-proof {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     color: var(--c-text-3);
-    font-size: 0.83rem;
+    font-size: 0.8rem;
 }
-.proof-avatars {
-    display: flex;
-}
+.proof-avatars { display: flex; }
 .proof-avatar {
-    width: 28px; height: 28px;
+    width: 26px; height: 26px;
     border-radius: 50%;
     border: 2px solid var(--c-bg);
     background: var(--c-surface-2);
     display: grid;
     place-items: center;
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     font-weight: 700;
     color: var(--c-text-2);
-    margin-left: -8px;
-    overflow: hidden;
+    margin-left: -7px;
 }
 .proof-avatar:first-child { margin-left: 0; }
-.proof-stars { color: var(--c-gold); font-size: 0.7rem; letter-spacing: 1px; }
-
-/* ---- VIDEO / FEATURE PANEL ---- */
-.hero-panel {
-    background: var(--c-surface);
-    border: 1px solid var(--c-border);
-    border-radius: var(--radius-xl);
-    overflow: hidden;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04) inset;
-    position: relative;
-}
-
-.panel-topbar {
-    background: var(--c-surface-2);
-    border-bottom: 1px solid var(--c-border);
-    padding: 12px 18px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.panel-dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-}
-.pd-red   { background: #ff5f57; }
-.pd-amber { background: #febc2e; }
-.pd-green { background: #28c840; }
-.panel-title-bar {
-    flex: 1;
-    text-align: center;
-    font-size: 0.78rem;
-    color: var(--c-text-3);
-    font-weight: 500;
-    letter-spacing: 0.02em;
-}
-
-.video-wrap {
-    position: relative;
-    padding-bottom: 56.25%; /* 16:9 */
-    height: 0;
-}
-.video-wrap iframe {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    border: none;
-    display: block;
-}
-
-.panel-footer {
-    padding: 1rem 1.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: var(--c-surface-2);
-    border-top: 1px solid var(--c-border);
-}
-.live-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--c-brand);
-}
-.live-dot {
-    width: 7px; height: 7px;
-    background: var(--c-brand);
-    border-radius: 50%;
-    animation: livePulse 1.8s infinite;
-}
-.viewers-count {
-    font-size: 0.78rem;
-    color: var(--c-text-3);
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
+.proof-stars { color: var(--c-gold); font-size: 0.68rem; letter-spacing: 1px; }
 
 /* ---- STATS STRIP ---- */
 .stats-strip {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    border: 1px solid var(--c-border);
+    border: 1px solid var(--c-border-hi);
     border-radius: var(--radius-lg);
     overflow: hidden;
-    margin-top: 4rem;
+    margin-top: 3rem;
+    background: var(--c-surface);
+    box-shadow: var(--shadow-sm);
 }
 .stat-cell {
-    padding: 1.75rem 1.25rem;
+    padding: 1.4rem 1rem;
     text-align: center;
     border-right: 1px solid var(--c-border);
-    transition: background 0.2s var(--ease);
+    transition: background 0.18s var(--ease);
 }
 .stat-cell:last-child { border-right: none; }
-.stat-cell:hover { background: rgba(255,255,255,0.02); }
+.stat-cell:hover { background: var(--c-surface-2); }
 
 .stat-cell-num {
     font-family: var(--font-display);
-    font-size: 2rem;
-    font-weight: 800;
+    font-size: 1.85rem;
+    font-weight: 900;
     color: var(--c-text-1);
     line-height: 1;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
 }
 .stat-cell-num span { color: var(--c-brand); }
 
 .stat-cell-label {
-    font-size: 0.78rem;
+    font-size: 0.72rem;
     font-weight: 600;
     color: var(--c-text-3);
     text-transform: uppercase;
     letter-spacing: 0.07em;
 }
 
-/* ---- FEATURES SECTION ---- */
+/* ---- SECTION HEADINGS ---- */
 .section-title {
     font-family: var(--font-display);
-    font-size: clamp(1.5rem, 3vw, 2.2rem);
-    font-weight: 800;
-    letter-spacing: -0.8px;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.5px;
     color: var(--c-text-1);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
 }
 .section-subtitle {
-    font-size: 0.98rem;
+    font-size: 0.95rem;
     color: var(--c-text-2);
-    max-width: 520px;
+    max-width: 500px;
     line-height: 1.7;
 }
 
+/* ---- FEATURES GRID ---- */
 .feat-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1px;
-    background: var(--c-border);
-    border: 1px solid var(--c-border);
+    background: var(--c-border-hi);
+    border: 1px solid var(--c-border-hi);
     border-radius: var(--radius-lg);
     overflow: hidden;
-    margin-top: 2.5rem;
+    margin-top: 2rem;
+    box-shadow: var(--shadow-sm);
 }
 
 .feat-cell {
     background: var(--c-surface);
-    padding: 2rem 1.75rem;
-    transition: background 0.25s var(--ease);
+    padding: 1.65rem 1.5rem;
+    transition: background 0.22s var(--ease);
     position: relative;
     overflow: hidden;
 }
@@ -309,33 +233,33 @@
     height: 2px;
     background: var(--feat-color, var(--c-brand));
     opacity: 0;
-    transition: opacity 0.25s var(--ease);
+    transition: opacity 0.22s var(--ease);
 }
 .feat-cell:hover { background: var(--c-surface-2); }
 .feat-cell:hover::before { opacity: 1; }
 
 .feat-icon {
-    width: 46px; height: 46px;
+    width: 40px; height: 40px;
     border-radius: var(--radius-sm);
     background: var(--feat-color-dim, var(--c-brand-dim));
     color: var(--feat-color, var(--c-brand));
     display: grid;
     place-items: center;
-    font-size: 1.25rem;
-    margin-bottom: 1.25rem;
-    transition: transform 0.25s var(--ease-spring);
+    font-size: 1.15rem;
+    margin-bottom: 1rem;
+    transition: transform 0.22s var(--ease-spring);
 }
 .feat-cell:hover .feat-icon { transform: scale(1.1) rotate(-5deg); }
 
 .feat-title {
     font-family: var(--font-display);
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: var(--c-text-1);
-    margin-bottom: 0.6rem;
+    margin-bottom: 0.5rem;
 }
 .feat-desc {
-    font-size: 0.875rem;
+    font-size: 0.845rem;
     line-height: 1.65;
     color: var(--c-text-2);
     margin: 0;
@@ -352,21 +276,21 @@
 }
 @keyframes liveBlink {
     0%, 100% { opacity: 1; transform: scale(1); }
-    50%       { opacity: 0.55; transform: scale(0.82); }
+    50%       { opacity: 0.5; transform: scale(0.8); }
 }
 @keyframes stepFadeUp {
-    from { opacity: 0; transform: translateY(14px); }
+    from { opacity: 0; transform: translateY(12px); }
     to   { opacity: 1; transform: translateY(0); }
 }
 
 .hiw-wrapper {
-    max-width: 520px;
-    margin: 2.5rem auto 0;
+    max-width: 500px;
+    margin: 1.75rem auto 0;
 }
 
 .hiw-step {
     display: flex;
-    gap: 18px;
+    gap: 16px;
     align-items: flex-start;
     animation: stepFadeUp 0.5s var(--ease) both;
 }
@@ -380,73 +304,70 @@
     flex-direction: column;
     align-items: center;
     flex-shrink: 0;
-    width: 40px;
+    width: 38px;
 }
 
 .hiw-icon-wrap {
-    width: 40px; height: 40px;
+    width: 38px; height: 38px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     position: relative;
-    font-size: 1rem;
+    font-size: 0.95rem;
+    box-shadow: var(--shadow-sm);
 }
-.hiw-icon-wrap.color-blue  { background: rgba(59,139,212,0.15);  color: #3b8bd4; }
-.hiw-icon-wrap.color-amber { background: rgba(244,185,66,0.13);  color: var(--c-gold); }
-.hiw-icon-wrap.color-green { background: rgba(34,197,94,0.13);   color: #22c55e; }
-.hiw-icon-wrap.color-red   { background: var(--c-brand-dim);      color: var(--c-brand); }
+.hiw-icon-wrap.color-blue  { background: rgba(59,139,212,0.12);  color: #2e7ab8; border: 1px solid rgba(59,139,212,0.2); }
+.hiw-icon-wrap.color-amber { background: rgba(201,155,42,0.12);  color: var(--c-gold); border: 1px solid rgba(201,155,42,0.22); }
+.hiw-icon-wrap.color-green { background: rgba(46,125,79,0.12);   color: var(--c-green); border: 1px solid rgba(46,125,79,0.2); }
+.hiw-icon-wrap.color-red   { background: var(--c-brand-dim);     color: var(--c-brand); border: 1px solid rgba(200,56,26,0.2); }
 
 .hiw-connector {
     flex: 1;
     width: 2px;
     margin: 4px 0;
-    min-height: 40px;
+    min-height: 36px;
     overflow: hidden;
 }
-.hiw-connector svg { display: block; width: 2px; height: 100%; min-height: 40px; }
-.hiw-connector line {
-    stroke-dasharray: 6 4;
-    animation: flowLine 1.3s linear infinite;
-}
+.hiw-connector svg { display: block; width: 2px; height: 100%; min-height: 36px; }
 
 .hiw-body {
-    padding-top: 8px;
-    padding-bottom: 28px;
+    padding-top: 7px;
+    padding-bottom: 24px;
     flex: 1;
 }
 .hiw-step:last-child .hiw-body { padding-bottom: 0; }
 
 .hiw-title {
     font-family: var(--font-display);
-    font-size: 0.97rem;
+    font-size: 0.93rem;
     font-weight: 700;
     color: var(--c-text-1);
-    margin: 0 0 5px 0;
+    margin: 0 0 4px 0;
 }
 .hiw-desc {
-    font-size: 0.86rem;
+    font-size: 0.835rem;
     color: var(--c-text-2);
     line-height: 1.65;
     margin: 0;
 }
 .hiw-desc code {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     background: var(--c-surface-2);
-    border: 1px solid var(--c-border);
+    border: 1px solid var(--c-border-hi);
     padding: 1px 6px;
     border-radius: 5px;
     color: var(--c-text-2);
+    font-family: monospace;
 }
 
-/* Live badge on last step */
 .hiw-live-badge {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    margin-left: 10px;
-    font-size: 0.72rem;
+    gap: 6px;
+    margin-left: 8px;
+    font-size: 0.68rem;
     font-weight: 700;
     letter-spacing: 0.07em;
     text-transform: uppercase;
@@ -456,7 +377,7 @@
     top: -1px;
 }
 .hiw-live-dot {
-    width: 7px; height: 7px;
+    width: 6px; height: 6px;
     border-radius: 50%;
     background: var(--c-brand);
     position: relative;
@@ -474,55 +395,58 @@
 /* ---- CTA BANNER ---- */
 .cta-banner {
     background: var(--c-surface);
-    border: 1px solid var(--c-border);
+    border: 1px solid var(--c-border-hi);
     border-radius: var(--radius-xl);
-    padding: 3.5rem 2.5rem;
+    padding: 3rem 2.25rem;
     text-align: center;
     position: relative;
     overflow: hidden;
-    margin-top: 4rem;
+    margin-top: 3rem;
+    box-shadow: var(--shadow-sm);
 }
 .cta-banner::before {
     content: '';
     position: absolute;
-    top: -100px; left: 50%;
+    top: -80px; left: 50%;
     transform: translateX(-50%);
-    width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(230,57,70,0.08) 0%, transparent 70%);
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(200,56,26,0.06) 0%, transparent 70%);
     pointer-events: none;
 }
 .cta-banner-label {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--c-brand);
-    margin-bottom: 1rem;
+    margin-bottom: 0.85rem;
 }
 .cta-banner-title {
     font-family: var(--font-display);
-    font-size: clamp(1.6rem, 3vw, 2.4rem);
-    font-weight: 800;
-    letter-spacing: -0.8px;
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    font-weight: 700;
+    letter-spacing: -0.5px;
     color: var(--c-text-1);
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.65rem;
 }
 .cta-banner-sub {
-    font-size: 1rem;
+    font-size: 0.95rem;
     color: var(--c-text-2);
-    margin-bottom: 2rem;
-    max-width: 480px;
+    margin-bottom: 1.75rem;
+    max-width: 440px;
     margin-left: auto;
     margin-right: auto;
     line-height: 1.7;
 }
-.cta-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.cta-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+/* ---- SECTION SPACING ---- */
+.home-section { margin-top: 4rem; }
 
 /* ---- RESPONSIVE ---- */
 @media (max-width: 992px) {
-    .hero { padding: 3.5rem 0 3rem; }
+    .hero { padding: 2.5rem 0 2rem; }
     .feat-grid { grid-template-columns: repeat(2, 1fr); }
-    .steps-row::before { display: none; }
     .stats-strip { grid-template-columns: repeat(2, 1fr); }
     .stat-cell:nth-child(2) { border-right: none; }
     .stat-cell:nth-child(3) { border-top: 1px solid var(--c-border); }
@@ -530,20 +454,20 @@
 }
 
 @media (max-width: 768px) {
-    .hero-title { letter-spacing: -0.8px; }
-    .hero-desc { font-size: 1rem; }
-    .hero-cta { flex-direction: column; }
-    .btn-hero { width: 100%; justify-content: center; }
-    .feat-grid { grid-template-columns: 1fr; }
-    .steps-row { grid-template-columns: 1fr; gap: 1.5rem; }
+    .hero-title { letter-spacing: -0.6px; }
+    .hero-desc  { font-size: 0.97rem; }
+    .hero-cta   { flex-direction: column; }
+    .btn-hero   { width: 100%; justify-content: center; }
+    .feat-grid  { grid-template-columns: 1fr; }
     .hiw-wrapper { max-width: 100%; }
-    .cta-banner { padding: 2.5rem 1.25rem; }
+    .cta-banner { padding: 2rem 1.1rem; }
+    .home-section { margin-top: 3rem; }
 }
 
 @media (max-width: 480px) {
     .stats-strip { grid-template-columns: repeat(2, 1fr); }
-    .stat-cell { padding: 1.25rem 0.75rem; }
-    .stat-cell-num { font-size: 1.6rem; }
+    .stat-cell { padding: 1.1rem 0.65rem; }
+    .stat-cell-num { font-size: 1.5rem; }
 }
 </style>
 {% endblock %}
@@ -559,11 +483,10 @@
 
             <!-- Left: Copy -->
             <div class="col-lg-6">
-                <div class="animate-up">
-                    <div class="hero-eyebrow">
-                        <i class="bi bi-broadcast-pin"></i>
-                        YouTube Automation Platform
-                    </div>
+
+                <div class="hero-eyebrow animate-up">
+                    <i class="bi bi-broadcast-pin"></i>
+                    YouTube Automation Platform
                 </div>
 
                 <h1 class="hero-title animate-up delay-1">
@@ -571,96 +494,10 @@
                     <span class="hero-title-accent">24/7</span> — on autopilot
                 </h1>
 
-                <section style="margin-top:5rem;">
-        <div class="section-label">Simple process</div>
-        <h2 class="section-title">Up and streaming in minutes</h2>
-
-        <div class="hiw-wrapper">
-
-            <!-- Step 1 -->
-            <div class="hiw-step">
-                <div class="hiw-spine">
-                    <div class="hiw-icon-wrap color-blue">
-                        <i class="bi bi-person-check-fill"></i>
-                    </div>
-                    <div class="hiw-connector">
-                        <svg viewBox="0 0 2 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                            <line x1="1" y1="0" x2="1" y2="48"
-                                  stroke="rgba(255,255,255,0.1)" stroke-width="1.5"
-                                  stroke-dasharray="6 4"
-                                  style="animation: flowLine 1.3s linear infinite;"/>
-                        </svg>
-                    </div>
-                </div>
-                <div class="hiw-body">
-                    <p class="hiw-title">Connect a YouTube account</p>
-                    <p class="hiw-desc">Sign in with Google and select your channel from the account picker above the stream.</p>
-                </div>
-            </div>
-
-            <!-- Step 2 -->
-            <div class="hiw-step">
-                <div class="hiw-spine">
-                    <div class="hiw-icon-wrap color-amber">
-                        <i class="bi bi-collection-play-fill"></i>
-                    </div>
-                    <div class="hiw-connector">
-                        <svg viewBox="0 0 2 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                            <line x1="1" y1="0" x2="1" y2="48"
-                                  stroke="rgba(255,255,255,0.1)" stroke-width="1.5"
-                                  stroke-dasharray="6 4"
-                                  style="animation: flowLine 1.3s linear infinite; animation-delay: .2s;"/>
-                        </svg>
-                    </div>
-                </div>
-                <div class="hiw-body">
-                    <p class="hiw-title">Choose a playlist</p>
-                    <p class="hiw-desc">Pick any playlist —up to 50 videos  <code>Own videos </code>.</p>
-                </div>
-            </div>
-
-            <!-- Step 3 -->
-            <div class="hiw-step">
-                <div class="hiw-spine">
-                    <div class="hiw-icon-wrap color-green">
-                        <i class="bi bi-play-circle-fill"></i>
-                    </div>
-                    <div class="hiw-connector">
-                        <svg viewBox="0 0 2 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                            <line x1="1" y1="0" x2="1" y2="48"
-                                  stroke="rgba(255,255,255,0.1)" stroke-width="1.5"
-                                  stroke-dasharray="6 4"
-                                  style="animation: flowLine 1.3s linear infinite; animation-delay: .4s;"/>
-                        </svg>
-                    </div>
-                </div>
-                <div class="hiw-body">
-                    <p class="hiw-title">Create Stream, then press Start</p>
-                    <p class="hiw-desc">Click <strong>Create Stream</strong>, open it, and hit the Start button to go live instantly.</p>
-                </div>
-            </div>
-
-            <!-- Step 4 -->
-            <div class="hiw-step">
-                <div class="hiw-spine">
-                    <div class="hiw-icon-wrap color-red">
-                        <i class="bi bi-arrow-repeat"></i>
-                    </div>
-                </div>
-                <div class="hiw-body">
-                    <p class="hiw-title">
-                        Enable Loop for 24/7 streaming
-                        <span class="hiw-live-badge">
-                            <span class="hiw-live-dot"></span> Live
-                        </span>
-                    </p>
-                    <p class="hiw-desc">Toggle Loop on and the playlist repeats automatically — forever, without any manual effort.</p>
-                </div>
-            </div>
-
-        </div>
-    </section>
-
+                <p class="hero-desc animate-up delay-2">
+                    Schedule, loop, and broadcast your content around the clock.
+                    No encoders, no babysitting — just a single click to go live and stay live.
+                </p>
 
                 <div class="hero-cta animate-up delay-3">
                     {% if user.is_authenticated %}
@@ -690,41 +527,75 @@
                 </div>
             </div>
 
-            <!-- Right: Live Preview Panel -->
-            <!--
-
+            <!-- Right: How It Works (inline in hero on large screens) -->
             <div class="col-lg-6 animate-up delay-2">
-                <div class="hero-panel">
-                    <div class="panel-topbar">
-                        <div class="panel-dot pd-red"></div>
-                        <div class="panel-dot pd-amber"></div>
-                        <div class="panel-dot pd-green"></div>
-                        <div class="panel-title-bar">streamloop.live · preview</div>
-                    </div>
-                    
+                <div style="background: var(--c-surface); border: 1px solid var(--c-border-hi); border-radius: var(--radius-lg); padding: 1.75rem 1.5rem; box-shadow: var(--shadow-md);">
+                    <div class="section-label" style="margin-bottom: 1rem;">How it works</div>
 
-                    <div class="video-wrap">
-                        <iframe
-                            src="https://www.youtube-nocookie.com/embed/UJ2X3f_E2ps?autoplay=1&mute=1&loop=1&controls=0&modestbranding=1"
-                            frameborder="0"
-                            referrerpolicy="strict-origin-when-cross-origin"
-                            allow="autoplay; encrypted-media">
-                        </iframe>
-                    </div>
-                  
+                    <div class="hiw-wrapper" style="margin-top: 0; max-width: 100%;">
 
-                    <div class="panel-footer">
-                        <div class="live-indicator">
-                            <div class="live-dot"></div>
-                            LIVE
+                        <div class="hiw-step">
+                            <div class="hiw-spine">
+                                <div class="hiw-icon-wrap color-blue"><i class="bi bi-person-check-fill"></i></div>
+                                <div class="hiw-connector">
+                                    <svg viewBox="0 0 2 36" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                                        <line x1="1" y1="0" x2="1" y2="36" stroke="rgba(120,100,60,0.2)" stroke-width="1.5" stroke-dasharray="5 4" style="animation: flowLine 1.3s linear infinite;"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="hiw-body">
+                                <p class="hiw-title">Connect a YouTube account</p>
+                                <p class="hiw-desc">Sign in with Google and select your channel from the account picker.</p>
+                            </div>
                         </div>
-                        <div class="viewers-count">
-                            <i class="bi bi-eye"></i> 1,284 watching
+
+                        <div class="hiw-step">
+                            <div class="hiw-spine">
+                                <div class="hiw-icon-wrap color-amber"><i class="bi bi-collection-play-fill"></i></div>
+                                <div class="hiw-connector">
+                                    <svg viewBox="0 0 2 36" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                                        <line x1="1" y1="0" x2="1" y2="36" stroke="rgba(120,100,60,0.2)" stroke-width="1.5" stroke-dasharray="5 4" style="animation: flowLine 1.3s linear infinite; animation-delay: .2s;"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="hiw-body">
+                                <p class="hiw-title">Choose a playlist</p>
+                                <p class="hiw-desc">Pick any playlist — up to 50 videos from <code>Your channel</code>.</p>
+                            </div>
                         </div>
+
+                        <div class="hiw-step">
+                            <div class="hiw-spine">
+                                <div class="hiw-icon-wrap color-green"><i class="bi bi-play-circle-fill"></i></div>
+                                <div class="hiw-connector">
+                                    <svg viewBox="0 0 2 36" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                                        <line x1="1" y1="0" x2="1" y2="36" stroke="rgba(120,100,60,0.2)" stroke-width="1.5" stroke-dasharray="5 4" style="animation: flowLine 1.3s linear infinite; animation-delay: .4s;"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="hiw-body">
+                                <p class="hiw-title">Create Stream, then press Start</p>
+                                <p class="hiw-desc">Click <strong>Create Stream</strong> and hit Start to go live instantly.</p>
+                            </div>
+                        </div>
+
+                        <div class="hiw-step">
+                            <div class="hiw-spine">
+                                <div class="hiw-icon-wrap color-red"><i class="bi bi-arrow-repeat"></i></div>
+                            </div>
+                            <div class="hiw-body">
+                                <p class="hiw-title">
+                                    Enable Loop for 24/7
+                                    <span class="hiw-live-badge"><span class="hiw-live-dot"></span> Live</span>
+                                </p>
+                                <p class="hiw-desc">Toggle Loop on and the playlist repeats forever — no manual effort.</p>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
-            -->
+
         </div>
 
         <!-- Stats Strip -->
@@ -752,7 +623,7 @@
     <!-- ===============================================================
          FEATURES
     =============================================================== -->
-    <section style="margin-top:5rem;">
+    <section class="home-section animate-up">
         <div class="section-label">Everything you need</div>
         <h2 class="section-title">Built for serious streamers</h2>
         <p class="section-subtitle">
@@ -761,37 +632,37 @@
         </p>
 
         <div class="feat-grid">
-            <div class="feat-cell" style="--feat-color:#e63946; --feat-color-dim:rgba(230,57,70,0.12);">
+            <div class="feat-cell" style="--feat-color: var(--c-brand); --feat-color-dim: var(--c-brand-dim);">
                 <div class="feat-icon"><i class="bi bi-calendar-check"></i></div>
                 <div class="feat-title">Scheduled Streaming</div>
                 <p class="feat-desc">Plan streams in advance with precise start and end times. Perfect for timed content drops and live events.</p>
             </div>
 
-            <div class="feat-cell" style="--feat-color:#f4b942; --feat-color-dim:rgba(244,185,66,0.12);">
+            <div class="feat-cell" style="--feat-color: var(--c-gold); --feat-color-dim: rgba(201,155,42,0.1);">
                 <div class="feat-icon"><i class="bi bi-lightning-charge-fill"></i></div>
                 <div class="feat-title">Instant Start</div>
                 <p class="feat-desc">Go live in seconds with a single click. No encoding setup, no waiting — your stream is on the air immediately.</p>
             </div>
 
-            <div class="feat-cell" style="--feat-color:#34d399; --feat-color-dim:rgba(52,211,153,0.1);">
+            <div class="feat-cell" style="--feat-color: var(--c-green); --feat-color-dim: rgba(46,125,79,0.1);">
                 <div class="feat-icon"><i class="bi bi-shield-check-fill"></i></div>
                 <div class="feat-title">Secure & Reliable</div>
                 <p class="feat-desc">Enterprise-grade infrastructure with 99.9% uptime and YouTube OAuth 2.0 integration baked in.</p>
             </div>
 
-            <div class="feat-cell" style="--feat-color:#ff6b35; --feat-color-dim:rgba(255,107,53,0.12);">
+            <div class="feat-cell" style="--feat-color: var(--c-accent); --feat-color-dim: rgba(224,123,57,0.1);">
                 <div class="feat-icon"><i class="bi bi-infinite"></i></div>
                 <div class="feat-title">Infinite Looping</div>
                 <p class="feat-desc">Loop content endlessly without gaps or restarts. Ideal for lo-fi radio stations and ambient background streams.</p>
             </div>
 
-            <div class="feat-cell" style="--feat-color:#60a5fa; --feat-color-dim:rgba(96,165,250,0.12);">
+            <div class="feat-cell" style="--feat-color: #2e7ab8; --feat-color-dim: rgba(46,122,184,0.1);">
                 <div class="feat-icon"><i class="bi bi-graph-up-arrow"></i></div>
                 <div class="feat-title">Analytics</div>
                 <p class="feat-desc">Monitor stream health, viewer counts, and performance metrics from a single clean dashboard.</p>
             </div>
 
-            <div class="feat-cell" style="--feat-color:#a78bfa; --feat-color-dim:rgba(167,139,250,0.12);">
+            <div class="feat-cell" style="--feat-color: #7c5cbf; --feat-color-dim: rgba(124,92,191,0.1);">
                 <div class="feat-icon"><i class="bi bi-google"></i></div>
                 <div class="feat-title">YouTube OAuth</div>
                 <p class="feat-desc">Connect your YouTube channel securely via OAuth. Manage multiple channels and stream keys with ease.</p>
@@ -801,103 +672,9 @@
 
 
     <!-- ===============================================================
-         HOW IT WORKS
-    =============================================================== -->
-    <section style="margin-top:5rem;">
-        <div class="section-label">Simple process</div>
-        <h2 class="section-title">Up and streaming in minutes</h2>
-
-        <div class="hiw-wrapper">
-
-            <!-- Step 1 -->
-            <div class="hiw-step">
-                <div class="hiw-spine">
-                    <div class="hiw-icon-wrap color-blue">
-                        <i class="bi bi-person-check-fill"></i>
-                    </div>
-                    <div class="hiw-connector">
-                        <svg viewBox="0 0 2 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                            <line x1="1" y1="0" x2="1" y2="48"
-                                  stroke="rgba(255,255,255,0.1)" stroke-width="1.5"
-                                  stroke-dasharray="6 4"
-                                  style="animation: flowLine 1.3s linear infinite;"/>
-                        </svg>
-                    </div>
-                </div>
-                <div class="hiw-body">
-                    <p class="hiw-title">Connect a YouTube account</p>
-                    <p class="hiw-desc">Sign in with Google and select your channel from the account picker above the stream.</p>
-                </div>
-            </div>
-
-            <!-- Step 2 -->
-            <div class="hiw-step">
-                <div class="hiw-spine">
-                    <div class="hiw-icon-wrap color-amber">
-                        <i class="bi bi-collection-play-fill"></i>
-                    </div>
-                    <div class="hiw-connector">
-                        <svg viewBox="0 0 2 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                            <line x1="1" y1="0" x2="1" y2="48"
-                                  stroke="rgba(255,255,255,0.1)" stroke-width="1.5"
-                                  stroke-dasharray="6 4"
-                                  style="animation: flowLine 1.3s linear infinite; animation-delay: .2s;"/>
-                        </svg>
-                    </div>
-                </div>
-                <div class="hiw-body">
-                    <p class="hiw-title">Choose a playlist</p>
-                    <p class="hiw-desc">Pick any playlist —up to 50 videos  <code>Own videos </code>.</p>
-                </div>
-            </div>
-
-            <!-- Step 3 -->
-            <div class="hiw-step">
-                <div class="hiw-spine">
-                    <div class="hiw-icon-wrap color-green">
-                        <i class="bi bi-play-circle-fill"></i>
-                    </div>
-                    <div class="hiw-connector">
-                        <svg viewBox="0 0 2 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                            <line x1="1" y1="0" x2="1" y2="48"
-                                  stroke="rgba(255,255,255,0.1)" stroke-width="1.5"
-                                  stroke-dasharray="6 4"
-                                  style="animation: flowLine 1.3s linear infinite; animation-delay: .4s;"/>
-                        </svg>
-                    </div>
-                </div>
-                <div class="hiw-body">
-                    <p class="hiw-title">Create Stream, then press Start</p>
-                    <p class="hiw-desc">Click <strong>Create Stream</strong>, open it, and hit the Start button to go live instantly.</p>
-                </div>
-            </div>
-
-            <!-- Step 4 -->
-            <div class="hiw-step">
-                <div class="hiw-spine">
-                    <div class="hiw-icon-wrap color-red">
-                        <i class="bi bi-arrow-repeat"></i>
-                    </div>
-                </div>
-                <div class="hiw-body">
-                    <p class="hiw-title">
-                        Enable Loop for 24/7 streaming
-                        <span class="hiw-live-badge">
-                            <span class="hiw-live-dot"></span> Live
-                        </span>
-                    </p>
-                    <p class="hiw-desc">Toggle Loop on and the playlist repeats automatically — forever, without any manual effort.</p>
-                </div>
-            </div>
-
-        </div>
-    </section>
-
-
-    <!-- ===============================================================
          CTA BANNER
     =============================================================== -->
-    <div class="cta-banner">
+    <div class="cta-banner animate-up">
         <div class="cta-banner-label">Ready to stream?</div>
         <h2 class="cta-banner-title">Your channel deserves to be live 24/7</h2>
         <p class="cta-banner-sub">
