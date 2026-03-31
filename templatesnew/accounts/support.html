@@ -1,82 +1,333 @@
 {% extends 'base.html' %}
 
-{% block title %}Support - Streamloop {% endblock %}
+{% block title %}Support — StreamLoop{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ---- SUPPORT PAGE ---- */
+.support-hero {
+    text-align: center;
+    padding: 3rem 1rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+}
+.support-hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: 50%;
+    transform: translateX(-50%);
+    width: 500px; height: 350px;
+    background: radial-gradient(circle, rgba(230,57,70,0.08) 0%, transparent 70%);
+    pointer-events: none;
+}
+.support-hero-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--c-brand-dim);
+    border: 1px solid rgba(230,57,70,0.25);
+    color: var(--c-brand);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 99px;
+    margin-bottom: 1.25rem;
+}
+.support-hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    color: var(--c-text-1);
+    margin-bottom: 0.75rem;
+    line-height: 1.15;
+}
+.support-hero p {
+    font-size: 0.98rem;
+    color: var(--c-text-2);
+    max-width: 460px;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+/* Grid */
+.support-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+}
+
+/* Cards */
+.support-card {
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    transition: border-color 0.25s var(--ease);
+}
+.support-card:hover { border-color: var(--c-border-hi); }
+
+.support-card-header {
+    padding: 1.25rem 1.75rem;
+    border-bottom: 1px solid var(--c-border);
+    background: var(--c-surface-2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.support-card-header i { color: var(--c-brand); font-size: 1.1rem; }
+.support-card-header h2 {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--c-text-1);
+    margin: 0;
+    letter-spacing: -0.2px;
+}
+.support-card-body { padding: 1.75rem; }
+
+/* Contact form */
+.support-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 1.1rem;
+}
+.support-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--c-text-2);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+}
+.support-input {
+    background: var(--c-surface-2);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-sm);
+    padding: 0.72rem 1rem;
+    color: var(--c-text-1);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    width: 100%;
+    transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+}
+.support-input::placeholder { color: var(--c-text-3); }
+.support-input:focus {
+    outline: none;
+    border-color: var(--c-brand);
+    box-shadow: 0 0 0 3px var(--c-brand-dim);
+    background: var(--c-surface);
+}
+textarea.support-input {
+    resize: vertical;
+    min-height: 120px;
+    line-height: 1.6;
+}
+.btn-support-submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 0.8rem 1.5rem;
+    background: var(--c-brand);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: #fff;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.22s var(--ease-spring);
+    box-shadow: 0 6px 20px var(--c-brand-glow);
+    margin-top: 0.5rem;
+}
+.btn-support-submit:hover {
+    background: #cf2f3b;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px var(--c-brand-glow);
+}
+
+/* Info list */
+.support-info-block { margin-bottom: 1.75rem; }
+.support-info-block:last-child { margin-bottom: 0; }
+.support-info-title {
+    font-family: var(--font-display);
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--c-text-1);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.support-info-title i { color: var(--c-brand); }
+
+.support-contact-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--c-border);
+    font-size: 0.875rem;
+}
+.support-contact-row:last-child { border-bottom: none; }
+.support-contact-row i {
+    width: 32px; height: 32px;
+    border-radius: var(--radius-sm);
+    background: var(--c-surface-2);
+    display: grid;
+    place-items: center;
+    color: var(--c-text-2);
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+.support-contact-row span { color: var(--c-text-3); font-size: 0.78rem; }
+.support-contact-row a { color: var(--c-text-1); text-decoration: none; }
+.support-contact-row a:hover { color: var(--c-brand); }
+
+.support-topic-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.support-topic-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--c-border);
+    font-size: 0.875rem;
+    color: var(--c-text-2);
+    line-height: 1.5;
+}
+.support-topic-list li:last-child { border-bottom: none; }
+.support-topic-list li i {
+    color: var(--c-brand);
+    font-size: 0.75rem;
+    margin-top: 4px;
+    flex-shrink: 0;
+}
+
+/* Hours badge */
+.hours-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(34,197,94,0.1);
+    border: 1px solid rgba(34,197,94,0.2);
+    color: #22c55e;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 99px;
+    margin-top: 0.5rem;
+}
+.hours-badge-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #22c55e;
+    animation: livePulse 1.8s infinite;
+}
+
+@media (max-width: 768px) {
+    .support-grid { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Support - Streamloop </title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body { margin:0; font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:#0f172a; color:#e2e8f0; }
-    .hero { padding:3.5rem 1.5rem; text-align:center; background:linear-gradient(135deg,#4f46e5,#0ea5e9); color:white; }
-    .hero h1 { margin:0 0 0.75rem; font-size:2.2rem; font-weight:800; }
-    .hero p { margin:0; opacity:0.95; }
-    .container { max-width:960px; margin:0 auto; padding:3rem 1.5rem 4rem; }
-    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:2rem; }
-    .card { background:#020617; border-radius:16px; padding:2rem; border:1px solid #1f2937; box-shadow:0 18px 45px rgba(15,23,42,0.7); }
-    h2 { font-size:1.4rem; margin:0 0 1rem; color:#e5e7eb; }
-    p { line-height:1.7; color:#cbd5f5; margin:0 0 0.9rem; }
-    ul { padding-left:1.1rem; margin:0 0 0.9rem; color:#cbd5f5; }
-    li { margin-bottom:0.4rem; }
-    a { color:#38bdf8; text-decoration:none; }
-    a:hover { text-decoration:underline; }
-    label { display:block; font-size:0.9rem; font-weight:600; margin-bottom:0.3rem; color:#e5e7eb; }
-    input, textarea { width:100%; padding:0.75rem; border-radius:8px; border:1px solid #1f2937; background:#020617; color:#e2e8f0; font-family:inherit; font-size:0.95rem; }
-    textarea { resize:vertical; min-height:120px; }
-    button { margin-top:0.75rem; width:100%; padding:0.85rem; border-radius:8px; border:none; font-weight:700; background:linear-gradient(135deg,#4f46e5,#0ea5e9); color:white; cursor:pointer; box-shadow:0 10px 30px rgba(59,130,246,0.4); }
-    button:hover { transform:translateY(-1px); box-shadow:0 14px 34px rgba(59,130,246,0.55); }
-    @media (max-width:600px){ .hero h1{font-size:1.8rem;} .container{padding:2.5rem 1.25rem 3rem;} }
-  </style>
-</head>
-<body>
-  <header class="hero">
-    <h1>Support</h1>
-    <p>Need help with your streams or subscription? Reach out anytime.</p>
-  </header>
+<div class="animate-up">
 
-  <main class="container">
-    <div class="grid">
-      <section class="card">
-        <h2>Contact us</h2>
-        <form>
-          <label for="name">Your name</label>
-          <input id="name" type="text" placeholder="Enter your name">
-
-          <label for="email">Email address</label>
-          <input id="email" type="email" placeholder="you@example.com">
-
-          <label for="subject">Subject</label>
-          <input id="subject" type="text" placeholder="Billing, streaming issue, setup help...">
-
-          <label for="message">Message</label>
-          <textarea id="message" placeholder="Describe your question or issue in detail..."></textarea>
-
-          <button type="submit">Send message</button>
-        </form>
-      </section>
-
-      <section class="card">
-        <h2>Other ways to reach us</h2>
-        <p>You can also contact the YouTube Streamer team using these channels:</p>
-        <ul>
-          <li>Email: <a href="mailto:support@streamloop.in">support@streamloop.in</a></li>
-          <li>Phone: <a href="tel:+9198xxxxxx">+91 98xxxxxx</a></li>
-          <li>Support hours: Monday–Friday, 9 AM – 6 PM IST</li>
-        </ul>
-
-        <h2>Common topics</h2>
-        <ul>
-          <li>Stream not going live or disconnecting.</li>
-          <li>Issues with YouTube key or authorization.</li>
-          <li>Questions about one‑day, monthly, or annual plans.</li>
-          <li>Billing and payment failures.</li>
-        </ul>
-      </section>
+    <!-- Hero -->
+    <div class="support-hero">
+        <div class="support-hero-label"><i class="bi bi-headset"></i> Support</div>
+        <h1>How can we help?</h1>
+        <p>Having trouble with your stream or playlist? Send us a message and we'll get back to you.</p>
     </div>
-  </main>
-</body>
-</html>
+
+    <!-- Grid -->
+    <div class="support-grid">
+
+        <!-- Contact Form -->
+        <div class="support-card animate-up delay-1">
+            <div class="support-card-header">
+                <i class="bi bi-envelope-fill"></i>
+                <h2>Send a message</h2>
+            </div>
+            <div class="support-card-body">
+                <form method="post" action="{% url 'support' %}" novalidate>
+                    {% csrf_token %}
+                    <div class="support-field">
+                        <label class="support-label">Your name</label>
+                        <input type="text" name="name" class="support-input" placeholder="Enter your name" required>
+                    </div>
+                    <div class="support-field">
+                        <label class="support-label">Email address</label>
+                        <input type="email" name="email" class="support-input" placeholder="you@example.com" required>
+                    </div>
+                    <div class="support-field">
+                        <label class="support-label">Subject</label>
+                        <input type="text" name="subject" class="support-input" placeholder="Stream not starting, playlist issue...">
+                    </div>
+                    <div class="support-field">
+                        <label class="support-label">Message</label>
+                        <textarea name="message" class="support-input" placeholder="Describe your issue in detail..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn-support-submit">
+                        <i class="bi bi-send-fill"></i> Send message
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Info -->
+        <div class="support-card animate-up delay-2">
+            <div class="support-card-header">
+                <i class="bi bi-info-circle-fill"></i>
+                <h2>Other ways to reach us</h2>
+            </div>
+            <div class="support-card-body">
+
+                <!-- Contact details -->
+                <div class="support-info-block">
+                    <div class="support-info-title"><i class="bi bi-person-lines-fill"></i> Contact details</div>
+                    <div class="support-contact-row">
+                        <i class="bi bi-envelope"></i>
+                        <div>
+                            <span>Email</span><br>
+                            <a href="mailto:support@streamloop.in">support@streamloop.in</a>
+                        </div>
+                    </div>
+                    <div class="support-contact-row">
+                        <i class="bi bi-clock"></i>
+                        <div>
+                            <span>Support hours</span><br>
+                            Monday – Friday, 9 AM – 6 PM IST
+                            <br><span class="hours-badge"><span class="hours-badge-dot"></span> Currently active</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Common topics -->
+                <div class="support-info-block">
+                    <div class="support-info-title"><i class="bi bi-question-circle-fill"></i> Common topics</div>
+                    <ul class="support-topic-list">
+                        <li><i class="bi bi-circle-fill"></i> Stream not going live or keeps disconnecting.</li>
+                        <li><i class="bi bi-circle-fill"></i> YouTube OAuth connection or authorization issues.</li>
+                        <li><i class="bi bi-circle-fill"></i> Playlist not loading or yt-dlp errors.</li>
+                        <li><i class="bi bi-circle-fill"></i> Loop mode not repeating playlist automatically.</li>
+                        <li><i class="bi bi-circle-fill"></i> Account or profile settings questions.</li>
+                        <li><i class="bi bi-circle-fill"></i> Billing and subscription queries.</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
 {% endblock %}
