@@ -1,118 +1,301 @@
 {% extends 'base.html' %}
 
-{% block title %}Privacy Policy - YouTube Streamer{% endblock %}
+{% block title %}Privacy Policy — StreamLoop{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Reuse legal page styles */
+.legal-hero {
+    text-align: center;
+    padding: 3rem 1rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+}
+.legal-hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: 50%;
+    transform: translateX(-50%);
+    width: 500px; height: 300px;
+    background: radial-gradient(circle, rgba(230,57,70,0.07) 0%, transparent 70%);
+    pointer-events: none;
+}
+.legal-hero-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--c-brand-dim);
+    border: 1px solid rgba(230,57,70,0.25);
+    color: var(--c-brand);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 99px;
+    margin-bottom: 1.25rem;
+}
+.legal-hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    color: var(--c-text-1);
+    margin-bottom: 0.75rem;
+    line-height: 1.15;
+}
+.legal-hero p {
+    font-size: 0.95rem;
+    color: var(--c-text-2);
+    max-width: 460px;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+.legal-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 2.5rem;
+    margin-top: 2.5rem;
+    align-items: start;
+}
+.legal-toc {
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    position: sticky;
+    top: calc(var(--nav-h) + 1rem);
+}
+.legal-toc-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--c-text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--c-border);
+}
+.legal-toc a {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--c-text-3);
+    text-decoration: none;
+    padding: 0.35rem 0;
+    transition: color 0.2s var(--ease);
+    line-height: 1.45;
+}
+.legal-toc a:hover { color: var(--c-brand); }
+.legal-body {
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-xl);
+    padding: 2.5rem;
+}
+.legal-muted {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: rgba(59,139,212,0.07);
+    border: 1px solid rgba(59,139,212,0.15);
+    border-left: 3px solid #3b8bd4;
+    border-radius: var(--radius-sm);
+    padding: 0.9rem 1rem;
+    margin-bottom: 2rem;
+    font-size: 0.84rem;
+    color: var(--c-text-2);
+    line-height: 1.6;
+}
+.legal-muted i { color: #3b8bd4; flex-shrink: 0; margin-top: 2px; }
+.legal-section { margin-bottom: 2.25rem; }
+.legal-section:last-child { margin-bottom: 0; }
+.legal-section h2 {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--c-text-1);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--c-border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: -0.2px;
+}
+.legal-section h2 i { color: var(--c-brand); font-size: 0.95rem; }
+.legal-section p {
+    font-size: 0.88rem;
+    color: var(--c-text-2);
+    line-height: 1.8;
+    margin-bottom: 0.75rem;
+}
+.legal-section p:last-child { margin-bottom: 0; }
+.legal-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 0.75rem;
+}
+.legal-section ul li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.88rem;
+    color: var(--c-text-2);
+    line-height: 1.65;
+    padding: 0.3rem 0;
+}
+.legal-section ul li::before {
+    content: '';
+    display: inline-block;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--c-brand);
+    flex-shrink: 0;
+    margin-top: 7px;
+}
+.legal-updated {
+    font-size: 0.78rem;
+    color: var(--c-text-3);
+    margin-top: 2rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--c-border);
+}
+@media (max-width: 900px) {
+    .legal-layout { grid-template-columns: 1fr; }
+    .legal-toc { position: static; }
+}
+@media (max-width: 480px) {
+    .legal-body { padding: 1.5rem 1.25rem; }
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Privacy Policy - StreamLoop</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body { margin:0; font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:#020617; color:#e2e8f0; }
-    .hero { padding:3.5rem 1.5rem; text-align:center; background:linear-gradient(135deg,#4f46e5,#0ea5e9); color:white; }
-    .hero h1 { margin:0 0 0.75rem; font-size:2.2rem; font-weight:800; }
-    .hero p { margin:0; opacity:0.95; }
-    .container { max-width:960px; margin:0 auto; padding:3rem 1.5rem 4rem; }
-    h2 { font-size:1.4rem; margin:2rem 0 0.75rem; color:#e5e7eb; }
-    p { line-height:1.7; color:#cbd5f5; margin:0 0 0.9rem; }
-    ul { margin:0 0 0.9rem 1.2rem; color:#cbd5f5; }
-    li { margin-bottom:0.4rem; }
-    .muted { font-size:0.85rem; color:#94a3b8; }
-    a { color:#38bdf8; text-decoration:none; }
-    a:hover { text-decoration:underline; }
-    @media (max-width:600px){ .hero h1{font-size:1.8rem;} .container{padding:2.5rem 1.25rem 3rem;} }
-  </style>
-</head>
-<body>
-  <header class="hero">
-    <h1>Privacy Policy</h1>
-    <p>How YouTube Streamer collects, uses, and protects your information.</p>
-  </header>
+<div class="animate-up">
 
-  <main class="container">
-    <p class="muted">
-      This Privacy Policy describes how YouTube Streamer (“we”, “our”, “us”) handles information when
-      you visit our website, create an account, or use our streaming services. This page is a general
-      template and should be adapted with your actual practices and local legal requirements.
-    </p>
+    <!-- Hero -->
+    <div class="legal-hero">
+        <div class="legal-hero-label"><i class="bi bi-shield-lock-fill"></i> Legal</div>
+        <h1>Privacy Policy</h1>
+        <p>How StreamLoop collects, uses, and protects your information.</p>
+    </div>
 
-    <h2>Information we collect</h2>
-    <p>We may collect the following types of information when you use our services:</p>
-    <ul>
-      <li>Account details such as name, email address, and password.</li>
-      <li>Billing information processed through third‑party payment providers.</li>
-      <li>Usage data such as pages visited, actions taken in the dashboard, and device information.</li>
-      <li>Content you upload for streaming (video, audio, thumbnails, and related metadata).</li>
-    </ul>
+    <div class="legal-layout">
 
-    <h2>How we use your information</h2>
-    <p>Your information is used to:</p>
-    <ul>
-      <li>Provide, operate, and maintain your Streamloop account.</li>
-      <li>Process subscription payments and manage your plan.</li>
-      <li>Monitor and support your live streams and service performance.</li>
-      <li>Communicate important updates, security alerts, and support messages.</li>
-      <li>Improve and analyze platform performance and user experience.</li>
-    </ul>
+        <!-- TOC Sidebar -->
+        <div class="legal-toc animate-up delay-1">
+            <div class="legal-toc-title">On this page</div>
+            <a href="#collect">Information we collect</a>
+            <a href="#use">How we use it</a>
+            <a href="#youtube">YouTube &amp; OAuth data</a>
+            <a href="#cookies">Cookies</a>
+            <a href="#sharing">Sharing of information</a>
+            <a href="#retention">Data retention</a>
+            <a href="#rights">Your rights</a>
+            <a href="#security">Security</a>
+            <a href="#children">Children</a>
+            <a href="#changes">Changes to policy</a>
+            <a href="#contact">Contact us</a>
+        </div>
 
-    <h2>Cookies and tracking technologies</h2>
-    <p>
-      We may use cookies and similar technologies to remember your preferences, keep you signed in,
-      and understand how you interact with the site. You can control cookies through your browser
-      settings, but blocking them may impact certain features.
-    </p>
+        <!-- Body -->
+        <div class="legal-body animate-up delay-2">
 
-    <h2>Sharing of information</h2>
-    <p>We may share information with:</p>
-    <ul>
-      <li>Payment processors to complete subscription transactions.</li>
-      <li>Cloud and infrastructure providers that host our services.</li>
-      <li>Analytics and monitoring tools used to improve reliability and performance.</li>
-      <li>Authorities when required by applicable law or legal process.</li>
-    </ul>
-    <p>
-      We do not sell your personal information to third parties in exchange for money. If you engage
-      with third‑party platforms such as YouTube, their own policies apply to those services.
-    </p>
+            <div class="legal-muted">
+                <i class="bi bi-info-circle-fill"></i>
+                <span>This policy describes how StreamLoop handles your data when you use our YouTube playlist live-streaming service. By using StreamLoop, you agree to the practices described here.</span>
+            </div>
 
-    <h2>Data retention</h2>
-    <p>
-      We retain information for as long as necessary to provide the service, comply with legal
-      obligations, resolve disputes, and enforce our agreements. Streaming media and logs may be
-      kept for shorter periods based on storage limits and operational needs.
-    </p>
+            <div class="legal-section" id="collect">
+                <h2><i class="bi bi-database-fill"></i> Information we collect</h2>
+                <p>When you use StreamLoop, we may collect the following:</p>
+                <ul>
+                    <li>Account details — your username, email address, and hashed password.</li>
+                    <li>Google OAuth tokens — used solely to create and manage live streams on your YouTube channel on your behalf.</li>
+                    <li>YouTube channel information — channel name and ID needed to target the correct live stream destination.</li>
+                    <li>Stream metadata — stream names, playlist selections, start/stop times, and loop settings you configure.</li>
+                    <li>Usage data — pages visited, actions taken in the dashboard, and device/browser information for debugging and improvement.</li>
+                </ul>
+            </div>
 
-    <h2>Your choices and rights</h2>
-    <p>
-      Depending on your location, you may have rights to access, update, or delete certain personal
-      information, or to object to specific processing. You can contact us using the details in the
-      “Contact us” section to make a request.
-    </p>
+            <div class="legal-section" id="use">
+                <h2><i class="bi bi-gear-fill"></i> How we use your information</h2>
+                <p>Your information is used to:</p>
+                <ul>
+                    <li>Provide and operate your StreamLoop account and streaming service.</li>
+                    <li>Authenticate with YouTube on your behalf to create and manage live broadcasts.</li>
+                    <li>Stream your selected YouTube playlist via yt-dlp without storing video files.</li>
+                    <li>Send account-related emails such as security alerts and support responses.</li>
+                    <li>Monitor service performance, diagnose errors, and improve platform reliability.</li>
+                </ul>
+                <p>We do not use your data for advertising or sell it to third parties.</p>
+            </div>
 
-    <h2>Security</h2>
-    <p>
-      We use technical and organizational safeguards that are designed to protect your information
-      from unauthorized access, use, or disclosure. No online service can guarantee perfect security,
-      so you should also keep your account credentials safe and unique.
-    </p>
+            <div class="legal-section" id="youtube">
+                <h2><i class="bi bi-youtube"></i> YouTube &amp; OAuth data</h2>
+                <p>StreamLoop uses Google OAuth 2.0 to connect to your YouTube channel. We request only the minimum permissions required to create and manage live streams. We do not store your Google password.</p>
+                <p>OAuth tokens are stored securely and used exclusively to interact with the YouTube Live Streaming API on your behalf. You can revoke access at any time from your <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener" style="color:var(--c-brand);text-decoration:none;">Google Account permissions page</a>.</p>
+                <p>StreamLoop's use of YouTube data is subject to the <a href="https://www.youtube.com/t/terms" target="_blank" rel="noopener" style="color:var(--c-brand);text-decoration:none;">YouTube Terms of Service</a> and <a href="https://policies.google.com/privacy" target="_blank" rel="noopener" style="color:var(--c-brand);text-decoration:none;">Google Privacy Policy</a>.</p>
+            </div>
 
-    <h2>Changes to this policy</h2>
-    <p>
-      We may update this Privacy Policy from time to time. The “Last updated” date will be revised
-      when changes are posted. Your continued use of YouTube Streamer after an update means you
-      accept the revised policy.
-    </p>
+            <div class="legal-section" id="cookies">
+                <h2><i class="bi bi-cookie"></i> Cookies</h2>
+                <p>StreamLoop uses essential cookies to keep you signed in and maintain your session. We do not use third-party advertising or tracking cookies. You can control cookies through your browser settings, but disabling session cookies will prevent you from staying logged in.</p>
+            </div>
 
-    <h2>Contact us</h2>
-    <p>
-      If you have questions about this Privacy Policy or your data, you can contact us at:<br>
-      <strong>Email:</strong> support@streamloop.in
-    </p>
+            <div class="legal-section" id="sharing">
+                <h2><i class="bi bi-share-fill"></i> Sharing of information</h2>
+                <p>We do not sell your personal information. We may share data with:</p>
+                <ul>
+                    <li>Google / YouTube — via OAuth API calls required to operate the service.</li>
+                    <li>Cloud infrastructure providers — that host our servers and databases.</li>
+                    <li>Monitoring tools — used to track uptime, errors, and performance.</li>
+                    <li>Legal authorities — when required by applicable law or legal process.</li>
+                </ul>
+            </div>
 
-    <p class="muted">Last updated: 04 December 2025</p>
-  </main>
-</body>
-</html>
+            <div class="legal-section" id="retention">
+                <h2><i class="bi bi-archive-fill"></i> Data retention</h2>
+                <p>We retain your account data for as long as your account is active or as needed to provide the service. Stream logs and metadata are kept for a limited period for debugging purposes. You can request deletion of your account and associated data by contacting us.</p>
+                <p>OAuth tokens are deleted when you disconnect your YouTube account or delete your StreamLoop account.</p>
+            </div>
+
+            <div class="legal-section" id="rights">
+                <h2><i class="bi bi-person-check-fill"></i> Your rights</h2>
+                <p>Depending on your location, you may have rights to:</p>
+                <ul>
+                    <li>Access the personal data we hold about you.</li>
+                    <li>Request correction of inaccurate data.</li>
+                    <li>Request deletion of your account and data.</li>
+                    <li>Revoke OAuth access to your YouTube channel at any time.</li>
+                    <li>Object to or restrict certain processing of your data.</li>
+                </ul>
+                <p>To exercise these rights, contact us at <a href="mailto:support@streamloop.in" style="color:var(--c-brand);text-decoration:none;">support@streamloop.in</a>.</p>
+            </div>
+
+            <div class="legal-section" id="security">
+                <h2><i class="bi bi-shield-check-fill"></i> Security</h2>
+                <p>We use technical and organizational safeguards including encrypted connections (HTTPS), hashed passwords, and secure OAuth token storage to protect your information. No online service can guarantee perfect security — please use a strong, unique password for your account.</p>
+            </div>
+
+            <div class="legal-section" id="children">
+                <h2><i class="bi bi-person-fill"></i> Children</h2>
+                <p>StreamLoop is not intended for users under 13 years of age. We do not knowingly collect personal information from children. If you believe a child has provided us with their data, please contact us and we will delete it promptly.</p>
+            </div>
+
+            <div class="legal-section" id="changes">
+                <h2><i class="bi bi-arrow-clockwise"></i> Changes to this policy</h2>
+                <p>We may update this Privacy Policy from time to time. The "Last updated" date will be revised when changes are posted. Continued use of StreamLoop after an update means you accept the revised policy.</p>
+            </div>
+
+            <div class="legal-section" id="contact">
+                <h2><i class="bi bi-envelope-fill"></i> Contact us</h2>
+                <p>If you have questions about this Privacy Policy or your data, contact us at: <a href="mailto:support@streamloop.in" style="color:var(--c-brand);text-decoration:none;">support@streamloop.in</a></p>
+            </div>
+
+            <p class="legal-updated"><i class="bi bi-calendar3"></i> Last updated: 04 December 2025</p>
+        </div>
+
+    </div>
+</div>
 {% endblock %}
