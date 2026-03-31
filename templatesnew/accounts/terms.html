@@ -1,119 +1,292 @@
 {% extends 'base.html' %}
 
-{% block title %}Terms & Conditions - StreamLoop{% endblock %}
+{% block title %}Terms & Conditions — StreamLoop{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ---- LEGAL PAGE ---- */
+.legal-hero {
+    text-align: center;
+    padding: 3rem 1rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+}
+.legal-hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: 50%;
+    transform: translateX(-50%);
+    width: 500px; height: 300px;
+    background: radial-gradient(circle, rgba(230,57,70,0.07) 0%, transparent 70%);
+    pointer-events: none;
+}
+.legal-hero-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--c-brand-dim);
+    border: 1px solid rgba(230,57,70,0.25);
+    color: var(--c-brand);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 99px;
+    margin-bottom: 1.25rem;
+}
+.legal-hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    color: var(--c-text-1);
+    margin-bottom: 0.75rem;
+    line-height: 1.15;
+}
+.legal-hero p {
+    font-size: 0.95rem;
+    color: var(--c-text-2);
+    max-width: 460px;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+/* Layout */
+.legal-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 2.5rem;
+    margin-top: 2.5rem;
+    align-items: start;
+}
+
+/* Sidebar TOC */
+.legal-toc {
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    position: sticky;
+    top: calc(var(--nav-h) + 1rem);
+}
+.legal-toc-title {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--c-text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--c-border);
+}
+.legal-toc a {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--c-text-3);
+    text-decoration: none;
+    padding: 0.35rem 0;
+    border-radius: 4px;
+    transition: color 0.2s var(--ease);
+    line-height: 1.45;
+}
+.legal-toc a:hover { color: var(--c-brand); }
+
+/* Body */
+.legal-body {
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-xl);
+    padding: 2.5rem;
+}
+.legal-muted {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: rgba(59,139,212,0.07);
+    border: 1px solid rgba(59,139,212,0.15);
+    border-left: 3px solid #3b8bd4;
+    border-radius: var(--radius-sm);
+    padding: 0.9rem 1rem;
+    margin-bottom: 2rem;
+    font-size: 0.84rem;
+    color: var(--c-text-2);
+    line-height: 1.6;
+}
+.legal-muted i { color: #3b8bd4; flex-shrink: 0; margin-top: 2px; }
+
+.legal-section { margin-bottom: 2.25rem; }
+.legal-section:last-child { margin-bottom: 0; }
+
+.legal-section h2 {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--c-text-1);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--c-border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: -0.2px;
+}
+.legal-section h2 i { color: var(--c-brand); font-size: 0.95rem; }
+
+.legal-section p {
+    font-size: 0.88rem;
+    color: var(--c-text-2);
+    line-height: 1.8;
+    margin-bottom: 0.75rem;
+}
+.legal-section p:last-child { margin-bottom: 0; }
+
+.legal-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 0.75rem;
+}
+.legal-section ul li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.88rem;
+    color: var(--c-text-2);
+    line-height: 1.65;
+    padding: 0.3rem 0;
+}
+.legal-section ul li::before {
+    content: '';
+    display: inline-block;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--c-brand);
+    flex-shrink: 0;
+    margin-top: 7px;
+}
+
+.legal-updated {
+    font-size: 0.78rem;
+    color: var(--c-text-3);
+    margin-top: 2rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--c-border);
+}
+
+@media (max-width: 900px) {
+    .legal-layout { grid-template-columns: 1fr; }
+    .legal-toc { position: static; }
+}
+@media (max-width: 480px) {
+    .legal-body { padding: 1.5rem 1.25rem; }
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Terms & Conditions - Streamloop</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body { margin:0; font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:#020617; color:#e2e8f0; }
-    .hero { padding:3.5rem 1.5rem; text-align:center; background:linear-gradient(135deg,#4f46e5,#0ea5e9); color:white; }
-    .hero h1 { margin:0 0 0.75rem; font-size:2.2rem; font-weight:800; }
-    .hero p { margin:0; opacity:0.95; }
-    .container { max-width:960px; margin:0 auto; padding:3rem 1.5rem 4rem; }
-    h2 { font-size:1.4rem; margin:2rem 0 0.75rem; color:#e5e7eb; }
-    p { line-height:1.7; color:#cbd5f5; margin:0 0 0.9rem; }
-    ul { margin:0 0 0.9rem 1.2rem; color:#cbd5f5; }
-    li { margin-bottom:0.4rem; }
-    .muted { font-size:0.85rem; color:#94a3b8; }
-    @media (max-width:600px){ .hero h1{font-size:1.8rem;} .container{padding:2.5rem 1.25rem 3rem;} }
-  </style>
-</head>
-<body>
-  <header class="hero">
-    <h1>Terms &amp; Conditions</h1>
-    <p>Rules for using the StreamLoop platform and services.</p>
-  </header>
+<div class="animate-up">
 
-  <main class="container">
-    <p class="muted">
-      These Terms &amp; Conditions (“Terms”) form a binding agreement between you and YouTube
-      Streamer. By creating an account or using the service, you agree to these Terms. This template
-      is a general example and should be customized with your specific legal requirements.
-    </p>
+    <!-- Hero -->
+    <div class="legal-hero">
+        <div class="legal-hero-label"><i class="bi bi-file-text-fill"></i> Legal</div>
+        <h1>Terms &amp; Conditions</h1>
+        <p>Rules governing your use of the StreamLoop platform and services.</p>
+    </div>
 
-    <h2>Use of the service</h2>
-    <p>
-      You agree to use StreamLoop only for lawful purposes and in compliance with all
-      applicable laws, YouTube policies, and any other third‑party terms that apply to your content
-      and streams.
-    </p>
-    <ul>
-      <li>You are responsible for the content you upload and stream.</li>
-      <li>You must not use the service to infringe copyrights or other rights.</li>
-      <li>You must not attempt to disrupt, overload, or reverse‑engineer the platform.</li>
-    </ul>
+    <div class="legal-layout">
 
-    <h2>Accounts and subscriptions</h2>
-    <p>
-      To access paid features, you may need to create an account and purchase a subscription plan
-      such as a one‑day, monthly, or annual plan. You are responsible for maintaining the security of
-      your login credentials.
-    </p>
-    <p>
-      Subscription features, limits, and pricing are described in the plan details on the site. Plan
-      changes, renewals, and cancellations may be subject to additional terms presented during
-      checkout.
-    </p>
+        <!-- TOC Sidebar -->
+        <div class="legal-toc animate-up delay-1">
+            <div class="legal-toc-title">On this page</div>
+            <a href="#acceptance">Acceptance of terms</a>
+            <a href="#service">Use of the service</a>
+            <a href="#youtube">YouTube &amp; OAuth</a>
+            <a href="#accounts">Accounts</a>
+            <a href="#content">Your content</a>
+            <a href="#prohibited">Prohibited use</a>
+            <a href="#availability">Service availability</a>
+            <a href="#liability">Limitation of liability</a>
+            <a href="#changes">Changes to terms</a>
+            <a href="#contact">Contact</a>
+        </div>
 
-    <h2>Payments and refunds</h2>
-    <p>
-      Payments are processed through third‑party payment providers. By submitting payment details,
-      you authorize us and our payment partners to charge the applicable fees.
-    </p>
-    <p>
-      Any refund policy will be described on the pricing or checkout pages. Where refunds are not
-      explicitly offered, all charges are generally non‑refundable except where required by law.
-    </p>
+        <!-- Body -->
+        <div class="legal-body animate-up delay-2">
 
-    <h2>Content and intellectual property</h2>
-    <p>
-      You retain ownership of the content you upload and stream through YouTube Streamer. You grant
-      us a limited, non‑exclusive license to process and transmit that content solely for the purpose
-      of providing the service.
-    </p>
-    <p>
-      The YouTube Streamer platform, including its software, design, and branding, is protected by
-      intellectual property laws and may not be copied, modified, or redistributed without
-      permission.
-    </p>
+            <div class="legal-muted">
+                <i class="bi bi-info-circle-fill"></i>
+                <span>By creating an account or using StreamLoop, you agree to these Terms. Please read them carefully before using the service.</span>
+            </div>
 
-    <h2>Service availability</h2>
-    <p>
-      We aim to keep the platform available and stable, but uptime is not guaranteed. Maintenance,
-      updates, and third‑party outages may affect your ability to stream or access your account.
-    </p>
+            <div class="legal-section" id="acceptance">
+                <h2><i class="bi bi-check-circle-fill"></i> Acceptance of terms</h2>
+                <p>These Terms &amp; Conditions ("Terms") form a binding agreement between you and StreamLoop. By accessing or using the platform — including connecting your YouTube channel, creating streams, or enabling loop mode — you agree to be bound by these Terms and our Privacy Policy.</p>
+            </div>
 
-    <h2>Limitation of liability</h2>
-    <p>
-      To the fullest extent permitted by law, YouTube Streamer is not liable for indirect, incidental,
-      or consequential damages arising from your use of the service, including lost revenue, lost
-      viewers, or data loss.
-    </p>
-    <p>
-      If we are found to have any liability, it will be limited to the amount you paid for the
-      service over a recent period defined in your specific plan terms or local law.
-    </p>
+            <div class="legal-section" id="service">
+                <h2><i class="bi bi-broadcast-pin"></i> Use of the service</h2>
+                <p>StreamLoop allows you to connect your YouTube account via Google OAuth, select a YouTube playlist, and broadcast it as a continuous live stream to your YouTube channel — using yt-dlp to stream videos directly without downloading them.</p>
+                <p>You agree to use the service only for lawful purposes and in compliance with:</p>
+                <ul>
+                    <li>All applicable local, national, and international laws.</li>
+                    <li>YouTube's Terms of Service and Community Guidelines.</li>
+                    <li>Google's OAuth and API usage policies.</li>
+                </ul>
+            </div>
 
-    <h2>Changes to these terms</h2>
-    <p>
-      We may update these Terms from time to time. The “Last updated” date will be revised when
-      changes are posted. If you continue to use the service after the changes take effect, you agree
-      to the updated Terms.
-    </p>
+            <div class="legal-section" id="youtube">
+                <h2><i class="bi bi-youtube"></i> YouTube &amp; OAuth</h2>
+                <p>StreamLoop connects to your YouTube channel using Google OAuth 2.0. We request only the permissions necessary to create and manage live streams on your behalf. We do not store your Google password.</p>
+                <p>You are responsible for ensuring your YouTube channel is in good standing and eligible for live streaming. StreamLoop is not liable for stream failures caused by YouTube restrictions, API limits, or channel suspensions.</p>
+            </div>
 
-    <h2>Contact</h2>
-    <p>
-      For questions about these Terms, you can contact us at:<br>
-      <strong>Email:</strong> support@streamloop.in
-    </p>
+            <div class="legal-section" id="accounts">
+                <h2><i class="bi bi-person-fill"></i> Accounts</h2>
+                <p>You must create an account to access StreamLoop features. You are responsible for maintaining the confidentiality of your login credentials and for all activity that occurs under your account.</p>
+                <p>You must provide accurate information when registering. We reserve the right to suspend or terminate accounts that violate these Terms.</p>
+            </div>
 
-    <p class="muted">Last updated: 04 December 2025</p>
-  </main>
-</body>
-</html>
+            <div class="legal-section" id="content">
+                <h2><i class="bi bi-collection-play-fill"></i> Your content</h2>
+                <p>You retain ownership of the YouTube playlists and videos you stream through StreamLoop. By using the service, you confirm that you have the rights to stream the selected content and that doing so does not infringe any third-party copyrights or YouTube policies.</p>
+                <p>StreamLoop does not download, store, or host your video content. Videos are streamed directly from YouTube via yt-dlp at the time of broadcast.</p>
+            </div>
+
+            <div class="legal-section" id="prohibited">
+                <h2><i class="bi bi-slash-circle-fill"></i> Prohibited use</h2>
+                <ul>
+                    <li>Streaming content that violates YouTube's policies or applicable law.</li>
+                    <li>Using the platform to infringe copyrights or other intellectual property rights.</li>
+                    <li>Attempting to reverse-engineer, hack, or disrupt the platform.</li>
+                    <li>Creating multiple accounts to circumvent account limits or suspensions.</li>
+                    <li>Using the service for any unlawful, harmful, or fraudulent purpose.</li>
+                </ul>
+            </div>
+
+            <div class="legal-section" id="availability">
+                <h2><i class="bi bi-server"></i> Service availability</h2>
+                <p>We aim to keep StreamLoop stable and available, but uptime is not guaranteed. Scheduled maintenance, third-party outages (including YouTube API downtime), or infrastructure issues may affect your ability to stream.</p>
+                <p>We are not liable for stream interruptions, missed broadcasts, or lost viewership resulting from service downtime.</p>
+            </div>
+
+            <div class="legal-section" id="liability">
+                <h2><i class="bi bi-exclamation-triangle-fill"></i> Limitation of liability</h2>
+                <p>To the fullest extent permitted by law, StreamLoop is not liable for any indirect, incidental, or consequential damages arising from your use of the service — including lost revenue, lost viewers, data loss, or YouTube account issues.</p>
+            </div>
+
+            <div class="legal-section" id="changes">
+                <h2><i class="bi bi-arrow-clockwise"></i> Changes to these terms</h2>
+                <p>We may update these Terms from time to time. The "Last updated" date will be revised when changes are posted. Continued use of the service after changes take effect constitutes acceptance of the updated Terms.</p>
+            </div>
+
+            <div class="legal-section" id="contact">
+                <h2><i class="bi bi-envelope-fill"></i> Contact</h2>
+                <p>For questions about these Terms, contact us at: <a href="mailto:support@streamloop.in" style="color:var(--c-brand);text-decoration:none;">support@streamloop.in</a></p>
+            </div>
+
+            <p class="legal-updated"><i class="bi bi-calendar3"></i> Last updated: 04 December 2025</p>
+        </div>
+
+    </div>
+</div>
 {% endblock %}
