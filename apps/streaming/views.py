@@ -198,23 +198,7 @@ def stream_list(request):
 @login_required
 @transaction.atomic
 def stream_create(request):
-    subscription = Subscription.objects.filter(
-        user=request.user, is_active=True
-    ).select_for_update().first()
-
-    if not subscription:
-        messages.error(request, 'You need an active subscription')
-        return redirect('subscribe')
-
-    active_streams = Stream.objects.filter(
-        user=request.user,
-        status__in=['running', 'starting', 'scheduled']
-    ).count()
-
-    if active_streams >= subscription.max_streams:
-        messages.error(request, f'Stream limit reached ({subscription.max_streams})')
-        return redirect('stream_list')
-
+    
     youtube_accounts = YouTubeAccount.objects.filter(user=request.user, is_active=True)
     if not youtube_accounts.exists():
         messages.error(request, 'Connect YouTube first')
@@ -323,8 +307,32 @@ def stream_detail(request, stream_id):
 # â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 @login_required
 @ratelimit(key='user', rate='5/h', method='ALL', block=True)
+@transaction.atomic
 def stream_start(request, stream_id):
     """Start a stream (called via plain GET link from stream_detail template)"""
+
+    subscription = Subscription.objects.filter(
+        user=request.user, is_active=True
+    ).select_for_update().first()
+
+    if not subscription:
+        messages.error(request, 'You need an active subscription')
+        return redirect('subscribe')
+
+    active_streams = Stream.objects.filter(
+        user=request.user,
+        status__in=['running', 'starting', 'scheduled']
+    ).count()
+
+    if active_streams >= subscription.max_streams:
+        messages.error(request, f'Stream limit reached ({subscription.max_streams})')
+        return redirect('stream_list')
+
+    youtube_accounts = YouTubeAccount.objects.filter(user=request.user, is_active=True)
+    if not youtube_accounts.exists():
+        messages.error(request, 'Connect YouTube first')
+        return redirect('connect_youtube')
+
     stream = get_object_or_404(Stream, id=stream_id, user=request.user)
 
     if stream.status in ('running', 'starting'):
