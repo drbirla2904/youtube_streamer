@@ -12,8 +12,8 @@ class Migration(migrations.Migration):
     operations = [
         # Add scheduled status to STATUS_CHOICES
         migrations.RunSQL(
-            sql="-- This is handled by the model definition change",
-            reverse_sql="-- Reverse not needed for choice changes"
+            sql="SELECT 1",
+            reverse_sql="SELECT 1"
         ),
         
         # Add scheduled_start_time field
