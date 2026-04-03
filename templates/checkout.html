@@ -1,98 +1,293 @@
 {% extends 'base.html' %}
 
-{% block title %}Checkout - YouTube Streamer{% endblock %}
+{% block title %}Checkout — StreamLoop{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ============================================================
+     CHECKOUT PAGE
+  ============================================================ */
+  .checkout-wrap {
+    min-height: calc(100vh - var(--nav-h) - 80px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 0;
+  }
+
+  .checkout-card {
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    width: 100%;
+    max-width: 480px;
+    animation: fadeUp 0.55s var(--ease) both;
+  }
+
+  /* ── Card Header ── */
+  .checkout-header {
+    background: var(--c-surface-2);
+    border-bottom: 1px solid var(--c-border);
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+  }
+  .checkout-header-icon {
+    width: 42px; height: 42px;
+    border-radius: var(--radius-sm);
+    background: var(--c-brand-dim);
+    color: var(--c-brand);
+    display: grid;
+    place-items: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+  .checkout-header h2 {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--c-text-1);
+    margin: 0;
+  }
+  .checkout-header p {
+    font-size: 0.8rem;
+    color: var(--c-text-3);
+    margin: 2px 0 0;
+  }
+
+  /* ── Card Body ── */
+  .checkout-body { padding: 2rem; }
+
+  /* ── Plan Summary Box ── */
+  .plan-summary {
+    background: var(--c-surface-2);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .plan-summary-info {}
+  .plan-summary-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--c-text-3);
+    margin-bottom: 4px;
+  }
+  .plan-summary-name {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--c-text-1);
+  }
+  .plan-summary-amount {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--c-brand);
+    letter-spacing: -1px;
+    flex-shrink: 0;
+  }
+
+  /* ── Divider ── */
+  .checkout-divider {
+    border: none;
+    border-top: 1px solid var(--c-border);
+    margin: 1.5rem 0;
+  }
+
+  /* ── Pay Button ── */
+  .btn-pay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 1rem;
+    background: var(--c-brand);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 20px var(--c-brand-glow);
+    transition: all 0.22s var(--ease);
+  }
+  .btn-pay:hover {
+    background: #cf2f3b;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px var(--c-brand-glow);
+  }
+  .btn-pay:active { transform: translateY(0); }
+  .btn-pay.loading {
+    opacity: 0.7;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* ── Secure Note ── */
+  .secure-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    color: var(--c-text-3);
+  }
+  .secure-note i { color: #34d399; font-size: 0.85rem; }
+
+  /* ── Trust Badges ── */
+  .trust-badges {
+    display: flex;
+    justify-content: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--c-border);
+  }
+  .trust-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.76rem;
+    color: var(--c-text-3);
+  }
+  .trust-badge i { font-size: 0.85rem; color: var(--c-text-2); }
+
+  @media (max-width: 520px) {
+    .checkout-body { padding: 1.5rem; }
+    .plan-summary { flex-direction: column; align-items: flex-start; }
+    .plan-summary-amount { font-size: 1.5rem; }
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-lg">
-                <div class="card-body p-5">
-                    <h2 class="card-title text-center mb-4">Complete Your Purchase</h2>
-                    
-                    <div class="alert alert-info">
-                        <h5>{{ plan_name }}</h5>
-                        <h3>₹{{ amount|floatformat:0|slice:":-2" }}</h3>
-                    </div>
-                    
-                    <form id="payment-form">
-                        <input type="hidden" id="razorpay_order_id" value="{{ razorpay_order_id }}">
-                        <input type="hidden" id="razorpay_key_id" value="{{ razorpay_key_id }}">
-                        <input type="hidden" id="amount" value="{{ amount }}">
-                        <input type="hidden" id="subscription_id" value="{{ subscription_id }}">
-                        
-                        <div class="d-grid">
-                            <button type="button" id="pay-button" class="btn btn-primary btn-lg">
-                                <i class="fas fa-lock"></i> Pay Securely with Razorpay
-                            </button>
-                        </div>
-                    </form>
-                    
-                    <div class="text-center mt-3">
-                        <small class="text-muted">Secured by Razorpay</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<div class="checkout-wrap">
+  <div class="checkout-card">
 
+    <!-- Header -->
+    <div class="checkout-header">
+      <div class="checkout-header-icon">
+        <i class="bi bi-bag-check"></i>
+      </div>
+      <div>
+        <h2>Complete Your Purchase</h2>
+        <p>Secure checkout via Razorpay</p>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="checkout-body">
+
+      <!-- Plan Summary -->
+      <div class="plan-summary">
+        <div class="plan-summary-info">
+          <div class="plan-summary-label">Selected Plan</div>
+          <div class="plan-summary-name">{{ plan_name }}</div>
+        </div>
+        <div class="plan-summary-amount">₹{{ amount|floatformat:0|slice:":-2" }}</div>
+      </div>
+
+      <!-- Hidden Inputs -->
+      <input type="hidden" id="razorpay_order_id"  value="{{ razorpay_order_id }}">
+      <input type="hidden" id="razorpay_key_id"    value="{{ razorpay_key_id }}">
+      <input type="hidden" id="amount"             value="{{ amount }}">
+      <input type="hidden" id="subscription_id"    value="{{ subscription_id }}">
+
+      <!-- Pay Button -->
+      <button id="pay-button" class="btn-pay">
+        <i class="bi bi-lock-fill"></i> Pay ₹{{ amount|floatformat:0|slice:":-2" }} Securely
+      </button>
+
+      <!-- Secure Note -->
+      <div class="secure-note">
+        <i class="bi bi-shield-check"></i>
+        256-bit SSL · Your payment info is never stored
+      </div>
+
+      <!-- Trust Badges -->
+      <div class="trust-badges">
+        <div class="trust-badge"><i class="bi bi-credit-card"></i> Cards</div>
+        <div class="trust-badge"><i class="bi bi-phone"></i> UPI</div>
+        <div class="trust-badge"><i class="bi bi-bank"></i> Net Banking</div>
+        <div class="trust-badge"><i class="bi bi-wallet2"></i> Wallets</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-document.getElementById('pay-button').onclick = function(e) {
-    e.preventDefault();
-    
-    var options = {
-        "key": document.getElementById('razorpay_key_id').value,
-        "amount": document.getElementById('amount').value,
-        "currency": "{{ currency }}",
-        "name": "YouTube Streamer",
-        "description": "{{ plan_name }}",
-        "order_id": document.getElementById('razorpay_order_id').value,
-        "handler": function (response) {
-            // Create form and submit
-            var form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '{% url "payment_callback" %}';
-            
-            var csrfToken = document.createElement('input');
-            csrfToken.type = 'hidden';
-            csrfToken.name = 'csrfmiddlewaretoken';
-            csrfToken.value = '{{ csrf_token }}';
-            form.appendChild(csrfToken);
-            
-            var paymentId = document.createElement('input');
-            paymentId.type = 'hidden';
-            paymentId.name = 'razorpay_payment_id';
-            paymentId.value = response.razorpay_payment_id;
-            form.appendChild(paymentId);
-            
-            var orderId = document.createElement('input');
-            orderId.type = 'hidden';
-            orderId.name = 'razorpay_order_id';
-            orderId.value = response.razorpay_order_id;
-            form.appendChild(orderId);
-            
-            var signature = document.createElement('input');
-            signature.type = 'hidden';
-            signature.name = 'razorpay_signature';
-            signature.value = response.razorpay_signature;
-            form.appendChild(signature);
-            
-            document.body.appendChild(form);
-            form.submit();
-        },
-        "prefill": {
-            "name": "{{ request.user.get_full_name }}",
-            "email": "{{ request.user.email }}"
-        },
-        "theme": {
-            "color": "#0d6efd"
+  const payBtn = document.getElementById('pay-button');
+
+  payBtn.addEventListener('click', function () {
+    payBtn.classList.add('loading');
+    payBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Opening payment…';
+
+    const options = {
+      key:         document.getElementById('razorpay_key_id').value,
+      amount:      document.getElementById('amount').value,
+      currency:    "{{ currency }}",
+      name:        "StreamLoop",
+      description: "{{ plan_name }}",
+      order_id:    document.getElementById('razorpay_order_id').value,
+      handler: function (response) {
+        // Build and submit callback form
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{% url "payment_callback" %}';
+
+        const fields = {
+          csrfmiddlewaretoken: '{{ csrf_token }}',
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_order_id:   response.razorpay_order_id,
+          razorpay_signature:  response.razorpay_signature,
+        };
+        Object.entries(fields).forEach(([name, value]) => {
+          const input = document.createElement('input');
+          input.type  = 'hidden';
+          input.name  = name;
+          input.value = value;
+          form.appendChild(input);
+        });
+
+        document.body.appendChild(form);
+        form.submit();
+      },
+      prefill: {
+        name:  "{{ request.user.get_full_name }}",
+        email: "{{ request.user.email }}",
+      },
+      theme: { color: "#e63946" },
+      modal: {
+        ondismiss: function () {
+          payBtn.classList.remove('loading');
+          payBtn.innerHTML = '<i class="bi bi-lock-fill"></i> Pay ₹{{ amount|floatformat:0|slice:":-2" }} Securely';
         }
+      }
     };
-    
-    var rzp = new Razorpay(options);
+
+    const rzp = new Razorpay(options);
+    rzp.on('payment.failed', function (resp) {
+      payBtn.classList.remove('loading');
+      payBtn.innerHTML = '<i class="bi bi-lock-fill"></i> Pay ₹{{ amount|floatformat:0|slice:":-2" }} Securely';
+      alert('Payment failed: ' + resp.error.description);
+    });
     rzp.open();
-};
+  });
 </script>
 {% endblock %}
