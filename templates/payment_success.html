@@ -1,0 +1,465 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment Successful - YouTube Streamer{% endblock %}
+
+{% block content %}
+<style>
+  /* ==================== Success Container ==================== */
+  .success-container {
+    background: linear-gradient(135deg, #000 0%, #212529 100%);
+    min-height: 100vh;
+    padding: 3rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.6s ease-out;
+  }
+
+  /* ==================== Success Card ==================== */
+  .success-card {
+    background: #212529;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(99, 102, 241, 0.3);
+    max-width: 520px;
+    width: 100%;
+    transition: var(--transition-smooth);
+  }
+
+  .success-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 25px 70px rgba(99, 102, 241, 0.4);
+  }
+
+  /* ==================== Success Header ==================== */
+  .success-header {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.08) 100%);
+    border-bottom: 2px solid var(--border-color);
+    padding: 2.5rem 2rem;
+    text-align: center;
+  }
+
+  .success-icon {
+    font-size: 4rem;
+    color: var(--success-color);
+    margin-bottom: 1rem;
+    display: inline-block;
+    animation: scaleIn 0.6s ease-out;
+  }
+
+  .success-title {
+    font-size: 1.75rem;
+    font-weight: 900;
+    color: var(--text-primary);
+    margin: 0;
+    letter-spacing: -0.5px;
+  }
+
+  /* ==================== Success Body ==================== */
+  .success-body {
+    padding: 2.5rem;
+  }
+
+  .success-message {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .success-main-text {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+  }
+
+  .success-sub-text {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+
+  /* ==================== Confirmation Box ==================== */
+  .confirmation-box {
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-left: 4px solid var(--success-color);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .confirmation-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .confirmation-details {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .confirmation-details li {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    padding: 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .confirmation-details i {
+    color: var(--success-color);
+    font-size: 0.9rem;
+  }
+
+  /* ==================== Next Steps ==================== */
+  .next-steps {
+    background: #0c1722;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .next-steps-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .next-steps-content {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+
+  /* ==================== Action Buttons ==================== */
+  .action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .btn-action {
+    padding: 1rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .btn-dashboard {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+  }
+
+  .btn-dashboard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(99, 102, 241, 0.4);
+    color: white;
+  }
+
+  .btn-stream {
+    background: linear-gradient(135deg, var(--success-color), #059669);
+    color: white;
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+  }
+
+  .btn-stream:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(16, 185, 129, 0.4);
+    color: white;
+  }
+
+  /* ==================== Benefits Section ==================== */
+  .benefits-section {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1.5rem;
+  }
+
+  .benefits-title {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .benefits-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .benefit-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .benefit-icon {
+    color: var(--success-color);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+  }
+
+  .benefit-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* ==================== Animations ==================== */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* ==================== Responsive Design ==================== */
+  @media (max-width: 768px) {
+    .success-container {
+      padding: 2rem 1rem;
+    }
+
+    .success-header {
+      padding: 2rem 1.5rem;
+    }
+
+    .success-body {
+      padding: 1.75rem;
+    }
+
+    .success-icon {
+      font-size: 3.5rem;
+    }
+
+    .success-title {
+      font-size: 1.5rem;
+    }
+
+    .success-main-text {
+      font-size: 1rem;
+    }
+
+    .btn-action {
+      padding: 0.9rem;
+      font-size: 0.95rem;
+    }
+
+    .benefits-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .success-container {
+      padding: 1.5rem 0.75rem;
+    }
+
+    .success-header {
+      padding: 1.5rem 1rem;
+    }
+
+    .success-body {
+      padding: 1.5rem;
+    }
+
+    .success-icon {
+      font-size: 3rem;
+    }
+
+    .success-title {
+      font-size: 1.25rem;
+    }
+
+    .success-main-text {
+      font-size: 0.95rem;
+    }
+
+    .success-sub-text {
+      font-size: 0.9rem;
+    }
+
+    .confirmation-box {
+      padding: 1.25rem;
+    }
+
+    .next-steps {
+      padding: 1.25rem;
+    }
+
+    .btn-action {
+      padding: 0.85rem;
+      font-size: 0.9rem;
+    }
+
+    .benefits-section {
+      padding: 1.25rem;
+    }
+
+    .benefit-text {
+      font-size: 0.8rem;
+    }
+
+    .benefits-grid {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+  }
+</style>
+
+<div class="success-container">
+  <div class="success-card">
+    <!-- Header -->
+    <div class="success-header">
+      <i class="bi bi-check-circle success-icon"></i>
+      <h1 class="success-title">Payment Successful!</h1>
+    </div>
+
+    <!-- Body -->
+    <div class="success-body">
+      <!-- Message -->
+      <div class="success-message">
+        <p class="success-main-text">
+          Your subscription has been activated successfully
+        </p>
+        <p class="success-sub-text">
+          You can now start creating and managing your YouTube streams immediately.
+        </p>
+      </div>
+
+      <!-- Confirmation Box -->
+      <div class="confirmation-box">
+        <div class="confirmation-title">
+          <i class="bi bi-check2-circle"></i> Order Confirmed
+        </div>
+        <ul class="confirmation-details">
+          <li>
+            <i class="bi bi-check-circle"></i>
+            <span>Payment processed successfully</span>
+          </li>
+          <li>
+            <i class="bi bi-check-circle"></i>
+            <span>Subscription activated immediately</span>
+          </li>
+          <li>
+            <i class="bi bi-check-circle"></i>
+            <span>Confirmation email sent to your inbox</span>
+          </li>
+          <li>
+            <i class="bi bi-check-circle"></i>
+            <span>Full access to all features unlocked</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Next Steps -->
+      <div class="next-steps">
+        <div class="next-steps-title">
+          <i class="bi bi-arrow-right-circle"></i> What's Next?
+        </div>
+        <div class="next-steps-content">
+          Your account is now fully activated with all premium features. Start by creating your first stream and begin broadcasting to YouTube right away!
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <a href="{% url 'dashboard' %}" class="btn-action btn-dashboard">
+          <i class="bi bi-house-fill"></i>
+          <span>Go to Dashboard</span>
+        </a>
+        <a href="{% url 'stream_create' %}" class="btn-action btn-stream">
+          <i class="bi bi-play-circle"></i>
+          <span>Create Your First Stream</span>
+        </a>
+      </div>
+
+      <!-- Benefits Section -->
+      <div class="benefits-section">
+        <div class="benefits-title">
+          <i class="bi bi-gift"></i> Your Benefits
+        </div>
+        <div class="benefits-grid">
+          <div class="benefit-item">
+            <i class="bi bi-broadcast benefit-icon"></i>
+            <div class="benefit-text">
+              <strong>Live Streaming</strong> to YouTube
+            </div>
+          </div>
+          <div class="benefit-item">
+            <i class="bi bi-hdd benefit-icon"></i>
+            <div class="benefit-text">
+              <strong>Premium Storage</strong> included
+            </div>
+          </div>
+          <div class="benefit-item">
+            <i class="bi bi-headset benefit-icon"></i>
+            <div class="benefit-text">
+              <strong>Priority Support</strong> available
+            </div>
+          </div>
+          <div class="benefit-item">
+            <i class="bi bi-graph-up benefit-icon"></i>
+            <div class="benefit-text">
+              <strong>Advanced Analytics</strong> access
+            </div>
+          </div>
+          <div class="benefit-item">
+            <i class="bi bi-shield-check benefit-icon"></i>
+            <div class="benefit-text">
+              <strong>Secure Streaming</strong> guaranteed
+            </div>
+          </div>
+          <div class="benefit-item">
+            <i class="bi bi-lightning-charge benefit-icon"></i>
+            <div class="benefit-text">
+              <strong>Fast Performance</strong> always
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
