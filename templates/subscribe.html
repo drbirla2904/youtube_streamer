@@ -1,678 +1,501 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Subscribe - YouTube Streamer{% endblock %}
+{% block title %}Subscribe — StreamLoop{% endblock %}
 
-{% block content %}
+{% block extra_css %}
 <style>
-  /* ==================== Subscription Container ==================== */
-  .subscription-container {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-    min-height: 100vh;
-    padding: 3rem 0;
-    animation: fadeIn 0.6s ease-out;
-  }
+  /* ============================================================
+     SUBSCRIBE PAGE
+  ============================================================ */
 
-  /* ==================== Page Header ==================== */
-  .subscription-header {
+  /* ── Page Header ── */
+  .sub-hero {
     text-align: center;
-    color: white;
-    margin-bottom: 3rem;
+    padding: 3rem 0 2.5rem;
+    animation: fadeUp 0.55s var(--ease) both;
   }
-
-  .subscription-title {
-    font-size: 2.5rem;
-    font-weight: 900;
-    margin-bottom: 0.75rem;
-    letter-spacing: -0.5px;
-  }
-
-  .subscription-subtitle {
-    font-size: 1.1rem;
-    opacity: 0.9;
-    font-weight: 500;
-  }
-
-  /* ==================== Current Plan Info ==================== */
-  .current-plan-info {
-    background: white;
-    border-radius: 12px;
-    padding: 1.5rem;
-    margin-bottom: 2.5rem;
-    border-left: 4px solid var(--success-color);
-    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.2);
-  }
-
-  .current-plan-badge {
-    background: rgba(16, 185, 129, 0.1);
-    color: var(--success-color);
-    padding: 1rem;
-    border-radius: 10px;
-    border-left: 4px solid var(--success-color);
-  }
-
-  .current-plan-title {
+  .sub-hero .section-label { justify-content: center; margin-bottom: 1rem; }
+  .sub-hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 2.75rem);
     font-weight: 800;
-    font-size: 0.95rem;
-    color: #22543d;
-    margin-bottom: 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    color: var(--c-text-1);
+    letter-spacing: -0.5px;
+    margin-bottom: 0.6rem;
+  }
+  .sub-hero p {
+    color: var(--c-text-2);
+    font-size: 1rem;
+    max-width: 480px;
+    margin: 0 auto;
   }
 
-  .current-plan-details {
-    font-size: 0.9rem;
-    color: #2d3748;
-    line-height: 1.8;
+  /* ── Current Plan Banner ── */
+  .current-plan-banner {
+    background: rgba(16,185,129,0.06);
+    border: 1px solid rgba(16,185,129,0.2);
+    border-left: 4px solid #34d399;
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2.5rem;
     display: flex;
     flex-wrap: wrap;
-    gap: 1.5rem;
+    align-items: center;
+    gap: 1.25rem;
+    animation: fadeUp 0.55s var(--ease) .08s both;
   }
-
-  .plan-detail-item {
+  .current-plan-banner .cpb-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #34d399;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 6px;
   }
+  .current-plan-banner .cpb-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    color: var(--c-text-2);
+    font-size: 0.88rem;
+  }
+  .current-plan-banner .cpb-details span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .current-plan-banner .cpb-details strong { color: var(--c-text-1); }
 
-  /* ==================== Plans Grid ==================== */
+  /* ── Plans Grid ── */
   .plans-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
     margin-bottom: 3rem;
   }
 
-  /* ==================== Plan Card ==================== */
+  /* ── Plan Card ── */
   .plan-card {
-    background: white;
-    border-radius: 16px;
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: var(--radius-lg);
     padding: 2rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    transition: var(--transition-smooth);
-    position: relative;
-    border: 2px solid transparent;
     display: flex;
     flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease), transform 0.25s var(--ease-spring);
+    animation: fadeUp 0.55s var(--ease) both;
   }
-
   .plan-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 50px rgba(99, 102, 241, 0.2);
-    border-color: var(--primary-light);
+    border-color: var(--c-border-hi);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.45);
+    transform: translateY(-5px);
   }
-
-  .plan-card.active {
-    border-color: var(--success-color);
-    
-    box-shadow: 0 15px 40px rgba(99, 102, 241, 0.2);
+  .plan-card.is-current {
+    border-color: rgba(16,185,129,0.4);
+    box-shadow: 0 0 0 1px rgba(16,185,129,0.15);
   }
-
-  .plan-badge {
+  .plan-card.is-featured {
+    border-color: rgba(230,57,70,0.4);
+    box-shadow: 0 0 0 1px rgba(230,57,70,0.1);
+  }
+  /* accent line at top */
+  .plan-card::before {
+    content: '';
     position: absolute;
-    top: -12px;
-    right: 20px;
-    background: linear-gradient(135deg, #198754, #198754);
-    color: white;
-    padding: 0.4rem 1rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--c-border);
+    transition: background 0.25s var(--ease);
+  }
+  .plan-card:hover::before  { background: var(--c-brand); }
+  .plan-card.is-current::before { background: #34d399; }
+  .plan-card.is-featured::before { background: var(--c-brand); }
+
+  /* floating badge */
+  .plan-floating-badge {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    font-size: 0.68rem;
     font-weight: 700;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    padding: 0.3em 0.7em;
+    border-radius: 6px;
+  }
+  .pfb-current {
+    background: rgba(16,185,129,0.12);
+    color: #34d399;
+    border: 1px solid rgba(16,185,129,0.25);
+  }
+  .pfb-popular {
+    background: var(--c-brand-dim);
+    color: var(--c-brand);
+    border: 1px solid rgba(230,57,70,0.3);
   }
 
-  /* ==================== Plan Header ==================== */
+  /* ── Plan Header ── */
   .plan-header {
     text-align: center;
-    margin-bottom: 2rem;
-    border-bottom: 2px solid #edf2f7;
     padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--c-border);
   }
-
+  .plan-icon {
+    font-size: 1.75rem;
+    margin-bottom: 0.6rem;
+    display: block;
+  }
   .plan-name {
-    font-size: 1.4rem;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
     font-weight: 800;
-    color: #2d3748;
-    margin-bottom: 0.75rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
+    color: var(--c-text-1);
+    margin-bottom: 1rem;
   }
-
   .plan-price {
-    font-size: 2.75rem;
-    font-weight: 900;
-    color: var(--primary-color);
-    margin-bottom: 0.5rem;
-    letter-spacing: -1px;
+    font-family: var(--font-display);
+    font-size: 2.6rem;
+    font-weight: 800;
+    color: var(--c-text-1);
+    letter-spacing: -2px;
+    line-height: 1;
+    margin-bottom: 0.2rem;
   }
-
-  .plan-price small {
-    font-size: 0.95rem;
-    color: #718096;
+  .plan-price sup {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    vertical-align: super;
+    color: var(--c-text-2);
+  }
+  .plan-price-period {
+    font-size: 0.82rem;
+    color: var(--c-text-3);
     font-weight: 500;
   }
 
-  /* ==================== Plan Features ==================== */
+  /* ── Plan Features ── */
   .plan-features {
     list-style: none;
     padding: 0;
-    margin: 1.5rem 0;
+    margin: 0 0 2rem;
     flex: 1;
   }
-
   .plan-features li {
-    padding: 0.75rem 0;
-    color: #4a5568;
-    border-bottom: 1px solid #edf2f7;
     display: flex;
     align-items: flex-start;
-    gap: 0.75rem;
+    gap: 0.65rem;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid var(--c-border);
+    font-size: 0.9rem;
+    color: var(--c-text-2);
+    transition: color 0.2s;
+  }
+  .plan-features li:last-child { border-bottom: none; }
+  .plan-card:hover .plan-features li { color: var(--c-text-1); }
+  .plan-features li i {
+    color: var(--c-brand);
     font-size: 0.95rem;
-  }
-
-  .plan-features li:last-child {
-    border-bottom: none;
-  }
-
-  .plan-features li:before {
-    content: "✓";
-    color: var(--success-color);
-    font-weight: 900;
-    font-size: 1.1rem;
+    margin-top: 1px;
     flex-shrink: 0;
-    margin-top: 0.1rem;
   }
-
-  .feature-highlight {
-    color: var(--primary-color);
+  .plan-features li .feat-hi {
+    color: var(--c-text-1);
     font-weight: 700;
   }
 
-  /* ==================== Plan Actions ==================== */
-  .plan-action {
-    margin-top: 2rem;
-    text-align: center;
-  }
-
-  .btn-subscribe {
-    padding: 0.9rem 2rem;
-    border: none;
-    border-radius: 10px;
-    font-size: 0.95rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: var(--transition-smooth);
-    text-decoration: none;
-    display: inline-flex;
+  /* ── Plan CTA ── */
+  .plan-cta { margin-top: auto; }
+  .btn-plan {
+    display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.75rem;
+    gap: 8px;
     width: 100%;
+    padding: 0.85rem 1.5rem;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    font-weight: 700;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.22s var(--ease);
   }
-
-  .btn-subscribe-primary {
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-    color: white;
-    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+  .btn-plan-primary {
+    background: var(--c-brand);
+    color: #fff;
+    box-shadow: 0 4px 18px var(--c-brand-glow);
   }
-
-  .btn-subscribe-primary:hover {
+  .btn-plan-primary:hover {
+    background: #cf2f3b;
     transform: translateY(-2px);
-    box-shadow: 0 12px 35px rgba(99, 102, 241, 0.4);
-    color: white;
+    box-shadow: 0 8px 26px var(--c-brand-glow);
+    color: #fff;
+  }
+  .btn-plan-current {
+    background: rgba(16,185,129,0.08);
+    color: #34d399;
+    border: 1px solid rgba(16,185,129,0.22);
+    cursor: default;
   }
 
-  .btn-subscribe-secondary {
-    background: #edf2f7;
-    color: #2d3748;
-    border: 2px solid #cbd5e0;
-    cursor: not-allowed;
+  /* ── FAQ ── */
+  .faq-section {
+    margin-bottom: 3rem;
+    animation: fadeUp 0.55s var(--ease) .24s both;
   }
-
-  .btn-subscribe-secondary:hover {
-    background: #e2e8f0;
-  }
-
-  /* ==================== Current Plan Indicator ==================== */
-  .current-plan-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: rgba(16, 185, 129, 0.1);
-    color: var(--success-color);
-    padding: 0.4rem 0.8rem;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    margin-bottom: 0.75rem;
-  }
-
-  /* ==================== FAQ Section ==================== */
-  .faq-container {
-    background: white;
-    border-radius: 16px;
-    padding: 2.5rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  }
-
-  .faq-title {
-    font-size: 1.5rem;
+  .faq-section .section-label { margin-bottom: 1.25rem; }
+  .faq-section h2 {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
     font-weight: 800;
-    color: #2d3748;
-    margin-bottom: 2rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
+    color: var(--c-text-1);
+    margin-bottom: 1.5rem;
   }
 
+  .faq-list { display: flex; flex-direction: column; gap: 0; }
   .faq-item {
-    margin-bottom: 1.75rem;
-    padding-bottom: 1.75rem;
-    border-bottom: 1px solid #edf2f7;
+    border-bottom: 1px solid var(--c-border);
+    padding: 1.25rem 0;
   }
-
-  .faq-item:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
-  }
-
-  .faq-question {
-    font-weight: 800;
-    color: #2d3748;
-    font-size: 0.95rem;
-    margin-bottom: 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .faq-answer {
-    color: #4a5568;
-    font-size: 0.9rem;
-    line-height: 1.7;
-  }
-
-  /* ==================== Payment Methods ==================== */
-  .payment-methods {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(236, 72, 153, 0.05) 100%);
-    border-left: 4px solid var(--primary-color);
-    padding: 1.5rem;
-    border-radius: 10px;
-    margin-top: 1.5rem;
-  }
-
-  .payment-methods-title {
+  .faq-item:first-child { border-top: 1px solid var(--c-border); }
+  .faq-q {
     font-weight: 700;
-    color: #2d3748;
-    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: var(--c-text-1);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.6rem;
+    margin-bottom: 0.5rem;
+  }
+  .faq-q i { color: var(--c-brand); font-size: 0.85rem; }
+  .faq-a {
+    font-size: 0.88rem;
+    color: var(--c-text-2);
+    line-height: 1.75;
+    padding-left: 1.5rem;
   }
 
-  .payment-methods-list {
+  /* ── Payment Methods ── */
+  .payment-methods-card {
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-left: 3px solid var(--c-brand);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    margin-top: 2rem;
+    animation: fadeUp 0.55s var(--ease) .32s both;
+  }
+  .payment-methods-card .pm-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--c-text-2);
     display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 1rem;
   }
-
-  .payment-method-item {
-    background: white;
-    padding: 0.6rem 1rem;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    color: #4a5568;
-    border: 1px solid var(--border-color);
+  .pm-chips { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .pm-chip {
+    background: var(--c-surface-2);
+    border: 1px solid var(--c-border-hi);
+    border-radius: var(--radius-sm);
+    padding: 0.45rem 0.9rem;
+    font-size: 0.82rem;
+    color: var(--c-text-2);
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
-
-  /* ==================== Container ==================== */
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
+  .pm-note {
+    font-size: 0.8rem;
+    color: var(--c-text-3);
+    margin-top: 0.9rem;
   }
+  .pm-note strong { color: var(--c-text-2); }
 
-  /* ==================== Animations ==================== */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  /* ==================== Responsive Design ==================== */
+  /* ── Responsive ── */
   @media (max-width: 992px) {
-    .plans-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    .subscription-title {
-      font-size: 2rem;
-    }
+    .plans-grid { grid-template-columns: repeat(2, 1fr); }
   }
-
-  @media (max-width: 768px) {
-    .subscription-container {
-      padding: 2rem 0;
-    }
-
-    .subscription-title {
-      font-size: 1.75rem;
-    }
-
-    .subscription-subtitle {
-      font-size: 1rem;
-    }
-
-    .plans-grid {
-      grid-template-columns: 1fr;
-      gap: 1.5rem;
-    }
-
-    .plan-card {
-      padding: 1.75rem;
-    }
-
-    .plan-price {
-      font-size: 2.25rem;
-    }
-
-    .faq-container {
-      padding: 1.75rem;
-    }
-
-    .current-plan-details {
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .payment-methods-list {
-      flex-direction: column;
-    }
-
-    .payment-method-item {
-      width: 100%;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .subscription-container {
-      padding: 1.5rem 0;
-    }
-
-    .subscription-title {
-      font-size: 1.5rem;
-    }
-
-    .subscription-header {
-      margin-bottom: 2rem;
-    }
-
-    .plan-card {
-      padding: 1.5rem;
-    }
-
-    .plan-name {
-      font-size: 1.2rem;
-    }
-
-    .plan-price {
-      font-size: 2rem;
-    }
-
-    .plan-features li {
-      font-size: 0.9rem;
-      padding: 0.65rem 0;
-    }
-
-    .btn-subscribe {
-      padding: 0.8rem 1.5rem;
-      font-size: 0.9rem;
-    }
-
-    .faq-container {
-      padding: 1.25rem;
-    }
-
-    .faq-title {
-      font-size: 1.25rem;
-    }
-
-    .container {
-      padding: 0 1rem;
-    }
+  @media (max-width: 640px) {
+    .plans-grid { grid-template-columns: 1fr; }
+    .current-plan-banner { flex-direction: column; align-items: flex-start; }
+    .plan-price { font-size: 2.1rem; }
   }
 </style>
+{% endblock %}
 
-<div class="subscription-container">
-  <div class="container">
-    <!-- Page Header -->
-    <div class="subscription-header">
-      <h1 class="subscription-title">Choose Your Plan</h1>
-      <p class="subscription-subtitle">Select the perfect plan for your streaming needs</p>
-    </div>
+{% block content %}
 
-    <!-- Current Plan Info -->
-    {% if active_subscription %}
-      <div class="current-plan-info">
-        <div class="current-plan-badge">
-          <div class="current-plan-title">
-            <i class="bi bi-check-circle"></i>
-            Current Plan: <strong>{{ active_subscription.get_plan_type_display }}</strong>
-          </div>
-          <div class="current-plan-details">
-            <div class="plan-detail-item">
-              <i class="bi bi-hdd"></i>
-              <span><strong>Storage:</strong> {{ active_subscription.get_storage_limit_display }} GB</span>
-            </div>
-            <div class="plan-detail-item">
-              <i class="bi bi-calendar-event"></i>
-              <span><strong>Expires:</strong> {{ active_subscription.end_date|date:"M d, Y" }}</span>
-            </div>
-            <div class="plan-detail-item">
-              <i class="bi bi-check2-circle"></i>
-              <span><strong>Status:</strong> Active</span>
-            </div>
-          </div>
-        </div>
-      </div>
+<!-- Page Hero -->
+<div class="sub-hero">
+  <div class="section-label">StreamLoop Plans</div>
+  <h1>Choose Your Plan</h1>
+  <p>Select the perfect plan for your 24/7 streaming needs</p>
+</div>
+
+<!-- Current Plan Banner -->
+{% if active_subscription %}
+<div class="current-plan-banner">
+  <div class="cpb-label">
+    <i class="bi bi-check-circle-fill"></i>
+    Active Plan — <strong>{{ active_subscription.get_plan_type_display }}</strong>
+  </div>
+  <div class="cpb-details">
+    <span><i class="bi bi-hdd"></i> Storage: <strong>{{ active_subscription.get_storage_limit_display }} GB</strong></span>
+    <span><i class="bi bi-calendar-event"></i> Renews: <strong>{{ active_subscription.end_date|date:"M d, Y" }}</strong></span>
+    <span><i class="bi bi-lightning-charge"></i> <strong>Active</strong></span>
+  </div>
+</div>
+{% endif %}
+
+<!-- Plans Grid -->
+<div class="plans-grid">
+
+  <!-- One Day Plan -->
+  <div class="plan-card {% if active_subscription.plan_type == 'oneday' and active_subscription.is_active %}is-current{% endif %} delay-1">
+    {% if active_subscription.plan_type == 'oneday' and active_subscription.is_active %}
+      <span class="plan-floating-badge pfb-current"><i class="bi bi-check2"></i> Current</span>
     {% endif %}
-
-    <!-- Plans Grid -->
-    <div class="plans-grid">
-      <!-- One Day Plan -->
-      <div class="plan-card {% if active_subscription.plan_type == 'oneday' %}active{% endif %}" >
-        {% if active_subscription.plan_type == 'oneday' and active_subscription.is_active %}
-          <div class="plan-badge">Current Plan</div>
-        {% endif %}
-
-        <div class="plan-header" >
-          {% if active_subscription.plan_type == 'oneday' and active_subscription.is_active %}
-            <div class="current-plan-label">
-              <i class="bi bi-check-circle"></i> Active
-            </div>
-          {% endif %}
-          <div class="plan-name">📅 One Day Plan</div>
-          <div class="plan-price">₹49<small>/day</small></div>
-        </div>
-
-        <ul class="plan-features">
-          <li><span class="feature-highlight">1 Stream</span> at a time</li>
-          <li><i class="bi bi-hdd"></i> <span class="feature-highlight">0.5 GB</span> Storage</li>
-          <li><i class="bi bi-play-circle"></i> YouTube Integration</li>
-          <li><i class="bi bi-headset"></i> Priority Support</li>
-          <li><i class="bi bi-arrow-repeat"></i> Daily Renewal</li>
-        </ul>
-
-        <div class="plan-action">
-          {% if active_subscription.plan_type == 'oneday' and active_subscription.is_active %}
-            <button class="btn-subscribe btn-subscribe-secondary" disabled>
-              <i class="bi bi-check2"></i> Current Plan
-            </button>
-          {% else %}
-            <a href="{% url 'create_order' 'oneday' %}" class="btn-subscribe btn-subscribe-primary">
-              <i class="bi bi-credit-card"></i> Subscribe Now
-            </a>
-          {% endif %}
-        </div>
-      </div>
-
-      <!-- Monthly Plan -->
-      <div class="plan-card {% if active_subscription.plan_type == 'monthly' %}active{% endif %}">
-        {% if active_subscription.plan_type == 'monthly' and active_subscription.is_active %}
-          <div class="plan-badge">Current Plan</div>
-        {% endif %}
-
-        <div class="plan-header" >
-          {% if active_subscription.plan_type == 'monthly' and active_subscription.is_active %}
-            <div class="current-plan-label">
-              <i class="bi bi-check-circle"></i> Active
-            </div>
-          {% endif %}
-          <div class="plan-name">📅 Monthly Plan</div>
-          <div class="plan-price">₹499<small>/month</small></div>
-        </div>
-
-        <ul class="plan-features">
-          <li><span class="feature-highlight">1 Stream</span> at a time</li>
-          <li><i class="bi bi-hdd"></i> <span class="feature-highlight">1 GB</span> Storage</li>
-          <li><i class="bi bi-play-circle"></i> YouTube Integration</li>
-          <li><i class="bi bi-headset"></i> Priority Support</li>
-          <li><i class="bi bi-arrow-repeat"></i> Monthly Renewal</li>
-        </ul>
-
-        <div class="plan-action">
-          {% if active_subscription.plan_type == 'monthly' and active_subscription.is_active %}
-            <button class="btn-subscribe btn-subscribe-secondary" disabled>
-              <i class="bi bi-check2"></i> Current Plan
-            </button>
-          {% else %}
-            <a href="{% url 'create_order' 'monthly' %}" class="btn-subscribe btn-subscribe-primary">
-              <i class="bi bi-credit-card"></i> Subscribe Now
-            </a>
-          {% endif %}
-        </div>
-      </div>
-
-      <!-- Annual Plan -->
-      <div class="plan-card {% if active_subscription.plan_type == 'annual' %}active{% endif %}">
-        {% if active_subscription.plan_type == 'annual' and active_subscription.is_active %}
-          <div class="plan-badge">Current Plan</div>
-        {% endif %}
-
-        <div class="plan-header">
-          {% if active_subscription.plan_type == 'annual' and active_subscription.is_active %}
-            <div class="current-plan-label">
-              <i class="bi bi-check-circle"></i> Active
-            </div>
-          {% endif %}
-          <div class="plan-name">⭐ Annual Plan</div>
-          <div class="plan-price">₹3,999<small>/year</small></div>
-        </div>
-
-        <ul class="plan-features">
-          <li><span class="feature-highlight">Up to 3 Streams</span> at a time</li>
-          <li><i class="bi bi-hdd"></i> <span class="feature-highlight">2 GB</span> Storage</li>
-          <li><i class="bi bi-play-circle"></i> YouTube Integration</li>
-          <li><i class="bi bi-headset"></i> Priority Support</li>
-          <li><i class="bi bi-percent"></i> <span class="feature-highlight">Save 17%</span> vs Monthly</li>
-        </ul>
-
-        <div class="plan-action">
-          {% if active_subscription.plan_type == 'annual' and active_subscription.is_active %}
-            <button class="btn-subscribe btn-subscribe-secondary" disabled>
-              <i class="bi bi-check2"></i> Current Plan
-            </button>
-          {% else %}
-            <a href="{% url 'create_order' 'annual' %}" class="btn btn-primary">Subscribe Now</a>
-          {% endif %}
-        </div>
-      </div>
+    <div class="plan-header">
+      <span class="plan-icon">📅</span>
+      <div class="plan-name">One Day</div>
+      <div class="plan-price"><sup>₹</sup>49</div>
+      <div class="plan-price-period">per day</div>
     </div>
-
-    <!-- FAQ Section -->
-    <div class="faq-container">
-      <h2 class="faq-title">
-        <i class="bi bi-question-circle"></i> Frequently Asked Questions
-      </h2>
-
-      <div class="faq-item">
-        <div class="faq-question">
-          <i class="bi bi-arrow-up-right"></i> Can I upgrade from Monthly to Annual?
-        </div>
-        <div class="faq-answer">
-          Yes, you can upgrade from monthly to annual at any time. You'll be credited for the unused portion of your monthly plan and the difference will be charged for the annual plan.
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question">
-          <i class="bi bi-exclamation-triangle"></i> What happens if I exceed my storage limit?
-        </div>
-        <div class="faq-answer">
-          You won't be able to upload new media files until you free up storage by deleting existing files or upgrading to a plan with more storage capacity.
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question">
-          <i class="bi bi-x-circle"></i> Can I cancel my subscription?
-        </div>
-        <div class="faq-answer">
-          Yes, you can cancel anytime from your account settings. Your access will continue until the end of your current billing period. No refunds are issued for partial months.
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question">
-          <i class="bi bi-shield-check"></i> Is my data secure?
-        </div>
-        <div class="faq-answer">
-          Absolutely! All your media files are encrypted and stored securely on our servers. We use industry-standard security protocols to protect your data at all times.
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <div class="faq-question">
-          <i class="bi bi-info-circle"></i> What happens when my subscription expires?
-        </div>
-        <div class="faq-answer">
-          When your subscription expires, you'll receive email reminders before it ends. After expiration, your streams will be paused. You'll need to renew your subscription to resume streaming.
-        </div>
-      </div>
-
-      <!-- Payment Methods -->
-      <div class="payment-methods">
-        <div class="payment-methods-title">
-          <i class="bi bi-credit-card"></i> Accepted Payment Methods
-        </div>
-        <div class="payment-methods-list">
-          <div class="payment-method-item">
-            <i class="bi bi-credit-card-2-front"></i> Credit/Debit Cards
-          </div>
-          <div class="payment-method-item">
-            <i class="bi bi-phone"></i> UPI
-          </div>
-          <div class="payment-method-item">
-            <i class="bi bi-bank"></i> Net Banking
-          </div>
-          <div class="payment-method-item">
-            <i class="bi bi-wallet2"></i> Digital Wallets
-          </div>
-        </div>
-        <p style="color: #718096; font-size: 0.85rem; margin-top: 1rem; margin-bottom: 0;">
-          <strong>Powered by Razorpay</strong> - Secure payment processing with advanced fraud protection
-        </p>
-      </div>
+    <ul class="plan-features">
+      <li><i class="bi bi-broadcast"></i> <span><span class="feat-hi">1 Stream</span> at a time</span></li>
+      <li><i class="bi bi-hdd"></i> <span><span class="feat-hi">0.5 GB</span> Storage</span></li>
+      <li><i class="bi bi-youtube"></i> <span>YouTube Integration</span></li>
+      <li><i class="bi bi-headset"></i> <span>Priority Support</span></li>
+      <li><i class="bi bi-arrow-repeat"></i> <span>Daily Renewal</span></li>
+    </ul>
+    <div class="plan-cta">
+      {% if active_subscription.plan_type == 'oneday' and active_subscription.is_active %}
+        <button class="btn-plan btn-plan-current" disabled>
+          <i class="bi bi-check-circle"></i> Current Plan
+        </button>
+      {% else %}
+        <a href="{% url 'create_order' 'oneday' %}" class="btn-plan btn-plan-primary">
+          <i class="bi bi-credit-card"></i> Subscribe Now
+        </a>
+      {% endif %}
     </div>
+  </div>
+
+  <!-- Monthly Plan -->
+  <div class="plan-card {% if active_subscription.plan_type == 'monthly' and active_subscription.is_active %}is-current{% else %}is-featured{% endif %} delay-2">
+    {% if active_subscription.plan_type == 'monthly' and active_subscription.is_active %}
+      <span class="plan-floating-badge pfb-current"><i class="bi bi-check2"></i> Current</span>
+    {% else %}
+      <span class="plan-floating-badge pfb-popular"><i class="bi bi-fire"></i> Popular</span>
+    {% endif %}
+    <div class="plan-header">
+      <span class="plan-icon">🗓️</span>
+      <div class="plan-name">Monthly</div>
+      <div class="plan-price"><sup>₹</sup>499</div>
+      <div class="plan-price-period">per month</div>
+    </div>
+    <ul class="plan-features">
+      <li><i class="bi bi-broadcast"></i> <span><span class="feat-hi">1 Stream</span> at a time</span></li>
+      <li><i class="bi bi-hdd"></i> <span><span class="feat-hi">1 GB</span> Storage</span></li>
+      <li><i class="bi bi-youtube"></i> <span>YouTube Integration</span></li>
+      <li><i class="bi bi-headset"></i> <span>Priority Support</span></li>
+      <li><i class="bi bi-arrow-repeat"></i> <span>Monthly Renewal</span></li>
+    </ul>
+    <div class="plan-cta">
+      {% if active_subscription.plan_type == 'monthly' and active_subscription.is_active %}
+        <button class="btn-plan btn-plan-current" disabled>
+          <i class="bi bi-check-circle"></i> Current Plan
+        </button>
+      {% else %}
+        <a href="{% url 'create_order' 'monthly' %}" class="btn-plan btn-plan-primary">
+          <i class="bi bi-credit-card"></i> Subscribe Now
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Annual Plan -->
+  <div class="plan-card {% if active_subscription.plan_type == 'annual' and active_subscription.is_active %}is-current{% endif %} delay-3">
+    {% if active_subscription.plan_type == 'annual' and active_subscription.is_active %}
+      <span class="plan-floating-badge pfb-current"><i class="bi bi-check2"></i> Current</span>
+    {% endif %}
+    <div class="plan-header">
+      <span class="plan-icon">⭐</span>
+      <div class="plan-name">Annual</div>
+      <div class="plan-price"><sup>₹</sup>3,999</div>
+      <div class="plan-price-period">per year · save 17%</div>
+    </div>
+    <ul class="plan-features">
+      <li><i class="bi bi-broadcast"></i> <span><span class="feat-hi">Up to 3 Streams</span> at a time</span></li>
+      <li><i class="bi bi-hdd"></i> <span><span class="feat-hi">2 GB</span> Storage</span></li>
+      <li><i class="bi bi-youtube"></i> <span>YouTube Integration</span></li>
+      <li><i class="bi bi-headset"></i> <span>Priority Support</span></li>
+      <li><i class="bi bi-percent"></i> <span><span class="feat-hi">Save 17%</span> vs Monthly</span></li>
+    </ul>
+    <div class="plan-cta">
+      {% if active_subscription.plan_type == 'annual' and active_subscription.is_active %}
+        <button class="btn-plan btn-plan-current" disabled>
+          <i class="bi bi-check-circle"></i> Current Plan
+        </button>
+      {% else %}
+        <a href="{% url 'create_order' 'annual' %}" class="btn-plan btn-plan-primary">
+          <i class="bi bi-credit-card"></i> Subscribe Now
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+<!-- FAQ Section -->
+<div class="faq-section">
+  <div class="section-label">FAQ</div>
+  <h2>Frequently Asked Questions</h2>
+  <div class="faq-list">
+    <div class="faq-item">
+      <div class="faq-q"><i class="bi bi-arrow-up-right-circle"></i> Can I upgrade from Monthly to Annual?</div>
+      <p class="faq-a">Yes, you can upgrade at any time. Unused days from your current plan will be credited and the difference will be charged for the annual plan.</p>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q"><i class="bi bi-exclamation-triangle"></i> What happens if I exceed my storage limit?</div>
+      <p class="faq-a">New uploads will be blocked until you free up space by deleting existing files or upgrading to a plan with higher storage capacity.</p>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q"><i class="bi bi-x-circle"></i> Can I cancel my subscription?</div>
+      <p class="faq-a">Yes, cancel anytime from your account settings. Access continues until the end of your billing period. No partial-month refunds are issued.</p>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q"><i class="bi bi-shield-lock"></i> Is my data secure?</div>
+      <p class="faq-a">Absolutely. All media files are encrypted and stored on hardened servers using industry-standard security protocols.</p>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q"><i class="bi bi-clock-history"></i> What happens when my subscription expires?</div>
+      <p class="faq-a">You'll receive email reminders before expiry. After expiration your streams are paused until you renew — your data is never deleted.</p>
+    </div>
+  </div>
+
+  <!-- Payment Methods -->
+  <div class="payment-methods-card">
+    <div class="pm-title"><i class="bi bi-credit-card"></i> Accepted Payment Methods</div>
+    <div class="pm-chips">
+      <div class="pm-chip"><i class="bi bi-credit-card-2-front"></i> Credit / Debit Cards</div>
+      <div class="pm-chip"><i class="bi bi-phone"></i> UPI</div>
+      <div class="pm-chip"><i class="bi bi-bank"></i> Net Banking</div>
+      <div class="pm-chip"><i class="bi bi-wallet2"></i> Digital Wallets</div>
+    </div>
+    <p class="pm-note"><strong>Powered by Razorpay</strong> — Secure processing with advanced fraud protection.</p>
   </div>
 </div>
 
