@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from decouple import config
 
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -67,7 +67,7 @@ if ENVIRONMENT == 'production':
             'PASSWORD': config('DB_PASSWORD', default='postgres'),
             'HOST': config('DB_HOST', default='localhost'),
             'PORT': config('DB_PORT', default='5432'),
-            'OPTIONS': {'sslmode': 'require'},
+            'OPTIONS': {'connect_timeout': 10},
             # Connection pooling — important for long-running Celery workers
             'CONN_MAX_AGE': 60,
         }
@@ -176,8 +176,8 @@ GOOGLE_SCOPES = [
 RAZORPAY_KEY_ID = config('RAZORPAY_KEY_ID')
 RAZORPAY_KEY_SECRET = config('RAZORPAY_KEY_SECRET')
 
-# ============ FFMPEG ============
-FFMPEG_PATH = config('FFMPEG_PATH', default='')
+# ✅ Keep only this one at the bottom
+FFMPEG_PATH = config('FFMPEG_PATH', default='/usr/bin/ffmpeg')
 
 # ============ SUBSCRIPTION PLANS ============
 SUBSCRIPTION_PLANS = {
