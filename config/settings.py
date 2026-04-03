@@ -160,6 +160,12 @@ CACHES = {
 if ENVIRONMENT == 'production':
     SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
     SESSION_CACHE_ALIAS = 'default'
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000
+    USE_X_FORWARDED_HOST = True
 else:
     SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
