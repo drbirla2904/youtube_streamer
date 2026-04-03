@@ -86,7 +86,7 @@ app.conf.worker_prefetch_multiplier = 1
 
 # Recycle streaming workers after every task so sub-processes (FFmpeg,
 # yt-dlp) don't accumulate in long-lived workers.
-app.conf.worker_max_tasks_per_child = 1
+
 
 # Keep result data for 6 hours (stream tasks produce minimal output)
 app.conf.result_expires = 6 * 3600
