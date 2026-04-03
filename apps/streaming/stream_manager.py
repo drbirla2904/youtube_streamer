@@ -1152,20 +1152,3 @@ def stop_stream_task(stream_id):
         return False
 
 
-@shared_task
-def cleanup_orphaned_broadcasts():
-    try:
-        Stream = apps.get_model('streaming', 'Stream')
-        for stream in Stream.objects.filter(
-            status__in=['error', 'stopped']
-        ).exclude(broadcast_id=''):
-            try:
-                mgr = StreamManager(stream)
-                if mgr.authenticate_youtube():
-                    mgr._end_youtube_broadcast()
-                    stream.broadcast_id = ''
-                    stream.save(update_fields=['broadcast_id'])
-            except Exception as e:
-                logger.warning(f"Cleanup failed for {stream.id}: {e}")
-    except Exception as e:
-        logger.error(f"Cleanup task failed: {e}")
