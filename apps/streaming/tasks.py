@@ -125,6 +125,24 @@ def check_stream_health():
     logger.info("Checked health of %d streams", running_streams.count())
     return f"Checked {running_streams.count()} streams"
 
+@shared_task
+def cleanup_orphaned_broadcasts():
+    try:
+        Stream = apps.get_model('streaming', 'Stream')
+        for stream in Stream.objects.filter(
+            status__in=['error', 'stopped']
+        ).exclude(broadcast_id=''):
+            try:
+                mgr = StreamManager(stream)
+                if mgr.authenticate_youtube():
+                    mgr._end_youtube_broadcast()
+                    stream.broadcast_id = ''
+                    stream.save(update_fields=['broadcast_id'])
+            except Exception as e:
+                logger.warning(f"Cleanup failed for {stream.id}: {e}")
+    except Exception as e:
+        logger.error(f"Cleanup task failed: {e}")
+
 
 @shared_task
 def cleanup_old_logs():
