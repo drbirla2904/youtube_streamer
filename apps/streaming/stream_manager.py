@@ -149,45 +149,44 @@ def _ytdlp_base_cmd() -> List[str]:
 # ============ PLATFORM-LEVEL yt-dlp AUTH ============
 
 def get_ytdlp_auth_args() -> List[str]:
+    """
+    Priority order:
+    1. OAuth2 token (permanent, auto-refreshes) ← preferred
+    2. Cookies file (fallback, expires)
+    3. No auth (will likely fail on VPS IPs)
+    """
     args = []
 
-    cookies_file = os.path.join(settings.BASE_DIR, 'yt-cookies.txt')
-    if os.path.exists(cookies_file):
-        logger.info(f"🎯 Using cookies file: {cookies_file}")
-        args += ['--cookies', cookies_file]
-        args += ['--ies', 'default,-youtube+oauth2']
-    elif os.path.exists(YTDLP_TOKEN_FILE):
+    # ── 1. OAuth2 token (permanent) ──────────────────────────────────────────
+    if os.path.exists(YTDLP_TOKEN_FILE):
         logger.debug(f"Using platform OAuth2 token: {YTDLP_TOKEN_FILE}")
         args += ['--username', 'oauth2', '--password', '']
-    else:
-        logger.warning(
-            "⚠️  No auth method available. YouTube downloads may fail.\n"
-            "   Run: python manage.py setup_ytdlp_auth"
-        )
+        args += ['--extractor-args', 'youtube:player_client=tv_embedded']
+        return args  # OAuth2 is enough, no cookies needed
 
-    proxy_url = os.getenv('YTDLP_PROXY', '').strip()
-    if proxy_url:
-        args += ['--proxy', proxy_url]
+    # ── 2. Cookies fallback ──────────────────────────────────────────────────
+    cookies_file = os.path.join(settings.BASE_DIR, 'yt-cookies.txt')
+    if os.path.exists(cookies_file) and os.path.getsize(cookies_file) > 100:
+        logger.info(f"🎯 Using cookies file: {cookies_file}")
+        args += ['--cookies', cookies_file]
+        args += ['--extractor-args', 'youtube:player_client=tv_embedded']
+        return args
 
-    args += ['--extractor-args', 'youtube:player_client=android_vr']
-
-    cookies_browser = os.getenv('YTDLP_COOKIES_FROM_BROWSER', '').strip()
-    if cookies_browser:
-        args += ['--cookies-from-browser', cookies_browser]
-
+    # ── 3. No auth ───────────────────────────────────────────────────────────
+    logger.warning(
+        "⚠️  No auth configured. Run: python manage.py setup_ytdlp_auth"
+    )
+    args += ['--extractor-args', 'youtube:player_client=tv_embedded']
     return args
-
 
 def ytdlp_auth_is_configured() -> bool:
     if os.path.exists(YTDLP_TOKEN_FILE):
         return True
-    alt_paths = [
-        os.path.expanduser('~/.config/yt-dlp/youtube-oauth2.json'),
-        os.path.expanduser('~/.local/share/yt-dlp/youtube-oauth2.json'),
-    ]
-    for alt_path in alt_paths:
-        if os.path.exists(alt_path):
-            return True
+    cookies_file = os.path.join(settings.BASE_DIR, 'yt-cookies.txt')
+    if os.path.exists(cookies_file) and os.path.getsize(cookies_file) > 100:
+        return True
+    # Warn but don't block — let it attempt and fail with clear logs
+    logger.warning("⚠️  No yt-dlp auth configured.")
     return False
 
 
