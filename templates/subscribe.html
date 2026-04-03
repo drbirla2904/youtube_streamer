@@ -361,8 +361,9 @@
 
 <!-- Plans Grid -->
 <div class="plans-grid">
-
+   
   <!-- One Day Plan -->
+  <!--
   <div class="plan-card {% if active_subscription.plan_type == 'oneday' and active_subscription.is_active %}is-current{% endif %} delay-1">
     {% if active_subscription.plan_type == 'oneday' and active_subscription.is_active %}
       <span class="plan-floating-badge pfb-current"><i class="bi bi-check2"></i> Current</span>
@@ -392,7 +393,7 @@
       {% endif %}
     </div>
   </div>
-
+   -->
   <!-- Monthly Plan -->
   <div class="plan-card {% if active_subscription.plan_type == 'monthly' and active_subscription.is_active %}is-current{% else %}is-featured{% endif %} delay-2">
     {% if active_subscription.plan_type == 'monthly' and active_subscription.is_active %}
