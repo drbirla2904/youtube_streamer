@@ -150,33 +150,24 @@ def _ytdlp_base_cmd() -> List[str]:
 
 def get_ytdlp_auth_args() -> List[str]:
     args = []
-
     cookies_file = os.path.join(settings.BASE_DIR, 'yt-cookies.txt')
-    if os.path.exists(cookies_file):
-        logger.info(f"🎯 Using cookies file: {cookies_file}")
+    if os.path.exists(cookies_file) and os.path.getsize(cookies_file) > 100:
+        logger.info(f"🎯 Using cookies: {cookies_file}")
         args += ['--cookies', cookies_file]
-        args += ['--ies', 'default,-youtube+oauth2']
-    elif os.path.exists(YTDLP_TOKEN_FILE):
-        logger.debug(f"Using platform OAuth2 token: {YTDLP_TOKEN_FILE}")
-        args += ['--username', 'oauth2', '--password', '']
     else:
-        logger.warning(
-            "⚠️  No auth method available. YouTube downloads may fail.\n"
-            "   Run: python manage.py setup_ytdlp_auth"
-        )
+        logger.error("❌ No cookies file found.")
+
+    args += [
+        '--js-runtimes',       'node:/usr/bin/node',
+        '--remote-components', 'ejs:github',
+        '--extractor-args',    'youtube:player_client=web',
+    ]
 
     proxy_url = os.getenv('YTDLP_PROXY', '').strip()
     if proxy_url:
         args += ['--proxy', proxy_url]
 
-    args += ['--extractor-args', 'youtube:player_client=android_vr']
-
-    cookies_browser = os.getenv('YTDLP_COOKIES_FROM_BROWSER', '').strip()
-    if cookies_browser:
-        args += ['--cookies-from-browser', cookies_browser]
-
     return args
-
 
 def ytdlp_auth_is_configured() -> bool:
     if os.path.exists(YTDLP_TOKEN_FILE):
