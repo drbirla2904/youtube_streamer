@@ -244,6 +244,15 @@ def stream_create(request):
             daily_start_time     = ''
             daily_end_time       = ''
             stream_status        = 'idle'
+            
+            from django.utils import timezone as tz
+            import pytz
+
+            user_tz_str = request.POST.get('user_timezone', 'UTC').strip()
+            try:
+                user_tz = pytz.timezone(user_tz_str)
+            except Exception:
+                user_tz = pytz.UTC
 
             if schedule_type == 'once':
                 start_str = request.POST.get('once_start_time', '').strip()
@@ -251,21 +260,21 @@ def stream_create(request):
 
                 if start_str:
                     try:
-                        scheduled_start_time = datetime.fromisoformat(start_str)
-                        if scheduled_start_time.tzinfo is None:
-                            scheduled_start_time = timezone.make_aware(scheduled_start_time)
+                        # datetime-local sends naive local time — attach user's tz then convert to UTC
+                        naive_dt = datetime.fromisoformat(start_str)
+                        scheduled_start_time = user_tz.localize(naive_dt).astimezone(pytz.UTC)
                         stream_status = 'scheduled'
-                    except Exception:
-                        messages.warning(request, "Invalid start time — stream created in idle state")
+                    except Exception as e:
+                        logger.error(f"Failed to parse once_start_time: {e}")
+                        messages.warning(request, "Invalid start time")
 
                 if end_str:
                     try:
-                        scheduled_end_time = datetime.fromisoformat(end_str)
-                        if scheduled_end_time.tzinfo is None:
-                            scheduled_end_time = timezone.make_aware(scheduled_end_time)
+                        naive_dt = datetime.fromisoformat(end_str)
+                        scheduled_end_time = user_tz.localize(naive_dt).astimezone(pytz.UTC)
                     except Exception:
                         pass
-
+    
             elif schedule_type == 'daily':
                 daily_start_time = request.POST.get('daily_start_time', '').strip()
                 daily_end_time   = request.POST.get('daily_end_time', '').strip()
@@ -295,6 +304,7 @@ def stream_create(request):
             )
 
             if stream_status == 'scheduled':
+                
                 messages.success(request, f'Stream "{title}" scheduled!')
             else:
                 messages.success(request, f'Stream "{title}" created!')
