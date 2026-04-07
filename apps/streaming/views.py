@@ -1,4 +1,4 @@
-﻿from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
@@ -12,6 +12,7 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from django.conf import settings
 from django.core.cache import cache
+from django.utils import timezone
 from datetime import datetime, timedelta
 import os
 import json
@@ -27,6 +28,7 @@ from .stream_manager import StreamManager, get_temp_dir_for_stream
 from google.auth.transport.requests import Request
 
 logger = logging.getLogger(__name__)
+
 
 # ============ HELPERS ============
 
@@ -129,7 +131,7 @@ def connect_youtube(request):
 @login_required
 def oauth_callback(request):
     try:
-        url_state = request.GET.get('state')
+        url_state     = request.GET.get('state')
         session_state = request.session.get('oauth_state')
         if not url_state or url_state != session_state:
             logger.warning(f"OAuth CSRF detected for user {request.user.id}")
@@ -159,18 +161,18 @@ def oauth_callback(request):
         ).execute()
 
         if channel_response['items']:
-            channel = channel_response['items'][0]
-            channel_id = channel['id']
+            channel       = channel_response['items'][0]
+            channel_id    = channel['id']
             channel_title = channel['snippet']['title']
             YouTubeAccount.objects.update_or_create(
                 user=request.user,
                 channel_id=channel_id,
                 defaults={
                     'channel_title': channel_title,
-                    'access_token': credentials.token,
+                    'access_token':  credentials.token,
                     'refresh_token': credentials.refresh_token,
-                    'token_expiry': credentials.expiry,
-                    'is_active': True
+                    'token_expiry':  credentials.expiry,
+                    'is_active':     True,
                 }
             )
             logger.info(f'YouTube connected: {channel_id} user={request.user.id}')
@@ -198,7 +200,6 @@ def stream_list(request):
 @login_required
 @transaction.atomic
 def stream_create(request):
-    
     youtube_accounts = YouTubeAccount.objects.filter(user=request.user, is_active=True)
     if not youtube_accounts.exists():
         messages.error(request, 'Connect YouTube first')
@@ -215,40 +216,63 @@ def stream_create(request):
                 maxResults=50
             ).execute()
             playlists = [{
-                'id': p['id'],
-                'title': p['snippet']['title'],
+                'id':          p['id'],
+                'title':       p['snippet']['title'],
                 'video_count': int(p['contentDetails']['itemCount']),
-                'thumbnail': p['snippet']['thumbnails']['medium']['url']
+                'thumbnail':   p['snippet']['thumbnails']['medium']['url']
             } for p in response.get('items', [])]
         except Exception as e:
             logger.error(f"Playlist fetch error: {e}")
 
     if request.method == 'POST':
         try:
-            title = request.POST.get('title', '').strip()
-            description = request.POST.get('description', '')
+            title              = request.POST.get('title', '').strip()
+            description        = request.POST.get('description', '')
             youtube_account_id = request.POST.get('youtube_account')
-            playlist_id = request.POST.get('playlist_id', '').strip()
-            scheduled_start_time_str = request.POST.get('scheduled_start_time', '').strip()
+            playlist_id        = request.POST.get('playlist_id', '').strip()
+            schedule_type      = request.POST.get('schedule_type', 'now')
+            auto_upload        = request.POST.get('auto_upload_after_end') == 'on'
+            loop_enabled       = request.POST.get('loop_enabled') == 'on'
 
             youtube_account = YouTubeAccount.objects.get(
                 id=youtube_account_id, user=request.user
             )
 
+            # ── Parse schedule fields ─────────────────────────────────────────
             scheduled_start_time = None
-            stream_status = 'idle'
+            scheduled_end_time   = None
+            daily_start_time     = ''
+            daily_end_time       = ''
+            stream_status        = 'idle'
 
-            if scheduled_start_time_str:
-                try:
-                    scheduled_start_time = datetime.fromisoformat(scheduled_start_time_str)
-                    if scheduled_start_time.tzinfo is None:
-                        from django.utils import timezone
-                        scheduled_start_time = timezone.make_aware(scheduled_start_time)
+            if schedule_type == 'once':
+                start_str = request.POST.get('once_start_time', '').strip()
+                end_str   = request.POST.get('once_end_time', '').strip()
+
+                if start_str:
+                    try:
+                        scheduled_start_time = datetime.fromisoformat(start_str)
+                        if scheduled_start_time.tzinfo is None:
+                            scheduled_start_time = timezone.make_aware(scheduled_start_time)
+                        stream_status = 'scheduled'
+                    except Exception:
+                        messages.warning(request, "Invalid start time — stream created in idle state")
+
+                if end_str:
+                    try:
+                        scheduled_end_time = datetime.fromisoformat(end_str)
+                        if scheduled_end_time.tzinfo is None:
+                            scheduled_end_time = timezone.make_aware(scheduled_end_time)
+                    except Exception:
+                        pass
+
+            elif schedule_type == 'daily':
+                daily_start_time = request.POST.get('daily_start_time', '').strip()
+                daily_end_time   = request.POST.get('daily_end_time', '').strip()
+                if daily_start_time:
                     stream_status = 'scheduled'
-                except Exception as e:
-                    logger.error(f"Failed to parse scheduled time: {e}")
-                    messages.warning(request, "Invalid scheduled time, creating in idle state")
 
+            # ── Create stream ─────────────────────────────────────────────────
             stream = Stream.objects.create(
                 user=request.user,
                 youtube_account=youtube_account,
@@ -257,11 +281,17 @@ def stream_create(request):
                 playlist_videos=[{
                     "youtube_playlist_id": playlist_id,
                     "title": f"YouTube Playlist: {playlist_id}",
-                    "videos_fetched": False
+                    "videos_fetched": False,
                 }],
                 thumbnail=request.FILES.get('thumbnail'),
+                loop_enabled=loop_enabled,
                 status=stream_status,
-                scheduled_start_time=scheduled_start_time
+                schedule_type=schedule_type,
+                scheduled_start_time=scheduled_start_time,
+                scheduled_end_time=scheduled_end_time,
+                daily_start_time=daily_start_time,
+                daily_end_time=daily_end_time,
+                auto_upload_after_end=auto_upload,
             )
 
             if stream_status == 'scheduled':
@@ -283,34 +313,18 @@ def stream_create(request):
 @login_required
 def stream_detail(request, stream_id):
     stream = get_object_or_404(Stream, id=stream_id, user=request.user)
-    logs = stream.logs.all()[:50]
+    logs   = stream.logs.all()[:50]
     return render(request, 'streaming/stream_detail.html', {
         'stream': stream,
-        'logs': logs,
+        'logs':   logs,
     })
 
 
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-# THE FIX:
-#   Original code had:
-#       @ratelimit(key='user', rate='5/h', method='POST')   â† only blocked POST
-#       @login_required                                       â† duplicate decorator
-#   The template uses <a href="{% url 'stream_start' %}">    â† sends a GET request
-#
-#   Django's @ratelimit with method='POST' does NOT block GET, but the
-#   interaction with @login_required ordering caused a 403 on some Django
-#   versions.  More importantly the template was never using a form/POST,
-#   so the view needs to accept GET.
-#
-#   Fix: remove @require_POST, remove duplicate @login_required, set
-#   ratelimit to method='ALL' so it counts every visit regardless of method.
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 @login_required
 @ratelimit(key='user', rate='5/h', method='ALL', block=True)
 @transaction.atomic
 def stream_start(request, stream_id):
-    """Start a stream (called via plain GET link from stream_detail template)"""
-
+    """Start a stream."""
     subscription = Subscription.objects.filter(
         user=request.user, is_active=True
     ).select_for_update().first()
@@ -354,8 +368,7 @@ def stream_start(request, stream_id):
             raise Exception("Failed to start streaming process")
 
         StreamLog.objects.create(
-            stream=stream,
-            level='INFO',
+            stream=stream, level='INFO',
             message='Stream started successfully'
         )
         messages.success(request, 'Stream started successfully!')
@@ -365,8 +378,7 @@ def stream_start(request, stream_id):
         stream.error_message = str(e)
         stream.save()
         StreamLog.objects.create(
-            stream=stream,
-            level='ERROR',
+            stream=stream, level='ERROR',
             message=f'Failed to start stream: {str(e)}'
         )
         messages.error(request, f'Failed to start stream: {str(e)}')
@@ -377,7 +389,7 @@ def stream_start(request, stream_id):
 @login_required
 @ratelimit(key='user', rate='5/h', method='ALL', block=True)
 def stream_stop(request, stream_id):
-    """Gracefully stop a running stream (called via plain GET link)"""
+    """Gracefully stop a running stream."""
     stream = get_object_or_404(Stream, id=stream_id, user=request.user)
 
     try:
@@ -389,15 +401,13 @@ def stream_stop(request, stream_id):
 
         if success:
             StreamLog.objects.create(
-                stream=stream,
-                level='INFO',
+                stream=stream, level='INFO',
                 message='Stream stopped gracefully'
             )
             messages.success(request, 'Stream stopped')
         else:
             StreamLog.objects.create(
-                stream=stream,
-                level='WARNING',
+                stream=stream, level='WARNING',
                 message='Stream stop encountered errors'
             )
             messages.warning(request, 'Stop command sent (check logs)')
@@ -452,8 +462,7 @@ def download_playlist_videos_view(request, stream_id):
         task = download_playlist_videos_async.delay(str(stream.id), max_videos)
         messages.success(request, f'Download started (Task ID: {task.id})')
         StreamLog.objects.create(
-            stream=stream,
-            level='INFO',
+            stream=stream, level='INFO',
             message=f'Started downloading playlist videos (max {max_videos})'
         )
         logger.info(f"Download task started for stream {stream.id}: {task.id}")
@@ -477,7 +486,7 @@ def media_upload_view(request):
 
     if request.method == 'POST':
         try:
-            file = request.FILES.get('file')
+            file  = request.FILES.get('file')
             title = request.POST.get('title', '').strip()
             validate_file_upload(file)
             has_storage, current, limit = has_storage_available(request.user, file.size)
@@ -500,26 +509,26 @@ def media_upload_view(request):
             logger.error(f"Upload failed: {e}")
             messages.error(request, f'Upload failed: {str(e)}')
 
-    current = get_user_storage_usage(request.user)
+    current   = get_user_storage_usage(request.user)
     available = subscription.storage_limit - current
     return render(request, 'streaming/media_upload.html', {
-        'storage_usage': format_bytes(current),
-        'storage_limit': format_bytes(subscription.storage_limit),
+        'storage_usage':     format_bytes(current),
+        'storage_limit':     format_bytes(subscription.storage_limit),
         'storage_available': format_bytes(available),
-        'storage_percent': (current / subscription.storage_limit) * 100,
+        'storage_percent':   (current / subscription.storage_limit) * 100,
     })
 
 
 @login_required
 def media_list_view(request):
-    media_files = MediaFile.objects.filter(user=request.user).order_by('-created_at')
+    media_files  = MediaFile.objects.filter(user=request.user).order_by('-created_at')
     subscription = Subscription.objects.filter(user=request.user, is_active=True).first()
-    current = get_user_storage_usage(request.user)
-    available = (subscription.storage_limit - current) if subscription else 0
+    current      = get_user_storage_usage(request.user)
+    available    = (subscription.storage_limit - current) if subscription else 0
     return render(request, 'streaming/media_list.html', {
-        'media_files': media_files,
-        'storage_usage': format_bytes(current),
-        'storage_limit': format_bytes(subscription.storage_limit) if subscription else 'N/A',
+        'media_files':       media_files,
+        'storage_usage':     format_bytes(current),
+        'storage_limit':     format_bytes(subscription.storage_limit) if subscription else 'N/A',
         'storage_available': format_bytes(available),
     })
 
@@ -548,10 +557,10 @@ def media_delete_view(request, media_id):
 def stream_status_api(request, stream_id):
     stream = get_object_or_404(Stream, id=stream_id, user=request.user)
     return JsonResponse({
-        'status': stream.status,
-        'started_at': stream.started_at.isoformat() if stream.started_at else None,
-        'uptime_seconds': stream.uptime_seconds,
-        'error_message': stream.error_message,
+        'status':           stream.status,
+        'started_at':       stream.started_at.isoformat() if stream.started_at else None,
+        'uptime_seconds':   stream.uptime_seconds,
+        'error_message':    stream.error_message,
         'is_process_alive': stream.is_process_alive(),
     })
 
@@ -562,17 +571,17 @@ def user_playlists_api(request):
     if not account:
         return JsonResponse({'playlists': []})
     try:
-        youtube = build('youtube', 'v3', credentials=account.get_credentials())
+        youtube   = build('youtube', 'v3', credentials=account.get_credentials())
         playlists = youtube.playlists().list(
             part='snippet,contentDetails',
             mine=True,
             maxResults=50
         ).execute()
         playlist_data = [{
-            'id': p['id'],
-            'title': p['snippet']['title'],
+            'id':          p['id'],
+            'title':       p['snippet']['title'],
             'video_count': int(p['contentDetails']['itemCount']),
-            'thumbnail': p['snippet']['thumbnails']['medium']['url']
+            'thumbnail':   p['snippet']['thumbnails']['medium']['url']
         } for p in playlists.get('items', [])]
         return JsonResponse({'playlists': playlist_data})
     except Exception as e:
@@ -586,15 +595,15 @@ def playlist_videos_api(request, playlist_id):
     if not account:
         return JsonResponse({'error': 'No YouTube account'}, status=400)
     try:
-        youtube = build('youtube', 'v3', credentials=account.get_credentials())
+        youtube         = build('youtube', 'v3', credentials=account.get_credentials())
         videos_response = youtube.playlistItems().list(
             part='snippet,contentDetails',
             playlistId=playlist_id,
             maxResults=50
         ).execute()
         videos = [{
-            'video_id': item['contentDetails']['videoId'],
-            'title': item['snippet']['title'],
+            'video_id':  item['contentDetails']['videoId'],
+            'title':     item['snippet']['title'],
             'thumbnail': item['snippet']['thumbnails'].get('medium', {}).get('url', ''),
         } for item in videos_response.get('items', [])]
         return JsonResponse({'videos': videos, 'count': len(videos)})
@@ -607,88 +616,80 @@ def playlist_videos_api(request, playlist_id):
 def fetch_playlist_task(request, playlist_id):
     return JsonResponse({'status': 'task_started'})
 
+
 @login_required
 def upload_cookies_view(request):
-    """
-    Upload/paste YouTube cookies.txt for yt-dlp bot-detection bypass.
-    """
     account = YouTubeAccount.objects.filter(user=request.user, is_active=True).first()
     if not account:
         messages.error(request, "Connect your YouTube account first.")
         return redirect("connect_youtube")
- 
+
     if request.method == "POST":
         cookies_content = request.POST.get("cookies_txt", "").strip()
-        uploaded_file = request.FILES.get("cookies_file")
- 
+        uploaded_file   = request.FILES.get("cookies_file")
+
         if uploaded_file:
             try:
                 cookies_content = uploaded_file.read().decode("utf-8").strip()
             except Exception as e:
                 messages.error(request, f"Could not read uploaded file: {e}")
                 return redirect("upload_cookies")
- 
+
         if not cookies_content:
             messages.error(request, "No cookies provided.")
             return redirect("upload_cookies")
- 
+
         if "youtube.com" not in cookies_content:
             messages.error(
                 request,
-                "Invalid cookies â€” must contain YouTube cookies. "
+                "Invalid cookies — must contain YouTube cookies. "
                 "Export while on youtube.com."
             )
             return redirect("upload_cookies")
- 
+
         account.cookies_txt = cookies_content
         account.save(update_fields=["cookies_txt"])
-        messages.success(request, "âœ… YouTube cookies saved! Playlist streaming will now work.")
+        messages.success(request, "✅ YouTube cookies saved! Playlist streaming will now work.")
         logger.info(f"Cookies uploaded for account {account.channel_id}")
         return redirect("upload_cookies")
- 
+
     return render(request, "streaming/upload_cookies.html", {
-        "account": account,
-        "has_cookies": account.has_cookies(),
+        "account":         account,
+        "has_cookies":     account.has_cookies(),
         "cookies_preview": (account.cookies_txt[:200] + "...") if account.has_cookies() else "",
     })
- 
- 
+
+
 @login_required
 def cookies_status_api(request):
-    """API: check if cookies are uploaded."""
     account = YouTubeAccount.objects.filter(user=request.user, is_active=True).first()
     return JsonResponse({
-        "has_cookies": account.has_cookies() if account else False,
+        "has_cookies":   account.has_cookies() if account else False,
         "channel_title": account.channel_title if account else None,
     })
+
 
 @login_required
 @require_POST
 def stream_update_thumbnail(request, stream_id):
-    """Update a stream's thumbnail image."""
-    stream = get_object_or_404(Stream, id=stream_id, user=request.user)
-    
+    stream         = get_object_or_404(Stream, id=stream_id, user=request.user)
     thumbnail_file = request.FILES.get('thumbnail')
     if not thumbnail_file:
         messages.error(request, 'No thumbnail file provided')
         return redirect('stream_detail', stream_id=stream.id)
-    
+
     try:
-        # Simple validation: check file type
         if not thumbnail_file.content_type.startswith('image/'):
             raise ValueError('File must be an image')
-        
-        # Delete old thumbnail if exists
         if stream.thumbnail:
             try:
                 stream.thumbnail.delete(save=False)
             except Exception:
                 pass
-        
         stream.thumbnail = thumbnail_file
         stream.save(update_fields=['thumbnail'])
         messages.success(request, 'Thumbnail updated successfully')
     except Exception as e:
         messages.error(request, f'Failed to update thumbnail: {str(e)}')
-    
+
     return redirect('stream_detail', stream_id=stream.id)
