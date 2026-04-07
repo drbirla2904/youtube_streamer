@@ -24,3 +24,4 @@ django-ratelimit
 python-magic-bin
 whitenoise==6.5.0
 yt-dlp
+pip install pytz
