@@ -550,7 +550,13 @@
 {% endblock %}
 
 {% block extra_js %}
+
 <script>
+// Auto-detect user's timezone and set hidden field
+try {
+  document.getElementById('user_timezone').value = Intl.DateTimeFormat().resolvedOptions().timeZone;
+} catch(e) {}
+  
 function getCookie(n) {
   let v = null;
   document.cookie.split(';').forEach(c => {
